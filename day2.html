@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Day 2 — CSS3 Foundations | Full Stack Placement Prep</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:        #0d0f14;
+      --surface:   #13161e;
+      --surface2:  #1a1e2a;
+      --border:    #252a38;
+      --accent:    #4facfe;
+      --accent2:   #a78bfa;
+      --accent3:   #34d399;
+      --text:      #e8eaf0;
+      --muted:     #7a8099;
+      --tag-bg:    #1e2230;
+      --code-bg:   #0a0c11;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.7; }
+
+    /* SIDEBAR */
+    .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; z-index: 100; padding: 24px 0; }
+    .sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    .sidebar-logo .day-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+    .sidebar-logo h2 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
+    .nav-section-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 12px 20px 6px; }
+    .nav-item { display: block; padding: 8px 20px; color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500; border-left: 2px solid transparent; transition: all 0.2s; }
+    .nav-item:hover, .nav-item.active { color: var(--text); background: var(--surface2); border-left-color: var(--accent); }
+
+    /* MAIN */
+    .main { margin-left: 240px; min-height: 100vh; }
+
+    /* HERO */
+    .hero { background: linear-gradient(135deg, #0d0f14 0%, #0f1520 50%, #0d0f14 100%); border-bottom: 1px solid var(--border); padding: 64px 60px 56px; position: relative; overflow: hidden; }
+    .hero::before { content: '{ }'; position: absolute; right: 60px; top: 50%; transform: translateY(-50%); font-family: 'JetBrains Mono', monospace; font-size: 140px; font-weight: 600; color: var(--border); line-height: 1; pointer-events: none; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+    .hero-eyebrow span { width: 24px; height: 1px; background: var(--accent); display: inline-block; }
+    .hero h1 { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero-sub { font-size: 17px; color: var(--muted); max-width: 520px; margin-bottom: 32px; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+    .tag { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12.5px; font-family: 'JetBrains Mono', monospace; color: var(--accent2); }
+
+    /* PROGRESS */
+    .progress-strip { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 60px; display: flex; align-items: center; gap: 16px; }
+    .progress-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .progress-bar-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; }
+    .progress-bar-fill { height: 100%; width: 6.66%; background: linear-gradient(90deg, var(--accent), #a78bfa); border-radius: 2px; }
+    .progress-pct { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
+
+    /* CONTENT */
+    .content { padding: 0 60px 80px; }
+    .section { padding: 56px 0 0; border-top: 1px solid var(--border); margin-top: 56px; }
+    .section:first-child { margin-top: 0; padding-top: 48px; border-top: none; }
+    .section-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 32px; }
+    .section-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+    .icon-blue   { background: rgba(79,172,254,0.12); }
+    .icon-purple { background: rgba(167,139,250,0.12); }
+    .icon-green  { background: rgba(52,211,153,0.12); }
+    .icon-orange { background: rgba(255,107,53,0.12); }
+    .icon-yellow { background: rgba(251,191,36,0.12); }
+    .icon-pink   { background: rgba(236,72,153,0.12); }
+    .section-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+    .section-subtitle { font-size: 14px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+    /* THEORY */
+    .theory-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px 32px; margin-bottom: 20px; }
+    .theory-block h4 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+    .theory-block p { color: var(--text); font-size: 15px; line-height: 1.75; margin-bottom: 10px; }
+    .theory-block p:last-child { margin-bottom: 0; }
+
+    /* HIGHLIGHT */
+    .highlight-box { border-left: 3px solid var(--accent); background: rgba(79,172,254,0.06); border-radius: 0 10px 10px 0; padding: 16px 20px; margin: 16px 0; font-size: 14.5px; color: var(--text); }
+    .highlight-box.purple { border-left-color: var(--accent2); background: rgba(167,139,250,0.06); }
+    .highlight-box.green  { border-left-color: var(--accent3); background: rgba(52,211,153,0.06); }
+    .highlight-box.orange { border-left-color: #ff6b35; background: rgba(255,107,53,0.06); }
+
+    /* CODE */
+    .code-wrapper { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; margin: 20px 0; overflow: hidden; }
+    .code-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    .code-dots { display: flex; gap: 6px; }
+    .code-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #ffbd2e; } .dot-g { background: #28c840; }
+    .code-lang { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+    .code-wrapper pre { padding: 22px 24px; overflow-x: auto; margin: 0; }
+    .code-wrapper code { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.75; color: var(--text); }
+
+    /* Syntax */
+    .sel { color: #80cbc4; }
+    .prop { color: #f07178; }
+    .val { color: #c3e88d; }
+    .unt { color: #ffcb6b; }
+    .cm  { color: #546e7a; font-style: italic; }
+    .kw  { color: #c792ea; }
+    .at  { color: #ffcb6b; }
+    .vl  { color: #c3e88d; }
+    .fn  { color: #82aaff; }
+    .num { color: #f78c6c; }
+
+    /* REAL WORLD */
+    .realworld { background: linear-gradient(135deg, rgba(52,211,153,0.05), rgba(79,172,254,0.05)); border: 1px solid rgba(52,211,153,0.2); border-radius: 12px; padding: 24px 28px; margin: 24px 0; }
+    .realworld-label { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent3); margin-bottom: 12px; }
+    .realworld h4 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .realworld p { font-size: 14.5px; color: var(--muted); line-height: 1.7; }
+
+    /* Q&A */
+    .qa-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-top: 20px; }
+    .qa-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 22px; }
+    .qa-q { font-weight: 600; color: var(--accent); font-size: 14.5px; margin-bottom: 8px; }
+    .qa-a { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+    /* GRID */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .mini-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+    .mini-card h5 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--accent); }
+    .mini-card p { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+
+    /* CHECKLIST */
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+    .checklist li { display: flex; align-items: flex-start; gap: 12px; font-size: 14.5px; }
+    .checklist li::before { content: '✓'; color: var(--accent3); font-weight: 700; font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+
+    /* VISUAL DEMO BOXES */
+    .demo-area { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 20px 0; }
+    .demo-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; }
+
+    /* Box Model Visual */
+    .box-model-visual { display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .bm-margin { background: rgba(255,107,53,0.15); border: 2px dashed rgba(255,107,53,0.5); padding: 20px; border-radius: 8px; position: relative; }
+    .bm-border { background: rgba(251,191,36,0.1); border: 8px solid rgba(251,191,36,0.6); padding: 16px; border-radius: 4px; }
+    .bm-padding { background: rgba(52,211,153,0.1); border: 2px dashed rgba(52,211,153,0.5); padding: 20px; border-radius: 4px; }
+    .bm-content { background: rgba(79,172,254,0.2); border: 2px solid rgba(79,172,254,0.5); padding: 20px 32px; border-radius: 4px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); }
+    .bm-label { position: absolute; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+
+    /* Flexbox Demo */
+    .flex-demo { display: flex; gap: 8px; padding: 16px; background: var(--code-bg); border-radius: 8px; margin: 8px 0; border: 1px solid var(--border); }
+    .flex-item { background: var(--accent); color: #000; padding: 10px 16px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; }
+    .flex-item.purple { background: var(--accent2); }
+    .flex-item.green  { background: var(--accent3); }
+
+    /* Specificity Table */
+    .spec-table { width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .spec-table th { background: var(--surface2); padding: 12px 18px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+    .spec-table td { padding: 12px 18px; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .spec-table tr:last-child td { border-bottom: none; }
+    .spec-table tr:hover td { background: var(--surface2); }
+    .spec-table td:first-child { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 13px; }
+    .spec-score { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent2); }
+
+    /* Day Nav */
+    .day-nav { background: var(--surface); border-top: 1px solid var(--border); padding: 24px 60px; display: flex; align-items: center; justify-content: space-between; }
+    .day-nav-info { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+    .day-nav-info strong { color: var(--text); font-size: 14px; display: block; margin-top: 4px; }
+    .next-btn { background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 10px 22px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: opacity 0.2s; }
+    .next-btn:hover { opacity: 0.85; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .hero { padding: 40px 24px 36px; }
+      .hero h1 { font-size: 34px; }
+      .hero::before { display: none; }
+      .content { padding: 0 24px 60px; }
+      .progress-strip { padding: 12px 24px; }
+      .day-nav { padding: 20px 24px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="day-badge">Day 02 / 30</div>
+    <h2>CSS3 Foundations</h2>
+  </div>
+  <div class="nav-section-label">Topics</div>
+  <a class="nav-item active" href="#intro">What is CSS?</a>
+  <a class="nav-item" href="#selectors">Selectors & Specificity</a>
+  <a class="nav-item" href="#boxmodel">The Box Model</a>
+  <a class="nav-item" href="#display">Display & Positioning</a>
+  <a class="nav-item" href="#flexbox">Flexbox (Full)</a>
+  <a class="nav-item" href="#typography">Typography & Colors</a>
+  <a class="nav-item" href="#pseudo">Pseudo-classes & Pseudo-elements</a>
+  <a class="nav-item" href="#variables">CSS Variables</a>
+  <a class="nav-item" href="#responsive">Responsive & Media Queries</a>
+  <a class="nav-item" href="#fullexample">Full Example</a>
+  <a class="nav-item" href="#interview">Interview Q&A</a>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- Progress -->
+  <div class="progress-strip">
+    <span class="progress-label">30-Day Journey</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill"></div></div>
+    <span class="progress-pct">Day 2</span>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow"><span></span> Full Stack Placement Prep</div>
+    <h1>Day 2 — <em>CSS3</em><br/>Foundations</h1>
+    <p class="hero-sub">Style, layout, and the visual language of the web. Master selectors, the box model, Flexbox, and responsive design — exactly what interviewers test.</p>
+    <div class="hero-tags">
+      <span class="tag">CSS3</span>
+      <span class="tag">Box Model</span>
+      <span class="tag">Flexbox</span>
+      <span class="tag">Selectors</span>
+      <span class="tag">Responsive Design</span>
+      <span class="tag">CSS Variables</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── SECTION 1: What is CSS ── -->
+    <div class="section" id="intro">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🎨</div>
+        <div>
+          <div class="section-title">What is CSS?</div>
+          <div class="section-subtitle">Cascading Style Sheets — the skin of every website</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Definition & How It Works</h4>
+        <p><strong>CSS (Cascading Style Sheets)</strong> is the language used to control the visual presentation of HTML. While HTML defines the structure (what's on the page), CSS defines the appearance — colors, fonts, spacing, layout, animations.</p>
+        <p>The word <strong>"Cascading"</strong> is critical: when multiple CSS rules target the same element, CSS resolves conflicts using a cascade — based on <em>specificity</em>, <em>source order</em>, and <em>inheritance</em>. Understanding the cascade separates good developers from great ones.</p>
+        <div class="highlight-box">
+          <strong>Analogy:</strong> HTML is the skeleton of a building. CSS is the paint, tiles, furniture, and interior design. Without CSS, the web would be a wall of black text on a white background — which is exactly what a browser shows by default.
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Three Ways to Add CSS</h4>
+        <p>There are three methods. In real projects you should <strong>always use external CSS</strong> for maintainability.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">HTML + CSS — Three Ways to Apply CSS</span>
+        </div>
+        <pre><code><span class="cm">/* ── 1. EXTERNAL (BEST — always use this) ── */</span>
+<span class="cm">/* In your HTML &lt;head&gt;: */</span>
+&lt;<span class="at">link</span> <span class="at">rel</span>=<span class="vl">"stylesheet"</span> <span class="at">href</span>=<span class="vl">"style.css"</span>&gt;
+<span class="cm">/* In style.css file: */</span>
+<span class="sel">h1</span> { <span class="prop">color</span>: <span class="val">blue</span>; }
+
+<span class="cm">/* ── 2. INTERNAL (for single-page experiments only) ── */</span>
+&lt;<span class="at">style</span>&gt;
+  <span class="sel">h1</span> { <span class="prop">color</span>: <span class="val">blue</span>; }
+&lt;/<span class="at">style</span>&gt;
+
+<span class="cm">/* ── 3. INLINE (WORST — avoid, hard to maintain, high specificity) ── */</span>
+&lt;<span class="at">h1</span> <span class="at">style</span>=<span class="vl">"color: blue; font-size: 24px;"</span>&gt;Hello&lt;/<span class="at">h1</span>&gt;</code></pre>
+      </div>
+
+      <div class="theory-block">
+        <h4>CSS Rule Anatomy</h4>
+        <p>Every CSS rule has the same structure: a <strong>selector</strong> that targets HTML elements, and a <strong>declaration block</strong> with one or more property–value pairs.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Rule Anatomy</span>
+        </div>
+        <pre><code><span class="sel">h1</span> <span class="cm">/* ← Selector: targets all &lt;h1&gt; elements */</span>
+{  <span class="cm">/* ← Opening brace of declaration block */</span>
+
+  <span class="prop">color</span>: <span class="val">navy</span>;          <span class="cm">/* property: value; */</span>
+  <span class="prop">font-size</span>: <span class="num">2rem</span>;      <span class="cm">/* rem = relative to root font size */</span>
+  <span class="prop">margin-bottom</span>: <span class="num">16px</span>; <span class="cm">/* px = absolute pixels */</span>
+
+}  <span class="cm">/* ← Closing brace */</span>
+
+<span class="cm">/* Multiple selectors — same styles applied to both */</span>
+<span class="sel">h1</span>, <span class="sel">h2</span> {
+  <span class="prop">font-family</span>: <span class="val">'Syne'</span>, <span class="val">sans-serif</span>;
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: Selectors & Specificity ── -->
+    <div class="section" id="selectors">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🎯</div>
+        <div>
+          <div class="section-title">Selectors & Specificity</div>
+          <div class="section-subtitle">Targeting elements precisely — the most-tested CSS topic in interviews</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>All Selector Types</h4>
+        <p>CSS has dozens of selectors. You must know the most common types and how they combine. Interviewers specifically ask about combinators and pseudo-classes.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Every Selector Type You Must Know</span>
+        </div>
+        <pre><code><span class="cm">/* ── BASIC SELECTORS ── */</span>
+<span class="sel">*</span>         { <span class="prop">box-sizing</span>: <span class="val">border-box</span>; }  <span class="cm">/* Universal — targets everything */</span>
+<span class="sel">h1</span>        { <span class="prop">color</span>: <span class="val">blue</span>; }             <span class="cm">/* Element/Type selector */</span>
+<span class="sel">.card</span>     { <span class="prop">padding</span>: <span class="num">16px</span>; }           <span class="cm">/* Class selector (reusable) */</span>
+<span class="sel">#hero</span>     { <span class="prop">height</span>: <span class="num">100vh</span>; }           <span class="cm">/* ID selector (unique per page) */</span>
+
+<span class="cm">/* ── COMBINATOR SELECTORS ── */</span>
+<span class="sel">nav a</span>           { <span class="prop">color</span>: <span class="val">white</span>; }   <span class="cm">/* Descendant: any &lt;a&gt; inside &lt;nav&gt; */</span>
+<span class="sel">nav > a</span>         { <span class="prop">color</span>: <span class="val">white</span>; }   <span class="cm">/* Child: DIRECT &lt;a&gt; children of &lt;nav&gt; */</span>
+<span class="sel">h2 + p</span>          { <span class="prop">margin-top</span>: <span class="num">0</span>; } <span class="cm">/* Adjacent sibling: &lt;p&gt; immediately after &lt;h2&gt; */</span>
+<span class="sel">h2 ~ p</span>          { <span class="prop">color</span>: <span class="val">gray</span>; }   <span class="cm">/* General sibling: all &lt;p&gt; after any &lt;h2&gt; */</span>
+
+<span class="cm">/* ── ATTRIBUTE SELECTORS ── */</span>
+<span class="sel">a[href]</span>              { <span class="prop">color</span>: <span class="val">blue</span>; }   <span class="cm">/* Has href attribute */</span>
+<span class="sel">a[href="https://..."]</span>{ <span class="prop">color</span>: <span class="val">green</span>; }  <span class="cm">/* Exact value */</span>
+<span class="sel">a[href^="https"]</span>     { <span class="prop">color</span>: <span class="val">green</span>; }  <span class="cm">/* Starts with "https" */</span>
+<span class="sel">a[href$=".pdf"]</span>      { <span class="prop">color</span>: <span class="val">red</span>; }    <span class="cm">/* Ends with ".pdf" */</span>
+<span class="sel">a[href*="google"]</span>    { <span class="prop">color</span>: <span class="val">blue</span>; }   <span class="cm">/* Contains "google" */</span>
+<span class="sel">input[type="email"]</span>  { <span class="prop">border</span>: <span class="num">1px</span> <span class="val">solid blue</span>; }
+
+<span class="cm">/* ── PSEUDO-CLASSES ── */</span>
+<span class="sel">a:hover</span>        { <span class="prop">color</span>: <span class="val">red</span>; }          <span class="cm">/* Mouse over */</span>
+<span class="sel">a:visited</span>      { <span class="prop">color</span>: <span class="val">purple</span>; }       <span class="cm">/* Already visited */</span>
+<span class="sel">button:active</span>  { <span class="prop">transform</span>: <span class="val">scale(0.98)</span>; } <span class="cm">/* Being clicked */</span>
+<span class="sel">input:focus</span>    { <span class="prop">outline</span>: <span class="num">2px</span> <span class="val">solid blue</span>; } <span class="cm">/* Keyboard focused */</span>
+<span class="sel">input:disabled</span> { <span class="prop">opacity</span>: <span class="num">0.5</span>; }         <span class="cm">/* Disabled input */</span>
+<span class="sel">li:first-child</span> { <span class="prop">font-weight</span>: <span class="val">bold</span>; }   <span class="cm">/* First li in parent */</span>
+<span class="sel">li:last-child</span>  { <span class="prop">border</span>: <span class="val">none</span>; }        <span class="cm">/* Last li in parent */</span>
+<span class="sel">li:nth-child(2)</span>{ <span class="prop">color</span>: <span class="val">blue</span>; }         <span class="cm">/* Exactly 2nd child */</span>
+<span class="sel">li:nth-child(odd)</span>  { <span class="prop">background</span>: <span class="val">#f0f0f0</span>; } <span class="cm">/* Odd rows */</span>
+<span class="sel">li:nth-child(even)</span> { <span class="prop">background</span>: <span class="val">#ffffff</span>; } <span class="cm">/* Even rows (table zebra) */</span>
+<span class="sel">p:not(.highlight)</span> { <span class="prop">color</span>: <span class="val">gray</span>; }       <span class="cm">/* NOT matching .highlight */</span>
+
+<span class="cm">/* ── PSEUDO-ELEMENTS ── */</span>
+<span class="sel">p::first-line</span>   { <span class="prop">font-weight</span>: <span class="val">bold</span>; }
+<span class="sel">p::first-letter</span> { <span class="prop">font-size</span>: <span class="num">2em</span>; <span class="prop">float</span>: <span class="val">left</span>; }
+<span class="sel">.btn::before</span>    { <span class="prop">content</span>: <span class="val">'→ '</span>; }       <span class="cm">/* Insert content before element */</span>
+<span class="sel">.btn::after</span>     { <span class="prop">content</span>: <span class="val">''</span>; <span class="prop">display</span>: <span class="val">block</span>; } <span class="cm">/* Decorative element */</span>
+<span class="sel">::selection</span>     { <span class="prop">background</span>: <span class="val">blue</span>; <span class="prop">color</span>: <span class="val">white</span>; } <span class="cm">/* Text selection colour */</span></code></pre>
+      </div>
+
+      <div class="theory-block">
+        <h4>Specificity — How CSS Decides Which Rule Wins</h4>
+        <p>When two rules target the same element, CSS uses <strong>specificity</strong> to decide which wins. Each selector type has a weight. The selector with the highest total weight wins — regardless of order. If specificity is equal, the <em>last rule in the file</em> wins (cascade).</p>
+      </div>
+
+      <table class="spec-table">
+        <thead>
+          <tr><th>Selector Type</th><th>Specificity Score</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Inline style</td><td><span class="spec-score">1-0-0-0</span></td><td>style="color:red"</td></tr>
+          <tr><td>ID selector</td><td><span class="spec-score">0-1-0-0</span></td><td>#header</td></tr>
+          <tr><td>Class / attribute / pseudo-class</td><td><span class="spec-score">0-0-1-0</span></td><td>.card, [type], :hover</td></tr>
+          <tr><td>Element / pseudo-element</td><td><span class="spec-score">0-0-0-1</span></td><td>h1, ::before</td></tr>
+          <tr><td>Universal *</td><td><span class="spec-score">0-0-0-0</span></td><td>* {}</td></tr>
+          <tr><td>!important</td><td>Overrides everything</td><td>color: red !important</td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Specificity Example</span>
+        </div>
+        <pre><code><span class="cm">/* Which rule wins on &lt;p class="text" id="intro"&gt;? */</span>
+
+<span class="sel">p</span>           { <span class="prop">color</span>: <span class="val">black</span>; }   <span class="cm">/* specificity: 0-0-0-1 */</span>
+<span class="sel">.text</span>       { <span class="prop">color</span>: <span class="val">blue</span>; }    <span class="cm">/* specificity: 0-0-1-0 → WINS over p */</span>
+<span class="sel">#intro</span>      { <span class="prop">color</span>: <span class="val">green</span>; }   <span class="cm">/* specificity: 0-1-0-0 → WINS over .text */</span>
+<span class="sel">p#intro.text</span>{ <span class="prop">color</span>: <span class="val">red</span>; }     <span class="cm">/* specificity: 0-1-1-1 → WINS over #intro alone */</span>
+
+<span class="cm">/* Result: text is RED */</span>
+
+<span class="cm">/* !important overrides ALL specificity — use as LAST RESORT only */</span>
+<span class="sel">p</span> { <span class="prop">color</span>: <span class="val">yellow</span> <span class="kw">!important</span>; }  <span class="cm">/* This would now win */</span>
+
+<span class="cm">/* Inheritance: some properties inherit from parent (color, font)
+   Some do NOT inherit (border, margin, padding, background) */</span>
+<span class="sel">body</span> { <span class="prop">color</span>: <span class="val">#333</span>; }  <span class="cm">/* All child elements inherit this colour */</span>
+<span class="sel">div</span>  { <span class="prop">border</span>: <span class="num">1px</span> <span class="val">solid red</span>; } <span class="cm">/* Children do NOT inherit border */</span></code></pre>
+      </div>
+
+      <div class="highlight-box orange">
+        <strong>Interview Trap:</strong> Interviewers often ask "why isn't my CSS applying?" — the answer is almost always a specificity issue. Know that ID > Class > Element, and !important overrides everything but should be avoided in real projects.
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: Box Model ── -->
+    <div class="section" id="boxmodel">
+      <div class="section-header">
+        <div class="section-icon icon-green">📦</div>
+        <div>
+          <div class="section-title">The CSS Box Model</div>
+          <div class="section-subtitle">The single most important CSS concept — every element is a box</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Every HTML Element is a Rectangular Box</h4>
+        <p>When the browser renders any element, it treats it as a rectangle made up of four layers, from outside in: <strong>Margin → Border → Padding → Content</strong>.</p>
+        <p>Understanding the box model is essential for controlling layout. Most layout bugs come from not understanding how these layers add up to affect element size.</p>
+      </div>
+
+      <!-- Visual Box Model -->
+      <div class="demo-area">
+        <div class="demo-label">📐 Visual: CSS Box Model Layers</div>
+        <div class="box-model-visual">
+          <div style="text-align:center; position:relative;">
+            <div style="background:rgba(255,107,53,0.1);border:2px dashed rgba(255,107,53,0.6);padding:24px;border-radius:8px;position:relative;">
+              <div style="position:absolute;top:4px;left:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,107,53,0.8);">MARGIN (outside, transparent)</div>
+              <div style="background:rgba(251,191,36,0.08);border:12px solid rgba(251,191,36,0.5);border-radius:4px;padding:16px;position:relative;">
+                <div style="position:absolute;top:-10px;right:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(251,191,36,0.9);">BORDER</div>
+                <div style="background:rgba(52,211,153,0.1);border:2px dashed rgba(52,211,153,0.6);padding:20px;border-radius:4px;position:relative;">
+                  <div style="position:absolute;top:4px;left:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(52,211,153,0.8);">PADDING (inside space)</div>
+                  <div style="background:rgba(79,172,254,0.2);border:2px solid rgba(79,172,254,0.6);padding:20px 40px;text-align:center;border-radius:4px;">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);">CONTENT</span><br/>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">width × height</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Box Model Properties</span>
+        </div>
+        <pre><code><span class="sel">.card</span> {
+
+  <span class="cm">/* ── CONTENT ── */</span>
+  <span class="prop">width</span>: <span class="num">300px</span>;
+  <span class="prop">height</span>: <span class="num">200px</span>;
+  <span class="prop">min-width</span>: <span class="num">200px</span>;
+  <span class="prop">max-width</span>: <span class="num">600px</span>;
+  <span class="prop">min-height</span>: <span class="num">100px</span>;
+  <span class="prop">max-height</span>: <span class="num">400px</span>;
+
+  <span class="cm">/* ── PADDING (inner space — pushes content away from border) ── */</span>
+  <span class="prop">padding</span>: <span class="num">16px</span>;                 <span class="cm">/* All 4 sides */</span>
+  <span class="prop">padding</span>: <span class="num">16px 24px</span>;           <span class="cm">/* top/bottom  left/right */</span>
+  <span class="prop">padding</span>: <span class="num">10px 20px 10px 20px</span>; <span class="cm">/* top right bottom left */</span>
+  <span class="prop">padding-top</span>: <span class="num">10px</span>;
+  <span class="prop">padding-right</span>: <span class="num">20px</span>;
+  <span class="prop">padding-bottom</span>: <span class="num">10px</span>;
+  <span class="prop">padding-left</span>: <span class="num">20px</span>;
+
+  <span class="cm">/* ── BORDER ── */</span>
+  <span class="prop">border</span>: <span class="num">2px</span> <span class="val">solid</span> <span class="val">#333</span>;        <span class="cm">/* width style color */</span>
+  <span class="prop">border-top</span>: <span class="num">4px</span> <span class="val">dashed blue</span>;
+  <span class="prop">border-radius</span>: <span class="num">8px</span>;             <span class="cm">/* Rounded corners */</span>
+  <span class="prop">border-radius</span>: <span class="num">50%</span>;             <span class="cm">/* Circle (on square element) */</span>
+  <span class="prop">border-radius</span>: <span class="num">8px 0 8px 0</span>;    <span class="cm">/* top-left top-right bottom-right bottom-left */</span>
+
+  <span class="cm">/* ── MARGIN (outer space — pushes other elements away) ── */</span>
+  <span class="prop">margin</span>: <span class="num">24px</span>;
+  <span class="prop">margin</span>: <span class="num">0 auto</span>;               <span class="cm">/* Centers block element horizontally */</span>
+  <span class="prop">margin-bottom</span>: <span class="num">16px</span>;
+
+  <span class="cm">/* ── BOX SIZING — THE MOST IMPORTANT RULE ── */</span>
+  <span class="cm">/*
+    Default (content-box): width = content only
+      → 300px + 32px padding + 4px border = 336px total!  ← CONFUSING!
+
+    border-box: width INCLUDES padding and border
+      → width: 300px means 300px TOTAL (industry standard)
+  */</span>
+  <span class="prop">box-sizing</span>: <span class="val">border-box</span>; <span class="cm">/* Always set this globally with * { } */</span>
+}</code></pre>
+      </div>
+
+      <div class="highlight-box purple">
+        <strong>Universal Reset — Always put this at the top of every CSS file:</strong><br/>
+        <code>* { box-sizing: border-box; margin: 0; padding: 0; }</code><br/>
+        This ensures every element uses border-box sizing and removes default browser margins/paddings that cause unexpected spacing.
+      </div>
+
+      <div class="theory-block">
+        <h4>Margin Collapse — A Common Bug</h4>
+        <p>When two vertical margins touch (e.g., bottom margin of one element and top margin of the next), they <strong>collapse</strong> — the larger margin wins, they don't add up. This is a common source of confusion.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Margin Collapse</span>
+        </div>
+        <pre><code><span class="sel">h1</span> { <span class="prop">margin-bottom</span>: <span class="num">40px</span>; }
+<span class="sel">p</span>  { <span class="prop">margin-top</span>: <span class="num">20px</span>; }
+
+<span class="cm">/* Space between h1 and p = 40px (NOT 60px!) — larger wins */</span>
+
+<span class="cm">/* Collapse does NOT happen:
+   - Between flex/grid children
+   - When there's padding or border between them
+   - For horizontal (left/right) margins — those always add up
+*/</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: Display & Positioning ── -->
+    <div class="section" id="display">
+      <div class="section-header">
+        <div class="section-icon icon-orange">🗺️</div>
+        <div>
+          <div class="section-title">Display & Positioning</div>
+          <div class="section-subtitle">Controlling how elements appear and where they sit</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Display Property</span>
+        </div>
+        <pre><code><span class="cm">/* ── BLOCK: full width, stacks vertically, respects width/height */</span>
+<span class="sel">div, p, h1, section</span> { <span class="prop">display</span>: <span class="val">block</span>; }   <span class="cm">/* default for these */</span>
+
+<span class="cm">/* ── INLINE: sits in text flow, ignores width/height */</span>
+<span class="sel">span, a, strong, em</span>  { <span class="prop">display</span>: <span class="val">inline</span>; } <span class="cm">/* default for these */</span>
+
+<span class="cm">/* ── INLINE-BLOCK: sits in text flow BUT respects width/height */</span>
+<span class="sel">.badge</span> { <span class="prop">display</span>: <span class="val">inline-block</span>; <span class="prop">width</span>: <span class="num">80px</span>; <span class="prop">text-align</span>: <span class="val">center</span>; }
+
+<span class="cm">/* ── NONE: completely removes element from layout */</span>
+<span class="sel">.hidden</span>   { <span class="prop">display</span>: <span class="val">none</span>; }       <span class="cm">/* removed, no space taken */</span>
+<span class="sel">.invisible</span>{ <span class="prop">visibility</span>: <span class="val">hidden</span>; } <span class="cm">/* invisible BUT space still taken */</span>
+
+<span class="cm">/* ── FLEX and GRID (covered in detail separately) ── */</span>
+<span class="sel">.container</span>{ <span class="prop">display</span>: <span class="val">flex</span>; }
+<span class="sel">.layout</span>   { <span class="prop">display</span>: <span class="val">grid</span>; }</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Position Property (Very Important!)</span>
+        </div>
+        <pre><code><span class="cm">/* ── STATIC (default) — normal document flow, no offset */</span>
+<span class="sel">.normal</span> { <span class="prop">position</span>: <span class="val">static</span>; }
+
+<span class="cm">/* ── RELATIVE — offset from its OWN normal position */</span>
+<span class="cm">/* Other elements still see it in its original spot */</span>
+<span class="sel">.shifted</span> {
+  <span class="prop">position</span>: <span class="val">relative</span>;
+  <span class="prop">top</span>: <span class="num">10px</span>;    <span class="cm">/* move 10px DOWN from where it would be */</span>
+  <span class="prop">left</span>: <span class="num">20px</span>;   <span class="cm">/* move 20px RIGHT */</span>
+}
+
+<span class="cm">/* ── ABSOLUTE — removed from flow, positioned relative to */</span>
+<span class="cm">/* nearest positioned ancestor (relative/absolute/fixed) */</span>
+<span class="sel">.parent</span> { <span class="prop">position</span>: <span class="val">relative</span>; }   <span class="cm">/* Reference point */</span>
+<span class="sel">.child</span>  {
+  <span class="prop">position</span>: <span class="val">absolute</span>;
+  <span class="prop">top</span>: <span class="num">0</span>;
+  <span class="prop">right</span>: <span class="num">0</span>;    <span class="cm">/* Sticks to top-right of .parent */</span>
+}
+
+<span class="cm">/* ── FIXED — stays in place during scroll */</span>
+<span class="cm">/* Positioned relative to VIEWPORT */</span>
+<span class="sel">.navbar</span> {
+  <span class="prop">position</span>: <span class="val">fixed</span>;
+  <span class="prop">top</span>: <span class="num">0</span>;
+  <span class="prop">left</span>: <span class="num">0</span>;
+  <span class="prop">width</span>: <span class="num">100%</span>;   <span class="cm">/* Sticky top navigation bar */</span>
+  <span class="prop">z-index</span>: <span class="num">1000</span>; <span class="cm">/* Appear above other elements */</span>
+}
+
+<span class="cm">/* ── STICKY — relative until scroll threshold, then fixed */</span>
+<span class="sel">.section-header</span> {
+  <span class="prop">position</span>: <span class="val">sticky</span>;
+  <span class="prop">top</span>: <span class="num">0</span>;  <span class="cm">/* Sticks at 0px from top when reached */</span>
+}
+
+<span class="cm">/* z-index: controls stacking order (higher = in front) */</span>
+<span class="cm">/* Only works on positioned elements (not static) */</span>
+<span class="sel">.modal</span>   { <span class="prop">z-index</span>: <span class="num">9999</span>; }
+<span class="sel">.overlay</span> { <span class="prop">z-index</span>: <span class="num">9998</span>; }</code></pre>
+      </div>
+
+      <div class="realworld">
+        <div class="realworld-label">🏢 Real World</div>
+        <h4>Position in Practice</h4>
+        <p><strong>Fixed:</strong> Used for sticky navigation bars, floating chat buttons, cookie banners. <strong>Absolute:</strong> Used for dropdown menus, tooltips, notification badges on icons. <strong>Sticky:</strong> Used for table headers that stay visible while scrolling, or sidebar sections. These patterns appear in almost every web app built by Ahmedabad companies.</p>
+      </div>
+    </div>
+
+    <!-- ── SECTION 5: Flexbox ── -->
+    <div class="section" id="flexbox">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🧲</div>
+        <div>
+          <div class="section-title">Flexbox — Complete Guide</div>
+          <div class="section-subtitle">The #1 layout tool in modern CSS — master it completely</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What is Flexbox?</h4>
+        <p>Flexbox (Flexible Box Layout) is a one-dimensional layout model. You define a <strong>flex container</strong> with <code style="color:var(--accent)">display: flex</code>, and its direct children become <strong>flex items</strong>. The container controls how items distribute space along a main axis (horizontal by default) and a cross axis (vertical by default).</p>
+        <div class="highlight-box">
+          <strong>Two roles:</strong> Properties on the <strong>container</strong> control the layout of all children. Properties on <strong>items</strong> control the individual item's behaviour within the container.
+        </div>
+      </div>
+
+      <!-- Live Demo -->
+      <div class="demo-area">
+        <div class="demo-label">📐 Live Flexbox Demo — justify-content variations</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;font-family:'JetBrains Mono',monospace;">flex-start (default):</p>
+        <div class="flex-demo" style="justify-content:flex-start">
+          <div class="flex-item">Item 1</div>
+          <div class="flex-item purple">Item 2</div>
+          <div class="flex-item green">Item 3</div>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin:12px 0 12px;font-family:'JetBrains Mono',monospace;">center:</p>
+        <div class="flex-demo" style="justify-content:center">
+          <div class="flex-item">Item 1</div>
+          <div class="flex-item purple">Item 2</div>
+          <div class="flex-item green">Item 3</div>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin:12px 0 12px;font-family:'JetBrains Mono',monospace;">space-between:</p>
+        <div class="flex-demo" style="justify-content:space-between">
+          <div class="flex-item">Item 1</div>
+          <div class="flex-item purple">Item 2</div>
+          <div class="flex-item green">Item 3</div>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin:12px 0 12px;font-family:'JetBrains Mono',monospace;">space-around:</p>
+        <div class="flex-demo" style="justify-content:space-around">
+          <div class="flex-item">Item 1</div>
+          <div class="flex-item purple">Item 2</div>
+          <div class="flex-item green">Item 3</div>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin:12px 0 12px;font-family:'JetBrains Mono',monospace;">space-evenly:</p>
+        <div class="flex-demo" style="justify-content:space-evenly">
+          <div class="flex-item">Item 1</div>
+          <div class="flex-item purple">Item 2</div>
+          <div class="flex-item green">Item 3</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Flexbox Container Properties</span>
+        </div>
+        <pre><code><span class="sel">.flex-container</span> {
+  <span class="prop">display</span>: <span class="val">flex</span>;  <span class="cm">/* or inline-flex */</span>
+
+  <span class="cm">/* ── DIRECTION (main axis) ── */</span>
+  <span class="prop">flex-direction</span>: <span class="val">row</span>;            <span class="cm">/* → default: left to right */</span>
+  <span class="prop">flex-direction</span>: <span class="val">row-reverse</span>;    <span class="cm">/* ← right to left */</span>
+  <span class="prop">flex-direction</span>: <span class="val">column</span>;         <span class="cm">/* ↓ top to bottom */</span>
+  <span class="prop">flex-direction</span>: <span class="val">column-reverse</span>; <span class="cm">/* ↑ bottom to top */</span>
+
+  <span class="cm">/* ── WRAPPING ── */</span>
+  <span class="prop">flex-wrap</span>: <span class="val">nowrap</span>;   <span class="cm">/* default: all in one line (may overflow) */</span>
+  <span class="prop">flex-wrap</span>: <span class="val">wrap</span>;     <span class="cm">/* items wrap to next line when needed */</span>
+  <span class="prop">flex-wrap</span>: <span class="val">wrap-reverse</span>; <span class="cm">/* wrap to PREVIOUS line */</span>
+
+  <span class="cm">/* Shorthand for direction + wrap */</span>
+  <span class="prop">flex-flow</span>: <span class="val">row wrap</span>;
+
+  <span class="cm">/* ── JUSTIFY-CONTENT (alignment on main axis = horizontal if row) ── */</span>
+  <span class="prop">justify-content</span>: <span class="val">flex-start</span>;    <span class="cm">/* left */</span>
+  <span class="prop">justify-content</span>: <span class="val">flex-end</span>;      <span class="cm">/* right */</span>
+  <span class="prop">justify-content</span>: <span class="val">center</span>;        <span class="cm">/* centre */</span>
+  <span class="prop">justify-content</span>: <span class="val">space-between</span>; <span class="cm">/* edges, equal space between */</span>
+  <span class="prop">justify-content</span>: <span class="val">space-around</span>;  <span class="cm">/* equal space around each */</span>
+  <span class="prop">justify-content</span>: <span class="val">space-evenly</span>;  <span class="cm">/* perfectly equal space */</span>
+
+  <span class="cm">/* ── ALIGN-ITEMS (alignment on cross axis = vertical if row) ── */</span>
+  <span class="prop">align-items</span>: <span class="val">stretch</span>;      <span class="cm">/* default: fill container height */</span>
+  <span class="prop">align-items</span>: <span class="val">flex-start</span>;   <span class="cm">/* top */</span>
+  <span class="prop">align-items</span>: <span class="val">flex-end</span>;     <span class="cm">/* bottom */</span>
+  <span class="prop">align-items</span>: <span class="val">center</span>;       <span class="cm">/* vertically centred ← very common! */</span>
+  <span class="prop">align-items</span>: <span class="val">baseline</span>;     <span class="cm">/* align text baselines */</span>
+
+  <span class="cm">/* ── ALIGN-CONTENT (only when wrapping — controls rows) ── */</span>
+  <span class="prop">align-content</span>: <span class="val">flex-start</span>;
+  <span class="prop">align-content</span>: <span class="val">center</span>;
+  <span class="prop">align-content</span>: <span class="val">space-between</span>;
+
+  <span class="cm">/* ── GAP (space between items) — modern way ── */</span>
+  <span class="prop">gap</span>: <span class="num">16px</span>;        <span class="cm">/* row and column gap */</span>
+  <span class="prop">gap</span>: <span class="num">16px 24px</span>;   <span class="cm">/* row-gap  column-gap */</span>
+  <span class="prop">row-gap</span>: <span class="num">16px</span>;
+  <span class="prop">column-gap</span>: <span class="num">24px</span>;
+}</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Flexbox Item Properties</span>
+        </div>
+        <pre><code><span class="sel">.flex-item</span> {
+
+  <span class="cm">/* ── ORDER: change visual order without changing HTML ── */</span>
+  <span class="prop">order</span>: <span class="num">0</span>;   <span class="cm">/* default: 0. Lower = appears first */</span>
+  <span class="prop">order</span>: <span class="num">-1</span>;  <span class="cm">/* appears before order:0 items */</span>
+  <span class="prop">order</span>: <span class="num">1</span>;   <span class="cm">/* appears after order:0 items */</span>
+
+  <span class="cm">/* ── FLEX-GROW: how much to GROW to fill space ── */</span>
+  <span class="prop">flex-grow</span>: <span class="num">0</span>;  <span class="cm">/* default: don't grow */</span>
+  <span class="prop">flex-grow</span>: <span class="num">1</span>;  <span class="cm">/* take up equal share of remaining space */</span>
+  <span class="prop">flex-grow</span>: <span class="num">2</span>;  <span class="cm">/* take DOUBLE share compared to grow:1 items */</span>
+
+  <span class="cm">/* ── FLEX-SHRINK: how much to SHRINK when space is tight ── */</span>
+  <span class="prop">flex-shrink</span>: <span class="num">1</span>; <span class="cm">/* default: can shrink */</span>
+  <span class="prop">flex-shrink</span>: <span class="num">0</span>; <span class="cm">/* won't shrink — maintains its size */</span>
+
+  <span class="cm">/* ── FLEX-BASIS: starting size before grow/shrink ── */</span>
+  <span class="prop">flex-basis</span>: <span class="val">auto</span>;   <span class="cm">/* default: use width/height */</span>
+  <span class="prop">flex-basis</span>: <span class="num">200px</span>;  <span class="cm">/* start at 200px, then grow/shrink */</span>
+  <span class="prop">flex-basis</span>: <span class="num">0</span>;      <span class="cm">/* start at 0 (used with flex-grow) */</span>
+
+  <span class="cm">/* ── FLEX SHORTHAND: grow shrink basis ── */</span>
+  <span class="prop">flex</span>: <span class="num">1</span>;           <span class="cm">/* = flex: 1 1 0 — grow, shrink, start from 0 */</span>
+  <span class="prop">flex</span>: <span class="val">auto</span>;       <span class="cm">/* = flex: 1 1 auto */</span>
+  <span class="prop">flex</span>: <span class="val">none</span>;       <span class="cm">/* = flex: 0 0 auto — rigid, no grow/shrink */</span>
+  <span class="prop">flex</span>: <span class="num">0 0 200px</span>;  <span class="cm">/* fixed at 200px */</span>
+
+  <span class="cm">/* ── ALIGN-SELF: override container's align-items for THIS item ── */</span>
+  <span class="prop">align-self</span>: <span class="val">auto</span>;       <span class="cm">/* follow container (default) */</span>
+  <span class="prop">align-self</span>: <span class="val">flex-start</span>; <span class="cm">/* this item at top */</span>
+  <span class="prop">align-self</span>: <span class="val">flex-end</span>;   <span class="cm">/* this item at bottom */</span>
+  <span class="prop">align-self</span>: <span class="val">center</span>;     <span class="cm">/* this item centred */</span>
+  <span class="prop">align-self</span>: <span class="val">stretch</span>;    <span class="cm">/* this item fills height */</span>
+}</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Flexbox Real Patterns Used Every Day</span>
+        </div>
+        <pre><code><span class="cm">/* ── PATTERN 1: Perfect centering (most asked in interviews!) ── */</span>
+<span class="sel">.center-everything</span> {
+  <span class="prop">display</span>: <span class="val">flex</span>;
+  <span class="prop">justify-content</span>: <span class="val">center</span>;  <span class="cm">/* horizontal centre */</span>
+  <span class="prop">align-items</span>: <span class="val">center</span>;      <span class="cm">/* vertical centre */</span>
+  <span class="prop">min-height</span>: <span class="num">100vh</span>;         <span class="cm">/* full viewport height */</span>
+}
+
+<span class="cm">/* ── PATTERN 2: Navbar (logo left, links right) ── */</span>
+<span class="sel">.navbar</span> {
+  <span class="prop">display</span>: <span class="val">flex</span>;
+  <span class="prop">justify-content</span>: <span class="val">space-between</span>;
+  <span class="prop">align-items</span>: <span class="val">center</span>;
+  <span class="prop">padding</span>: <span class="num">0 24px</span>;
+}
+
+<span class="cm">/* ── PATTERN 3: Responsive card grid ── */</span>
+<span class="sel">.card-grid</span> {
+  <span class="prop">display</span>: <span class="val">flex</span>;
+  <span class="prop">flex-wrap</span>: <span class="val">wrap</span>;
+  <span class="prop">gap</span>: <span class="num">24px</span>;
+}
+<span class="sel">.card-grid .card</span> {
+  <span class="prop">flex</span>: <span class="num">1 1 280px</span>;  <span class="cm">/* grow/shrink, min 280px wide → auto responsive! */</span>
+  <span class="prop">max-width</span>: <span class="num">100%</span>;
+}
+
+<span class="cm">/* ── PATTERN 4: Sidebar + Main layout ── */</span>
+<span class="sel">.page-layout</span> {
+  <span class="prop">display</span>: <span class="val">flex</span>;
+  <span class="prop">min-height</span>: <span class="num">100vh</span>;
+}
+<span class="sel">.sidebar</span>  { <span class="prop">flex</span>: <span class="num">0 0 260px</span>; }  <span class="cm">/* fixed width, no grow/shrink */</span>
+<span class="sel">.main</span>     { <span class="prop">flex</span>: <span class="num">1</span>; }           <span class="cm">/* takes all remaining space */</span>
+
+<span class="cm">/* ── PATTERN 5: Push one item to the end ── */</span>
+<span class="sel">.toolbar</span> { <span class="prop">display</span>: <span class="val">flex</span>; <span class="prop">align-items</span>: <span class="val">center</span>; <span class="prop">gap</span>: <span class="num">8px</span>; }
+<span class="sel">.toolbar .spacer</span> { <span class="prop">flex</span>: <span class="num">1</span>; }  <span class="cm">/* pushes everything after it to the right */</span></code></pre>
+      </div>
+
+      <div class="realworld">
+        <div class="realworld-label">🏢 Real World</div>
+        <h4>Flexbox in Every Company Project</h4>
+        <p>Every modern website you see — navigation bars, product grids, dashboard layouts, modal centering, card lists — uses Flexbox. Companies in Ahmedabad building SaaS dashboards, e-commerce sites, or admin panels rely on Flexbox daily. Knowing justify-content and align-items cold is the minimum expectation. Knowing flex-grow, flex-basis, and layout patterns will impress interviewers.</p>
+      </div>
+    </div>
+
+    <!-- ── SECTION 6: Typography & Colors ── -->
+    <div class="section" id="typography">
+      <div class="section-header">
+        <div class="section-icon icon-yellow">✍️</div>
+        <div>
+          <div class="section-title">Typography & Colors</div>
+          <div class="section-subtitle">Text styling and color systems — essential visual foundations</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Typography Complete</span>
+        </div>
+        <pre><code><span class="sel">body</span> {
+  <span class="cm">/* ── FONT FAMILY ── */</span>
+  <span class="prop">font-family</span>: <span class="val">'Inter'</span>, <span class="val">system-ui</span>, <span class="val">-apple-system</span>, <span class="val">sans-serif</span>;
+  <span class="cm">/* Always provide fallbacks: web font → system font → generic */</span>
+
+  <span class="cm">/* ── FONT SIZE ── */</span>
+  <span class="prop">font-size</span>: <span class="num">16px</span>;    <span class="cm">/* Absolute pixels — base size */</span>
+  <span class="prop">font-size</span>: <span class="num">1rem</span>;    <span class="cm">/* Relative to ROOT (html) — scales with accessibility settings */</span>
+  <span class="prop">font-size</span>: <span class="num">1.2em</span>;   <span class="cm">/* Relative to PARENT — can compound! */</span>
+  <span class="prop">font-size</span>: <span class="num">2vw</span>;     <span class="cm">/* 2% of viewport width — responsive type */</span>
+
+  <span class="cm">/* ── FONT WEIGHT ── */</span>
+  <span class="prop">font-weight</span>: <span class="val">normal</span>;   <span class="cm">/* = 400 */</span>
+  <span class="prop">font-weight</span>: <span class="val">bold</span>;     <span class="cm">/* = 700 */</span>
+  <span class="prop">font-weight</span>: <span class="num">100</span>;      <span class="cm">/* Thin */</span>
+  <span class="prop">font-weight</span>: <span class="num">300</span>;      <span class="cm">/* Light */</span>
+  <span class="prop">font-weight</span>: <span class="num">500</span>;      <span class="cm">/* Medium */</span>
+  <span class="prop">font-weight</span>: <span class="num">600</span>;      <span class="cm">/* Semi-Bold */</span>
+  <span class="prop">font-weight</span>: <span class="num">800</span>;      <span class="cm">/* Extra-Bold */</span>
+
+  <span class="cm">/* ── LINE HEIGHT ── */</span>
+  <span class="prop">line-height</span>: <span class="num">1.5</span>;    <span class="cm">/* unitless — 1.5x the font-size */</span>
+  <span class="prop">line-height</span>: <span class="num">24px</span>;   <span class="cm">/* fixed */</span>
+
+  <span class="cm">/* ── FONT STYLE ── */</span>
+  <span class="prop">font-style</span>: <span class="val">normal</span>;
+  <span class="prop">font-style</span>: <span class="val">italic</span>;
+}
+
+<span class="sel">h1</span> {
+  <span class="cm">/* ── TEXT PROPERTIES ── */</span>
+  <span class="prop">text-align</span>: <span class="val">left</span> | <span class="val">center</span> | <span class="val">right</span> | <span class="val">justify</span>;
+  <span class="prop">text-transform</span>: <span class="val">uppercase</span> | <span class="val">lowercase</span> | <span class="val">capitalize</span> | <span class="val">none</span>;
+  <span class="prop">text-decoration</span>: <span class="val">none</span> | <span class="val">underline</span> | <span class="val">line-through</span> | <span class="val">overline</span>;
+  <span class="prop">letter-spacing</span>: <span class="num">2px</span>;   <span class="cm">/* Space between letters */</span>
+  <span class="prop">word-spacing</span>: <span class="num">4px</span>;     <span class="cm">/* Space between words */</span>
+  <span class="prop">text-indent</span>: <span class="num">20px</span>;     <span class="cm">/* First-line indent */</span>
+  <span class="prop">text-shadow</span>: <span class="num">2px 2px 4px</span> <span class="val">rgba(0,0,0,0.3)</span>;
+                          <span class="cm">/* x-offset y-offset blur color */</span>
+  <span class="prop">white-space</span>: <span class="val">nowrap</span>;   <span class="cm">/* Prevent text wrapping */</span>
+  <span class="prop">overflow</span>: <span class="val">hidden</span>;      <span class="cm">/* Hide overflow */</span>
+  <span class="prop">text-overflow</span>: <span class="val">ellipsis</span>; <span class="cm">/* Show "..." for overflow text */</span>
+}
+
+<span class="cm">/* ── COLORS — ALL FORMATS ── */</span>
+<span class="sel">.text</span> {
+  <span class="prop">color</span>: <span class="val">red</span>;                    <span class="cm">/* Named colour */</span>
+  <span class="prop">color</span>: <span class="val">#FF5733</span>;                <span class="cm">/* Hex — most common */</span>
+  <span class="prop">color</span>: <span class="val">#F53</span>;                   <span class="cm">/* Shorthand hex */</span>
+  <span class="prop">color</span>: <span class="fn">rgb</span>(<span class="num">255</span>, <span class="num">87</span>, <span class="num">51</span>);         <span class="cm">/* RGB 0-255 */</span>
+  <span class="prop">color</span>: <span class="fn">rgba</span>(<span class="num">255</span>, <span class="num">87</span>, <span class="num">51</span>, <span class="num">0.8</span>);   <span class="cm">/* RGBA with opacity (0-1) */</span>
+  <span class="prop">color</span>: <span class="fn">hsl</span>(<span class="num">14</span>, <span class="num">100%</span>, <span class="num">60%</span>);       <span class="cm">/* Hue Saturation Lightness */</span>
+  <span class="prop">color</span>: <span class="fn">hsla</span>(<span class="num">14</span>, <span class="num">100%</span>, <span class="num">60%</span>, <span class="num">0.8</span>); <span class="cm">/* HSLA with opacity */</span>
+}
+
+<span class="cm">/* ── BACKGROUND ── */</span>
+<span class="sel">.box</span> {
+  <span class="prop">background-color</span>: <span class="val">#f5f5f5</span>;
+  <span class="prop">background-image</span>: <span class="fn">url</span>(<span class="val">'bg.jpg'</span>);
+  <span class="prop">background-size</span>: <span class="val">cover</span>;   <span class="cm">/* fill, may crop */</span>
+  <span class="prop">background-size</span>: <span class="val">contain</span>; <span class="cm">/* fit, no crop */</span>
+  <span class="prop">background-position</span>: <span class="val">center</span>;
+  <span class="prop">background-repeat</span>: <span class="val">no-repeat</span>;
+  <span class="prop">background-attachment</span>: <span class="val">fixed</span>; <span class="cm">/* parallax effect */</span>
+
+  <span class="cm">/* ── GRADIENTS ── */</span>
+  <span class="prop">background</span>: <span class="fn">linear-gradient</span>(<span class="num">135deg</span>, <span class="val">#667eea</span>, <span class="val">#764ba2</span>);
+  <span class="prop">background</span>: <span class="fn">radial-gradient</span>(<span class="val">circle</span>, <span class="val">#fff</span>, <span class="val">#000</span>);
+
+  <span class="cm">/* ── BOX SHADOW ── */</span>
+  <span class="prop">box-shadow</span>: <span class="num">0 4px 6px</span> <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.1</span>);
+  <span class="cm">/* x-offset  y-offset  blur  spread  color */</span>
+  <span class="prop">box-shadow</span>: <span class="num">0 8px 32px</span> <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.2</span>);
+  <span class="prop">box-shadow</span>: <span class="kw">inset</span> <span class="num">0 2px 4px</span> <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.15</span>); <span class="cm">/* inner shadow */</span>
+  <span class="prop">box-shadow</span>: <span class="num">0 4px 6px</span> <span class="val">red</span>, <span class="num">0 8px 12px</span> <span class="val">blue</span>; <span class="cm">/* multiple shadows */</span>
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 7: CSS Variables ── -->
+    <div class="section" id="variables">
+      <div class="section-header">
+        <div class="section-icon icon-green">🔧</div>
+        <div>
+          <div class="section-title">CSS Custom Properties (Variables)</div>
+          <div class="section-subtitle">Reusable values — essential for theming and design systems</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What are CSS Variables?</h4>
+        <p>CSS custom properties (variables) let you store values once and reuse them throughout your stylesheet. This makes it easy to change your design system — update one variable and it cascades everywhere. They're defined with <code style="color:var(--accent)">--name: value</code> and used with <code style="color:var(--accent)">var(--name)</code>.</p>
+        <p>This is how large company design systems (like Google's Material Design, or Tailwind CSS's theme) work under the hood.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Variables & Dark Mode Example</span>
+        </div>
+        <pre><code><span class="cm">/* ── DEFINE VARIABLES on :root (global scope) ── */</span>
+<span class="sel">:root</span> {
+  <span class="cm">/* Colour Palette */</span>
+  <span class="prop">--color-primary</span>:    <span class="val">#4facfe</span>;
+  <span class="prop">--color-secondary</span>:  <span class="val">#a78bfa</span>;
+  <span class="prop">--color-success</span>:    <span class="val">#34d399</span>;
+  <span class="prop">--color-danger</span>:     <span class="val">#f87171</span>;
+  <span class="prop">--color-text</span>:       <span class="val">#1a1a2e</span>;
+  <span class="prop">--color-bg</span>:         <span class="val">#ffffff</span>;
+  <span class="prop">--color-surface</span>:    <span class="val">#f8f9fa</span>;
+
+  <span class="cm">/* Typography */</span>
+  <span class="prop">--font-size-base</span>:   <span class="num">16px</span>;
+  <span class="prop">--font-size-sm</span>:     <span class="num">14px</span>;
+  <span class="prop">--font-size-lg</span>:     <span class="num">20px</span>;
+  <span class="prop">--font-size-xl</span>:     <span class="num">24px</span>;
+
+  <span class="cm">/* Spacing Scale */</span>
+  <span class="prop">--space-xs</span>: <span class="num">4px</span>;
+  <span class="prop">--space-sm</span>: <span class="num">8px</span>;
+  <span class="prop">--space-md</span>: <span class="num">16px</span>;
+  <span class="prop">--space-lg</span>: <span class="num">24px</span>;
+  <span class="prop">--space-xl</span>: <span class="num">48px</span>;
+
+  <span class="cm">/* Border Radius */</span>
+  <span class="prop">--radius-sm</span>: <span class="num">4px</span>;
+  <span class="prop">--radius-md</span>: <span class="num">8px</span>;
+  <span class="prop">--radius-lg</span>: <span class="num">12px</span>;
+  <span class="prop">--radius-full</span>: <span class="num">9999px</span>;
+
+  <span class="cm">/* Shadows */</span>
+  <span class="prop">--shadow-sm</span>: <span class="num">0 1px 3px</span> <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.1</span>);
+  <span class="prop">--shadow-md</span>: <span class="num">0 4px 16px</span> <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.15</span>);
+}
+
+<span class="cm">/* ── DARK MODE: Override variables ── */</span>
+<span class="sel">@media (prefers-color-scheme: dark)</span> {
+  <span class="sel">:root</span> {
+    <span class="prop">--color-text</span>: <span class="val">#e8eaf0</span>;
+    <span class="prop">--color-bg</span>:   <span class="val">#0d0f14</span>;
+    <span class="prop">--color-surface</span>: <span class="val">#13161e</span>;
+    <span class="cm">/* --color-primary stays the same — no change needed! */</span>
+  }
+}
+
+<span class="cm">/* ── USING VARIABLES ── */</span>
+<span class="sel">.btn-primary</span> {
+  <span class="prop">background-color</span>: <span class="fn">var</span>(<span class="prop">--color-primary</span>);
+  <span class="prop">color</span>: <span class="val">white</span>;
+  <span class="prop">padding</span>: <span class="fn">var</span>(<span class="prop">--space-sm</span>) <span class="fn">var</span>(<span class="prop">--space-lg</span>);
+  <span class="prop">border-radius</span>: <span class="fn">var</span>(<span class="prop">--radius-md</span>);
+  <span class="prop">font-size</span>: <span class="fn">var</span>(<span class="prop">--font-size-base</span>);
+  <span class="prop">box-shadow</span>: <span class="fn">var</span>(<span class="prop">--shadow-sm</span>);
+}
+
+<span class="cm">/* ── DEFAULT VALUES: var(--x, fallback) ── */</span>
+<span class="sel">.card</span> {
+  <span class="prop">color</span>: <span class="fn">var</span>(<span class="prop">--color-accent</span>, <span class="val">#blue</span>);  <span class="cm">/* if --color-accent not defined, use blue */</span>
+}
+
+<span class="cm">/* ── JAVASCRIPT can read/write CSS variables ── */</span>
+<span class="cm">/*
+  const root = document.documentElement;
+  root.style.setProperty('--color-primary', '#ff6b35');
+  getComputedStyle(root).getPropertyValue('--color-primary');
+*/</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 8: Responsive & Media Queries ── -->
+    <div class="section" id="responsive">
+      <div class="section-header">
+        <div class="section-icon icon-purple">📱</div>
+        <div>
+          <div class="section-title">Responsive Design & Media Queries</div>
+          <div class="section-subtitle">Building for all screen sizes — mobile-first approach</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Mobile-First Design</h4>
+        <p><strong>Mobile-first</strong> means you write CSS for small screens by default, then use <code style="color:var(--accent)">min-width</code> media queries to add styles for larger screens. This is the industry standard because mobile traffic exceeds desktop in most markets, and it's easier to scale up a simple layout than to scale down a complex one.</p>
+        <div class="highlight-box purple">
+          <strong>min-width (mobile-first) vs max-width (desktop-first):</strong><br/>
+          <code>@media (min-width: 768px)</code> — applies when screen is AT LEAST 768px (tablet+)<br/>
+          <code>@media (max-width: 767px)</code> — applies when screen is AT MOST 767px (mobile only)
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Responsive Design & Media Queries</span>
+        </div>
+        <pre><code><span class="cm">/* ── STANDARD BREAKPOINTS (industry common) ── */</span>
+<span class="cm">/*
+  xs:  < 480px  (small mobile)
+  sm:  ≥ 480px  (large mobile)
+  md:  ≥ 768px  (tablet)
+  lg:  ≥ 1024px (laptop)
+  xl:  ≥ 1280px (desktop)
+  2xl: ≥ 1536px (large desktop)
+*/</span>
+
+<span class="cm">/* ── MOBILE FIRST: default styles (no query) are for mobile ── */</span>
+<span class="sel">.container</span> {
+  <span class="prop">width</span>: <span class="num">100%</span>;
+  <span class="prop">padding</span>: <span class="num">0 16px</span>;
+}
+
+<span class="sel">.grid</span> {
+  <span class="prop">display</span>: <span class="val">flex</span>;
+  <span class="prop">flex-direction</span>: <span class="val">column</span>;  <span class="cm">/* Stack vertically on mobile */</span>
+  <span class="prop">gap</span>: <span class="num">16px</span>;
+}
+
+<span class="cm">/* ── TABLET (768px and up) ── */</span>
+<span class="sel">@media (min-width: 768px)</span> {
+  <span class="sel">.container</span> {
+    <span class="prop">max-width</span>: <span class="num">768px</span>;
+    <span class="prop">margin</span>: <span class="num">0 auto</span>;
+    <span class="prop">padding</span>: <span class="num">0 24px</span>;
+  }
+  <span class="sel">.grid</span> {
+    <span class="prop">flex-direction</span>: <span class="val">row</span>;   <span class="cm">/* Side by side on tablet */</span>
+    <span class="prop">flex-wrap</span>: <span class="val">wrap</span>;
+  }
+}
+
+<span class="cm">/* ── LAPTOP (1024px and up) ── */</span>
+<span class="sel">@media (min-width: 1024px)</span> {
+  <span class="sel">.container</span> { <span class="prop">max-width</span>: <span class="num">1024px</span>; }
+  <span class="sel">.sidebar</span>  { <span class="prop">display</span>: <span class="val">block</span>; }  <span class="cm">/* Show sidebar only on laptop+ */</span>
+  <span class="sel">.hamburger</span>{ <span class="prop">display</span>: <span class="val">none</span>; }   <span class="cm">/* Hide hamburger on laptop+ */</span>
+}
+
+<span class="cm">/* ── OTHER QUERY TYPES ── */</span>
+
+<span class="cm">/* Orientation */</span>
+<span class="sel">@media (orientation: portrait)</span>  { <span class="cm">/* Phone held upright */</span> }
+<span class="sel">@media (orientation: landscape)</span> { <span class="cm">/* Phone held sideways */</span> }
+
+<span class="cm">/* Dark Mode preference */</span>
+<span class="sel">@media (prefers-color-scheme: dark)</span>  { <span class="cm">/* User prefers dark */</span> }
+<span class="sel">@media (prefers-color-scheme: light)</span> { <span class="cm">/* User prefers light */</span> }
+
+<span class="cm">/* Reduced motion (for users with motion sensitivity) */</span>
+<span class="sel">@media (prefers-reduced-motion: reduce)</span> {
+  <span class="sel">*</span> { <span class="prop">animation</span>: <span class="val">none</span> <span class="kw">!important</span>; <span class="prop">transition</span>: <span class="val">none</span> <span class="kw">!important</span>; }
+}
+
+<span class="cm">/* Print styles */</span>
+<span class="sel">@media print</span> {
+  <span class="sel">.navbar, .sidebar, .footer</span> { <span class="prop">display</span>: <span class="val">none</span>; }
+  <span class="sel">body</span> { <span class="prop">font-size</span>: <span class="num">12pt</span>; <span class="prop">color</span>: <span class="val">black</span>; }
+}
+
+<span class="cm">/* ── FLUID UNITS — avoid fixed px for responsive design ── */</span>
+<span class="sel">html</span> { <span class="prop">font-size</span>: <span class="num">16px</span>; }    <span class="cm">/* Root size */</span>
+<span class="sel">h1</span>   { <span class="prop">font-size</span>: <span class="num">2.5rem</span>; } <span class="cm">/* 40px at root 16px */</span>
+<span class="sel">p</span>    { <span class="prop">font-size</span>: <span class="num">1rem</span>; }   <span class="cm">/* 16px — scales if root changes */</span>
+
+<span class="cm">/* ── CLAMP: fluid values without breakpoints ── */</span>
+<span class="sel">h1</span> {
+  <span class="prop">font-size</span>: <span class="fn">clamp</span>(<span class="num">1.5rem</span>, <span class="num">4vw</span>, <span class="num">3rem</span>);
+  <span class="cm">/* min: 1.5rem  |  preferred: 4vw  |  max: 3rem */</span>
+  <span class="cm">/* Fluid type: starts at 1.5rem on mobile, scales up, caps at 3rem */</span>
+}
+
+<span class="sel">.container</span> {
+  <span class="prop">width</span>: <span class="fn">min</span>(<span class="num">90%</span>, <span class="num">1200px</span>);  <span class="cm">/* 90% on small, max 1200px on large */</span>
+  <span class="prop">margin</span>: <span class="num">0 auto</span>;
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 9: Full CSS Example ── -->
+    <div class="section" id="fullexample">
+      <div class="section-header">
+        <div class="section-icon icon-orange">🚀</div>
+        <div>
+          <div class="section-title">Full Real-World CSS Example</div>
+          <div class="section-subtitle">Complete CSS for a professional button component and card layout</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Production-Quality Component Styles</span>
+        </div>
+        <pre><code><span class="cm">/* ── RESET & BASE ── */</span>
+<span class="sel">*, *::before, *::after</span> {
+  <span class="prop">box-sizing</span>: <span class="val">border-box</span>;
+  <span class="prop">margin</span>: <span class="num">0</span>;
+  <span class="prop">padding</span>: <span class="num">0</span>;
+}
+
+<span class="sel">:root</span> {
+  <span class="prop">--primary</span>: <span class="val">#4facfe</span>;
+  <span class="prop">--primary-dark</span>: <span class="val">#3d8fd4</span>;
+  <span class="prop">--text</span>: <span class="val">#1a1a2e</span>;
+  <span class="prop">--surface</span>: <span class="val">#ffffff</span>;
+  <span class="prop">--border</span>: <span class="val">#e2e8f0</span>;
+  <span class="prop">--radius</span>: <span class="num">8px</span>;
+  <span class="prop">--shadow</span>: <span class="num">0 4px 16px</span> <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.08</span>);
+  <span class="prop">--transition</span>: <span class="val">all 0.2s ease</span>;
+}
+
+<span class="sel">body</span> {
+  <span class="prop">font-family</span>: <span class="val">'Inter'</span>, <span class="val">system-ui</span>, <span class="val">sans-serif</span>;
+  <span class="prop">font-size</span>: <span class="num">16px</span>;
+  <span class="prop">line-height</span>: <span class="num">1.6</span>;
+  <span class="prop">color</span>: <span class="fn">var</span>(<span class="prop">--text</span>);
+  <span class="prop">background</span>: <span class="val">#f8fafc</span>;
+}
+
+<span class="cm">/* ── BUTTONS ── */</span>
+<span class="sel">.btn</span> {
+  <span class="prop">display</span>: <span class="val">inline-flex</span>;
+  <span class="prop">align-items</span>: <span class="val">center</span>;
+  <span class="prop">gap</span>: <span class="num">8px</span>;
+  <span class="prop">padding</span>: <span class="num">10px 20px</span>;
+  <span class="prop">border</span>: <span class="num">2px</span> <span class="val">solid transparent</span>;
+  <span class="prop">border-radius</span>: <span class="fn">var</span>(<span class="prop">--radius</span>);
+  <span class="prop">font-size</span>: <span class="num">14px</span>;
+  <span class="prop">font-weight</span>: <span class="num">600</span>;
+  <span class="prop">cursor</span>: <span class="val">pointer</span>;
+  <span class="prop">text-decoration</span>: <span class="val">none</span>;
+  <span class="prop">transition</span>: <span class="fn">var</span>(<span class="prop">--transition</span>);
+  <span class="prop">white-space</span>: <span class="val">nowrap</span>;
+}
+
+<span class="sel">.btn-primary</span> {
+  <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--primary</span>);
+  <span class="prop">color</span>: <span class="val">white</span>;
+}
+<span class="sel">.btn-primary:hover</span> {
+  <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--primary-dark</span>);
+  <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">-1px</span>);
+  <span class="prop">box-shadow</span>: <span class="num">0 4px 12px</span> <span class="fn">rgba</span>(<span class="num">79</span>,<span class="num">172</span>,<span class="num">254</span>,<span class="num">0.4</span>);
+}
+<span class="sel">.btn-primary:active</span> {
+  <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">0</span>);
+}
+
+<span class="sel">.btn-outline</span> {
+  <span class="prop">background</span>: <span class="val">transparent</span>;
+  <span class="prop">color</span>: <span class="fn">var</span>(<span class="prop">--primary</span>);
+  <span class="prop">border-color</span>: <span class="fn">var</span>(<span class="prop">--primary</span>);
+}
+<span class="sel">.btn-outline:hover</span> {
+  <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--primary</span>);
+  <span class="prop">color</span>: <span class="val">white</span>;
+}
+
+<span class="cm">/* ── CARD COMPONENT ── */</span>
+<span class="sel">.card</span> {
+  <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--surface</span>);
+  <span class="prop">border</span>: <span class="num">1px</span> <span class="val">solid</span> <span class="fn">var</span>(<span class="prop">--border</span>);
+  <span class="prop">border-radius</span>: <span class="fn">var</span>(<span class="prop">--radius</span>);
+  <span class="prop">box-shadow</span>: <span class="fn">var</span>(<span class="prop">--shadow</span>);
+  <span class="prop">overflow</span>: <span class="val">hidden</span>;
+  <span class="prop">transition</span>: <span class="fn">var</span>(<span class="prop">--transition</span>);
+}
+
+<span class="sel">.card:hover</span> {
+  <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">-4px</span>);
+  <span class="prop">box-shadow</span>: <span class="num">0 12px 40px</span> <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.12</span>);
+}
+
+<span class="sel">.card__image</span> { <span class="prop">width</span>: <span class="num">100%</span>; <span class="prop">height</span>: <span class="num">200px</span>; <span class="prop">object-fit</span>: <span class="val">cover</span>; }
+<span class="sel">.card__body</span>  { <span class="prop">padding</span>: <span class="num">20px</span>; }
+<span class="sel">.card__title</span> { <span class="prop">font-size</span>: <span class="num">1.1rem</span>; <span class="prop">font-weight</span>: <span class="num">600</span>; <span class="prop">margin-bottom</span>: <span class="num">8px</span>; }
+<span class="sel">.card__text</span>  { <span class="prop">color</span>: <span class="val">#64748b</span>; <span class="prop">font-size</span>: <span class="num">0.9rem</span>; <span class="prop">margin-bottom</span>: <span class="num">16px</span>; }
+<span class="sel">.card__footer</span>{ <span class="prop">display</span>: <span class="val">flex</span>; <span class="prop">justify-content</span>: <span class="val">space-between</span>; <span class="prop">align-items</span>: <span class="val">center</span>; }
+
+<span class="cm">/* ── CARD GRID (responsive without media queries!) ── */</span>
+<span class="sel">.card-grid</span> {
+  <span class="prop">display</span>: <span class="val">flex</span>;
+  <span class="prop">flex-wrap</span>: <span class="val">wrap</span>;
+  <span class="prop">gap</span>: <span class="num">24px</span>;
+  <span class="prop">padding</span>: <span class="num">24px</span>;
+}
+<span class="sel">.card-grid .card</span> {
+  <span class="prop">flex</span>: <span class="num">1 1 300px</span>;  <span class="cm">/* Grows equally, min 300px — responsive by default! */</span>
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 10: Interview Q&A ── -->
+    <div class="section" id="interview">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🎯</div>
+        <div>
+          <div class="section-title">Placement Interview Q&A</div>
+          <div class="section-subtitle">Top CSS questions asked in real Ahmedabad company interviews</div>
+        </div>
+      </div>
+
+      <ul class="qa-list">
+        <li class="qa-item">
+          <div class="qa-q">Q1. What is the CSS Box Model? Explain each layer.</div>
+          <div class="qa-a">Every HTML element is a rectangular box made of 4 layers from outside in: Margin (transparent outer space that pushes other elements away), Border (the visible edge of the element), Padding (inner space between border and content), and Content (the actual text or child elements). By default, width only applies to content. With box-sizing: border-box (the industry standard), width includes padding and border too, making layout math intuitive.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q2. What is the difference between margin and padding?</div>
+          <div class="qa-a">Padding is the space INSIDE the element — between the content and its border. It takes the element's background color. Margin is the space OUTSIDE the element — between its border and surrounding elements. Margin is always transparent. Also, vertical margins can collapse (merge), but padding never collapses.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q3. How do you centre a div both horizontally and vertically?</div>
+          <div class="qa-a">The modern way (Flexbox): On the parent container, set display: flex; justify-content: center; align-items: center; min-height: 100vh. The child div will be perfectly centred. Old method: position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) — works but the flexbox method is cleaner and more responsive.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q4. What is CSS specificity and how is it calculated?</div>
+          <div class="qa-a">Specificity determines which CSS rule applies when multiple rules target the same element. It's scored as (inline, ID, class/attr/pseudo-class, element). Inline styles win (1,0,0,0), then IDs (0,1,0,0), then classes/attributes/pseudo-classes (0,0,1,0), then elements (0,0,0,1). Higher score wins. If equal, the last rule in the file wins (cascade). !important overrides all specificity — but should be avoided.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q5. What is the difference between display:none and visibility:hidden?</div>
+          <div class="qa-a">display: none completely removes the element from the document flow — it takes up no space and is invisible. It cannot be interacted with. visibility: hidden makes the element invisible, but it still occupies its space in the layout. The layout around it remains the same. A third option is opacity: 0, which also keeps space but remains accessible to screen readers and can still receive click events.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q6. What is Flexbox and what problem does it solve?</div>
+          <div class="qa-a">Flexbox (Flexible Box Layout) is a one-dimensional layout model that solves the problem of distributing space among items in a container — especially when their sizes are unknown or dynamic. Before Flexbox, vertical centering required hacks with absolute positioning or table-cell display. Flexbox makes it trivial with justify-content and align-items. It's ideal for navbars, card rows, form layouts, and any horizontal or vertical arrangement of items.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q7. What is the difference between position relative, absolute, fixed, and sticky?</div>
+          <div class="qa-a">Static (default): normal flow, no offset properties work. Relative: offset from its own normal position; other elements still see it in original spot. Absolute: removed from flow, positioned relative to nearest positioned ancestor; used for tooltips, dropdowns. Fixed: removed from flow, positioned relative to viewport; doesn't scroll with page; used for sticky navbars. Sticky: acts like relative until scroll reaches the threshold (e.g. top: 0), then acts like fixed; used for sticky table headers.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q8. What are CSS custom properties (variables) and how do they work?</div>
+          <div class="qa-a">CSS custom properties (variables) are defined with double hyphens: --color-primary: blue; on a parent element (usually :root for global scope). They're accessed with var(--color-primary). They inherit through the DOM like regular CSS properties, can be overridden in local scope (e.g., inside a dark-mode media query), and can be read and written by JavaScript. They enable theming, design systems, and runtime style changes without JavaScript-injected inline styles.</div>
+        </li>
+      </ul>
+
+      <div class="highlight-box green" style="margin-top:24px">
+        <strong>🎯 Day 2 Checklist — Before Day 3:</strong><br/>
+        ✓ Understand all selector types + specificity &nbsp;|&nbsp;
+        ✓ Can explain the box model and border-box &nbsp;|&nbsp;
+        ✓ Know all Flexbox container + item properties &nbsp;|&nbsp;
+        ✓ Can centre an element 3 different ways &nbsp;|&nbsp;
+        ✓ Know mobile-first media queries &nbsp;|&nbsp;
+        ✓ Can write a CSS variable design system
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- Day Nav Footer -->
+  <div class="day-nav">
+    <div class="day-nav-info">
+      Previous<strong>Day 1 — HTML5 Foundations</strong>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="day-nav-info" style="text-align:right">
+        Next up<strong>Day 3 — CSS Grid, Animations & Transitions</strong>
+      </div>
+      <button class="next-btn" onclick="alert('Say \"Day 3\" to Claude to get the next lesson!')">Day 3 →</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+  const navLinks = document.querySelectorAll('.nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
