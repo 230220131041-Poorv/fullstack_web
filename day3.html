@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Day 3 — CSS Grid, Animations & Advanced Layout | Full Stack Placement Prep</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #0d0f14;
+      --surface:  #13161e;
+      --surface2: #1a1e2a;
+      --border:   #252a38;
+      --accent:   #a78bfa;
+      --accent2:  #34d399;
+      --accent3:  #fb923c;
+      --text:     #e8eaf0;
+      --muted:    #7a8099;
+      --code-bg:  #0a0c11;
+      --tag-bg:   #1e2230;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.7; }
+
+    /* SIDEBAR */
+    .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; z-index: 100; padding: 24px 0; }
+    .sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    .day-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+    .sidebar-logo h2 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
+    .nav-section-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 12px 20px 6px; }
+    .nav-item { display: block; padding: 8px 20px; color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500; border-left: 2px solid transparent; transition: all 0.2s; }
+    .nav-item:hover, .nav-item.active { color: var(--text); background: var(--surface2); border-left-color: var(--accent); }
+
+    /* MAIN */
+    .main { margin-left: 240px; min-height: 100vh; }
+
+    /* HERO */
+    .hero { background: linear-gradient(135deg, #0d0f14 0%, #130f1e 50%, #0d0f14 100%); border-bottom: 1px solid var(--border); padding: 64px 60px 56px; position: relative; overflow: hidden; }
+    .hero::before { content: '⬛'; position: absolute; right: 60px; top: 50%; transform: translateY(-50%); font-size: 120px; color: var(--border); pointer-events: none; line-height: 1; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+    .hero-eyebrow span { width: 24px; height: 1px; background: var(--accent); display: inline-block; }
+    .hero h1 { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero-sub { font-size: 17px; color: var(--muted); max-width: 540px; margin-bottom: 32px; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+    .tag { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12.5px; font-family: 'JetBrains Mono', monospace; color: var(--accent2); }
+
+    /* PROGRESS */
+    .progress-strip { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 60px; display: flex; align-items: center; gap: 16px; }
+    .progress-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .progress-bar-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; }
+    .progress-bar-fill { height: 100%; width: 10%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; }
+    .progress-pct { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
+
+    /* CONTENT */
+    .content { padding: 0 60px 80px; }
+    .section { padding: 56px 0 0; border-top: 1px solid var(--border); margin-top: 56px; }
+    .section:first-child { margin-top: 0; padding-top: 48px; border-top: none; }
+    .section-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 32px; }
+    .section-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+    .icon-purple { background: rgba(167,139,250,0.12); }
+    .icon-green  { background: rgba(52,211,153,0.12); }
+    .icon-orange { background: rgba(251,146,60,0.12); }
+    .icon-blue   { background: rgba(79,172,254,0.12); }
+    .icon-pink   { background: rgba(236,72,153,0.12); }
+    .icon-yellow { background: rgba(251,191,36,0.12); }
+    .section-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+    .section-subtitle { font-size: 14px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+    /* THEORY */
+    .theory-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px 32px; margin-bottom: 20px; }
+    .theory-block h4 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+    .theory-block p { font-size: 15px; line-height: 1.75; margin-bottom: 10px; }
+    .theory-block p:last-child { margin-bottom: 0; }
+
+    /* HIGHLIGHT */
+    .highlight-box { border-left: 3px solid var(--accent); background: rgba(167,139,250,0.06); border-radius: 0 10px 10px 0; padding: 16px 20px; margin: 16px 0; font-size: 14.5px; }
+    .highlight-box.green  { border-left-color: var(--accent2); background: rgba(52,211,153,0.06); }
+    .highlight-box.orange { border-left-color: var(--accent3); background: rgba(251,146,60,0.06); }
+    .highlight-box.blue   { border-left-color: #4facfe; background: rgba(79,172,254,0.06); }
+
+    /* CODE */
+    .code-wrapper { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; margin: 20px 0; overflow: hidden; }
+    .code-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    .code-dots { display: flex; gap: 6px; }
+    .code-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+    .code-lang { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+    .code-wrapper pre { padding: 22px 24px; overflow-x: auto; margin: 0; }
+    .code-wrapper code { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.75; }
+    .sel{color:#80cbc4;}.prop{color:#f07178;}.val{color:#c3e88d;}.num{color:#f78c6c;}.cm{color:#546e7a;font-style:italic;}.kw{color:#c792ea;}.fn{color:#82aaff;}.at{color:#ffcb6b;}
+
+    /* REALWORLD */
+    .realworld { background: linear-gradient(135deg, rgba(167,139,250,0.05),rgba(52,211,153,0.05)); border: 1px solid rgba(167,139,250,0.2); border-radius: 12px; padding: 24px 28px; margin: 24px 0; }
+    .realworld-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    .realworld h4 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .realworld p { font-size: 14.5px; color: var(--muted); line-height: 1.7; }
+
+    /* Q&A */
+    .qa-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-top: 20px; }
+    .qa-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 22px; }
+    .qa-q { font-weight: 600; color: var(--accent); font-size: 14.5px; margin-bottom: 8px; }
+    .qa-a { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+    /* GRID */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .mini-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+    .mini-card h5 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--accent); }
+    .mini-card p { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+
+    /* CHECKLIST */
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+    .checklist li { display: flex; align-items: flex-start; gap: 12px; font-size: 14.5px; }
+    .checklist li::before { content: '✓'; color: var(--accent2); font-weight: 700; font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+
+    /* DEMO AREA */
+    .demo-area { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 20px 0; }
+    .demo-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; }
+
+    /* ── GRID VISUAL DEMOS ── */
+    .grid-demo { display: grid; gap: 8px; margin: 10px 0; }
+    .grid-cell { background: rgba(167,139,250,0.2); border: 1px solid rgba(167,139,250,0.4); border-radius: 6px; padding: 10px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); text-align: center; }
+    .grid-cell.green { background: rgba(52,211,153,0.2); border-color: rgba(52,211,153,0.4); color: var(--accent2); }
+    .grid-cell.orange { background: rgba(251,146,60,0.2); border-color: rgba(251,146,60,0.4); color: var(--accent3); }
+    .grid-cell.span2 { grid-column: span 2; }
+    .grid-cell.span3 { grid-column: span 3; }
+    .grid-cell.rspan2 { grid-row: span 2; }
+
+    /* ── ANIMATION DEMOS ── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%       { transform: scale(1.08); opacity: 0.8; }
+    }
+    @keyframes slideIn {
+      from { transform: translateX(-100%); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes bounceIn {
+      0%   { transform: scale(0); opacity: 0; }
+      60%  { transform: scale(1.1); opacity: 1; }
+      80%  { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position:  200% 0; }
+    }
+    @keyframes typing {
+      from { width: 0; }
+      to   { width: 100%; }
+    }
+    @keyframes blink {
+      0%, 100% { border-color: transparent; }
+      50%       { border-color: var(--accent); }
+    }
+
+    .anim-box { width: 64px; height: 64px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: white; font-weight: 600; cursor: pointer; }
+    .anim-fadeIn  { background: var(--accent); animation: fadeIn 1s ease infinite alternate; }
+    .anim-spin    { background: var(--accent2); animation: spin 2s linear infinite; border-radius: 50%; }
+    .anim-pulse   { background: var(--accent3); animation: pulse 1.5s ease infinite; }
+    .anim-slide   { background: #4facfe; animation: slideIn 1s ease infinite alternate; }
+    .anim-bounce  { background: #fb7185; animation: bounceIn 1.2s ease infinite alternate; }
+    .anim-demos { display: flex; gap: 20px; flex-wrap: wrap; padding: 20px; background: var(--code-bg); border-radius: 8px; align-items: center; }
+    .anim-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-align: center; margin-top: 6px; }
+    .anim-item { display: flex; flex-direction: column; align-items: center; }
+
+    /* TRANSITION DEMO */
+    .trans-btn { padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer; transition: all 0.3s ease; margin: 6px; display: inline-block; }
+    .trans-btn:hover { background: var(--accent); border-color: var(--accent); color: #0d0f14; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(167,139,250,0.35); }
+
+    /* SKELETON SHIMMER */
+    .skeleton { background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; margin: 6px 0; }
+
+    /* TYPING EFFECT */
+    .typing-demo { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent2); overflow: hidden; white-space: nowrap; border-right: 2px solid var(--accent); width: fit-content; animation: typing 3s steps(30, end) infinite alternate, blink 0.7s step-end infinite; max-width: 260px; }
+
+    /* DAY NAV */
+    .day-nav { background: var(--surface); border-top: 1px solid var(--border); padding: 24px 60px; display: flex; align-items: center; justify-content: space-between; }
+    .day-nav-info { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+    .day-nav-info strong { color: var(--text); font-size: 14px; display: block; margin-top: 4px; }
+    .next-btn { background: var(--accent); color: #0d0f14; border: none; border-radius: 8px; padding: 10px 22px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: opacity 0.2s; }
+    .next-btn:hover { opacity: 0.85; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .hero { padding: 40px 24px 36px; }
+      .hero h1 { font-size: 34px; }
+      .hero::before { display: none; }
+      .content { padding: 0 24px 60px; }
+      .progress-strip, .day-nav { padding: 14px 24px; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="day-badge">Day 03 / 30</div>
+    <h2>CSS Grid & Animations</h2>
+  </div>
+  <div class="nav-section-label">Topics</div>
+  <a class="nav-item active" href="#grid-intro">CSS Grid Intro</a>
+  <a class="nav-item" href="#grid-container">Grid Container</a>
+  <a class="nav-item" href="#grid-items">Grid Item Placement</a>
+  <a class="nav-item" href="#grid-patterns">Real Grid Layouts</a>
+  <a class="nav-item" href="#grid-vs-flex">Grid vs Flexbox</a>
+  <a class="nav-item" href="#transitions">CSS Transitions</a>
+  <a class="nav-item" href="#transforms">CSS Transforms</a>
+  <a class="nav-item" href="#animations">CSS Animations</a>
+  <a class="nav-item" href="#anim-patterns">Animation Patterns</a>
+  <a class="nav-item" href="#overflow-scroll">Overflow & Scroll</a>
+  <a class="nav-item" href="#fullexample">Full Layout Example</a>
+  <a class="nav-item" href="#interview">Interview Q&A</a>
+</nav>
+
+<div class="main">
+
+  <!-- PROGRESS -->
+  <div class="progress-strip">
+    <span class="progress-label">30-Day Journey</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill"></div></div>
+    <span class="progress-pct">Day 3</span>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow"><span></span> Full Stack Placement Prep</div>
+    <h1>Day 3 — <em>CSS Grid</em>,<br/>Animations & Advanced Layout</h1>
+    <p class="hero-sub">Master two-dimensional layouts with CSS Grid, bring pages to life with transitions and keyframe animations, and learn the advanced CSS patterns every company uses.</p>
+    <div class="hero-tags">
+      <span class="tag">CSS Grid</span>
+      <span class="tag">Transitions</span>
+      <span class="tag">Transforms</span>
+      <span class="tag">@keyframes</span>
+      <span class="tag">Animation Patterns</span>
+      <span class="tag">Grid vs Flexbox</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── SECTION 1: CSS Grid Intro ── -->
+    <div class="section" id="grid-intro">
+      <div class="section-header">
+        <div class="section-icon icon-purple">⬛</div>
+        <div>
+          <div class="section-title">CSS Grid — Introduction</div>
+          <div class="section-subtitle">Two-dimensional layout — the most powerful CSS layout system</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What is CSS Grid?</h4>
+        <p>CSS Grid Layout is a <strong>two-dimensional</strong> layout system — it controls both rows AND columns at the same time. This is what makes it different from Flexbox, which is only one-dimensional (either row OR column at a time).</p>
+        <p>With Grid, you divide a container into a grid of rows and columns, then place items precisely anywhere in that grid — including spanning multiple rows or columns. It is ideal for <strong>page-level layouts</strong> — the big structural skeleton of a webpage.</p>
+        <div class="highlight-box">
+          <strong>Key mental model:</strong> Imagine a spreadsheet. CSS Grid turns an HTML element into a spreadsheet-like structure where you control the rows, columns, and where each child element sits — including merging cells (spanning). You define the grid on the parent; children place themselves in it.
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Grid Terminology You Must Know</h4>
+        <p><strong>Grid Container</strong> — the element with <code style="color:var(--accent)">display: grid</code>. Parent of all grid items.<br/>
+        <strong>Grid Item</strong> — direct children of the grid container.<br/>
+        <strong>Grid Line</strong> — the dividing lines making up the grid structure (numbered 1 to n+1).<br/>
+        <strong>Grid Track</strong> — the space between two adjacent grid lines (a row or column).<br/>
+        <strong>Grid Cell</strong> — single intersection of a row and column — the smallest unit.<br/>
+        <strong>Grid Area</strong> — any rectangular space bounded by 4 grid lines (can span multiple cells).</p>
+      </div>
+
+      <!-- Visual Demo -->
+      <div class="demo-area">
+        <div class="demo-label">📐 Visual: 3-Column CSS Grid</div>
+        <div class="grid-demo" style="grid-template-columns: repeat(3, 1fr);">
+          <div class="grid-cell">Cell 1</div>
+          <div class="grid-cell">Cell 2</div>
+          <div class="grid-cell">Cell 3</div>
+          <div class="grid-cell green">Cell 4</div>
+          <div class="grid-cell green">Cell 5</div>
+          <div class="grid-cell green">Cell 6</div>
+          <div class="grid-cell orange span3">Spanning All 3 Columns (grid-column: 1 / 4)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: Grid Container ── -->
+    <div class="section" id="grid-container">
+      <div class="section-header">
+        <div class="section-icon icon-green">🏗️</div>
+        <div>
+          <div class="section-title">Grid Container Properties</div>
+          <div class="section-subtitle">Defining rows, columns, gaps, and alignment on the parent</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Grid Container Properties (Complete)</span>
+        </div>
+        <pre><code><span class="sel">.grid-container</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;         <span class="cm">/* or inline-grid */</span>
+
+  <span class="cm">/* ── DEFINING COLUMNS ── */</span>
+  <span class="prop">grid-template-columns</span>: <span class="num">200px</span> <span class="num">400px</span> <span class="num">200px</span>;    <span class="cm">/* 3 fixed columns */</span>
+  <span class="prop">grid-template-columns</span>: <span class="num">1fr</span> <span class="num">2fr</span> <span class="num">1fr</span>;           <span class="cm">/* fr = fraction of remaining space */</span>
+  <span class="prop">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="num">3</span>, <span class="num">1fr</span>);       <span class="cm">/* 3 equal columns */</span>
+  <span class="prop">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="num">4</span>, <span class="num">250px</span>);     <span class="cm">/* 4 columns of 250px each */</span>
+  <span class="prop">grid-template-columns</span>: <span class="num">260px</span> <span class="fn">repeat</span>(<span class="num">3</span>, <span class="num">1fr</span>); <span class="cm">/* sidebar + 3 equal */</span>
+  <span class="prop">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="kw">auto-fill</span>, <span class="fn">minmax</span>(<span class="num">280px</span>, <span class="num">1fr</span>));
+                                                 <span class="cm">/* Responsive! Fill as many as fit, min 280px */</span>
+  <span class="prop">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="kw">auto-fit</span>, <span class="fn">minmax</span>(<span class="num">200px</span>, <span class="num">1fr</span>));
+                                                 <span class="cm">/* Like auto-fill but collapses empty tracks */</span>
+
+  <span class="cm">/* ── DEFINING ROWS ── */</span>
+  <span class="prop">grid-template-rows</span>: <span class="num">60px</span> <span class="num">1fr</span> <span class="num">80px</span>;  <span class="cm">/* header height, main flex, footer height */</span>
+  <span class="prop">grid-template-rows</span>: <span class="fn">repeat</span>(<span class="num">3</span>, <span class="num">200px</span>);
+  <span class="prop">grid-auto-rows</span>: <span class="fn">minmax</span>(<span class="num">120px</span>, <span class="kw">auto</span>); <span class="cm">/* implicitly created rows: min 120px, grow as needed */</span>
+
+  <span class="cm">/* ── SHORTHAND: rows / columns ── */</span>
+  <span class="prop">grid-template</span>: <span class="num">60px</span> <span class="num">1fr</span> <span class="num">60px</span> / <span class="num">240px</span> <span class="num">1fr</span>; <span class="cm">/* rows / columns */</span>
+
+  <span class="cm">/* ── GAPS ── */</span>
+  <span class="prop">gap</span>: <span class="num">24px</span>;              <span class="cm">/* row-gap AND column-gap */</span>
+  <span class="prop">gap</span>: <span class="num">16px 24px</span>;        <span class="cm">/* row-gap column-gap */</span>
+  <span class="prop">row-gap</span>: <span class="num">16px</span>;
+  <span class="prop">column-gap</span>: <span class="num">24px</span>;
+
+  <span class="cm">/* ── ALIGNMENT OF ALL ITEMS (inside their cells) ── */</span>
+  <span class="prop">justify-items</span>: <span class="val">start</span> | <span class="val">end</span> | <span class="val">center</span> | <span class="val">stretch</span>; <span class="cm">/* horizontal in cell */</span>
+  <span class="prop">align-items</span>:   <span class="val">start</span> | <span class="val">end</span> | <span class="val">center</span> | <span class="val">stretch</span>; <span class="cm">/* vertical in cell */</span>
+  <span class="prop">place-items</span>: <span class="val">center</span>;   <span class="cm">/* shorthand: align-items justify-items */</span>
+
+  <span class="cm">/* ── ALIGNMENT OF GRID ITSELF (when grid smaller than container) ── */</span>
+  <span class="prop">justify-content</span>: <span class="val">start</span> | <span class="val">end</span> | <span class="val">center</span> | <span class="val">space-between</span> | <span class="val">space-evenly</span>;
+  <span class="prop">align-content</span>:   <span class="val">start</span> | <span class="val">end</span> | <span class="val">center</span> | <span class="val">space-between</span>;
+  <span class="prop">place-content</span>:   <span class="val">center</span>;  <span class="cm">/* shorthand: align-content justify-content */</span>
+
+  <span class="cm">/* ── NAMED TEMPLATE AREAS (visual layout definition!) ── */</span>
+  <span class="prop">grid-template-areas</span>:
+    <span class="val">"header  header  header"</span>
+    <span class="val">"sidebar main    main  "</span>
+    <span class="val">"footer  footer  footer"</span>;
+  <span class="cm">/* Each string = one row. Each word = which area that cell belongs to */</span>
+  <span class="cm">/* Use '.' for an empty cell: "sidebar . main" */</span>
+}</code></pre>
+      </div>
+
+      <div class="theory-block">
+        <h4>The fr Unit — The Most Important Grid Unit</h4>
+        <p>The <code style="color:var(--accent)">fr</code> (fraction) unit represents a fraction of the available space in the grid container. It's calculated <em>after</em> fixed-size columns are accounted for.</p>
+        <p>Example: <code style="color:var(--accent)">grid-template-columns: 200px 1fr 2fr</code> — first column is fixed 200px. Remaining space is split: second column gets 1 part, third gets 2 parts. If container is 800px, remaining is 600px → second gets 200px, third gets 400px.</p>
+      </div>
+
+      <div class="theory-block">
+        <h4>minmax() — Responsive Without Media Queries</h4>
+        <p><code style="color:var(--accent)">minmax(min, max)</code> defines a size range. Tracks can be at least <em>min</em> and at most <em>max</em>. Combined with <code style="color:var(--accent)">auto-fill</code> or <code style="color:var(--accent)">auto-fit</code>, it creates fully responsive grids without a single media query.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Responsive Grid without Media Queries</span>
+        </div>
+        <pre><code><span class="cm">/* This single line creates a fully responsive card grid! */</span>
+<span class="sel">.card-grid</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="kw">auto-fill</span>, <span class="fn">minmax</span>(<span class="num">280px</span>, <span class="num">1fr</span>));
+  <span class="prop">gap</span>: <span class="num">24px</span>;
+}
+<span class="cm">/*
+  On 1200px screen: fits 4 cards (4 × 280px = 1120px fits)
+  On 900px screen:  fits 3 cards
+  On 600px screen:  fits 2 cards
+  On 320px screen:  fits 1 card
+  No media queries needed! 🎉
+*/</span>
+
+<span class="cm">/* auto-fill vs auto-fit:
+  auto-fill: keeps empty track space (tracks still exist)
+  auto-fit:  collapses empty tracks → items stretch to fill
+  For most cases, use auto-fit for card grids
+*/</span>
+<span class="sel">.product-grid</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="kw">auto-fit</span>, <span class="fn">minmax</span>(<span class="num">240px</span>, <span class="num">1fr</span>));
+  <span class="prop">gap</span>: <span class="num">20px</span>;
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: Grid Item Placement ── -->
+    <div class="section" id="grid-items">
+      <div class="section-header">
+        <div class="section-icon icon-orange">📍</div>
+        <div>
+          <div class="section-title">Grid Item Placement</div>
+          <div class="section-subtitle">Precisely positioning and spanning items in the grid</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Grid Item Properties</span>
+        </div>
+        <pre><code><span class="cm">/* ── GRID LINES: numbered from 1 (positive) or -1 (from end) ── */</span>
+<span class="sel">.item-a</span> {
+  <span class="cm">/* Using line numbers */</span>
+  <span class="prop">grid-column-start</span>: <span class="num">1</span>;   <span class="cm">/* start at column line 1 */</span>
+  <span class="prop">grid-column-end</span>: <span class="num">3</span>;     <span class="cm">/* end at column line 3 (spans 2 columns) */</span>
+  <span class="prop">grid-row-start</span>: <span class="num">1</span>;
+  <span class="prop">grid-row-end</span>: <span class="num">2</span>;
+
+  <span class="cm">/* Shorthand: start / end */</span>
+  <span class="prop">grid-column</span>: <span class="num">1</span> / <span class="num">3</span>;   <span class="cm">/* start at line 1, end at line 3 */</span>
+  <span class="prop">grid-row</span>: <span class="num">1</span> / <span class="num">2</span>;
+
+  <span class="cm">/* Using span keyword */</span>
+  <span class="prop">grid-column</span>: <span class="num">1</span> / <span class="kw">span</span> <span class="num">2</span>;  <span class="cm">/* start line 1, span 2 columns */</span>
+  <span class="prop">grid-column</span>: <span class="kw">span</span> <span class="num">2</span>;       <span class="cm">/* auto-place but span 2 columns */</span>
+  <span class="prop">grid-row</span>: <span class="kw">span</span> <span class="num">2</span>;           <span class="cm">/* span 2 rows */</span>
+
+  <span class="cm">/* Using -1 to mean "to the very end" */</span>
+  <span class="prop">grid-column</span>: <span class="num">1</span> / <span class="num">-1</span>;       <span class="cm">/* full width — start to end */</span>
+
+  <span class="cm">/* Shorthand: grid-area: row-start / col-start / row-end / col-end */</span>
+  <span class="prop">grid-area</span>: <span class="num">1</span> / <span class="num">1</span> / <span class="num">2</span> / <span class="num">3</span>;  <span class="cm">/* row 1, col 1 to row 2, col 3 */</span>
+
+  <span class="cm">/* Per-item alignment (override container's justify/align-items) */</span>
+  <span class="prop">justify-self</span>: <span class="val">start</span> | <span class="val">end</span> | <span class="val">center</span> | <span class="val">stretch</span>;
+  <span class="prop">align-self</span>:   <span class="val">start</span> | <span class="val">end</span> | <span class="val">center</span> | <span class="val">stretch</span>;
+  <span class="prop">place-self</span>: <span class="val">center</span>;  <span class="cm">/* shorthand */</span>
+}
+
+<span class="cm">/* ── USING NAMED AREAS ── */</span>
+<span class="sel">.layout</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="num">240px</span> <span class="num">1fr</span>;
+  <span class="prop">grid-template-rows</span>: <span class="num">64px</span> <span class="num">1fr</span> <span class="num">48px</span>;
+  <span class="prop">grid-template-areas</span>:
+    <span class="val">"header header"</span>
+    <span class="val">"sidebar main"</span>
+    <span class="val">"footer footer"</span>;
+  <span class="prop">min-height</span>: <span class="num">100vh</span>;
+}
+
+<span class="sel">.site-header</span>  { <span class="prop">grid-area</span>: <span class="val">header</span>; }   <span class="cm">/* placed in the "header" area */</span>
+<span class="sel">.site-sidebar</span> { <span class="prop">grid-area</span>: <span class="val">sidebar</span>; }
+<span class="sel">.site-main</span>    { <span class="prop">grid-area</span>: <span class="val">main</span>; }
+<span class="sel">.site-footer</span>  { <span class="prop">grid-area</span>: <span class="val">footer</span>; }</code></pre>
+      </div>
+
+      <!-- Visual: Grid Area Demo -->
+      <div class="demo-area">
+        <div class="demo-label">📐 Visual: Named Grid Areas Layout</div>
+        <div style="display:grid;grid-template-columns:140px 1fr;grid-template-rows:44px 120px 36px;grid-template-areas:'header header' 'sidebar main' 'footer footer';gap:6px;">
+          <div style="grid-area:header;background:rgba(167,139,250,0.25);border:1px solid rgba(167,139,250,0.5);border-radius:6px;display:flex;align-items:center;padding:0 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);">header</div>
+          <div style="grid-area:sidebar;background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.4);border-radius:6px;display:flex;align-items:center;padding:0 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent2);">sidebar</div>
+          <div style="grid-area:main;background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.4);border-radius:6px;display:flex;align-items:center;padding:0 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent3);">main content</div>
+          <div style="grid-area:footer;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);border-radius:6px;display:flex;align-items:center;padding:0 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);">footer</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: Real Grid Layouts ── -->
+    <div class="section" id="grid-patterns">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🧩</div>
+        <div>
+          <div class="section-title">Real-World Grid Layout Patterns</div>
+          <div class="section-subtitle">The layouts you will actually build in company projects</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — 5 Real Grid Layout Patterns</span>
+        </div>
+        <pre><code><span class="cm">/* ── PATTERN 1: Holy Grail Layout (header, 3 cols, footer) ── */</span>
+<span class="sel">.holy-grail</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="num">200px</span> <span class="num">1fr</span> <span class="num">160px</span>;
+  <span class="prop">grid-template-rows</span>: <span class="num">64px</span> <span class="num">1fr</span> <span class="num">56px</span>;
+  <span class="prop">grid-template-areas</span>:
+    <span class="val">"header  header  header"</span>
+    <span class="val">"nav     main    aside "</span>
+    <span class="val">"footer  footer  footer"</span>;
+  <span class="prop">min-height</span>: <span class="num">100vh</span>;
+  <span class="prop">gap</span>: <span class="num">0</span>;
+}
+
+<span class="cm">/* ── PATTERN 2: Dashboard Layout ── */</span>
+<span class="sel">.dashboard</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="num">260px</span> <span class="num">1fr</span>;
+  <span class="prop">grid-template-rows</span>: <span class="num">60px</span> <span class="num">1fr</span>;
+  <span class="prop">grid-template-areas</span>:
+    <span class="val">"sidebar topbar"</span>
+    <span class="val">"sidebar content"</span>;
+  <span class="prop">min-height</span>: <span class="num">100vh</span>;
+}
+
+<span class="cm">/* ── PATTERN 3: Responsive Product Grid ── */</span>
+<span class="sel">.products</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="kw">auto-fit</span>, <span class="fn">minmax</span>(<span class="num">220px</span>, <span class="num">1fr</span>));
+  <span class="prop">gap</span>: <span class="num">24px</span>;
+}
+
+<span class="cm">/* ── PATTERN 4: Feature Section (big + small cards) ── */</span>
+<span class="sel">.features</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="num">3</span>, <span class="num">1fr</span>);
+  <span class="prop">gap</span>: <span class="num">20px</span>;
+}
+<span class="sel">.feature-main</span> {
+  <span class="prop">grid-column</span>: <span class="kw">span</span> <span class="num">2</span>;  <span class="cm">/* Big featured card spans 2 columns */</span>
+}
+
+<span class="cm">/* ── PATTERN 5: Masonry-like layout ── */</span>
+<span class="sel">.gallery</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="num">3</span>, <span class="num">1fr</span>);
+  <span class="prop">grid-auto-rows</span>: <span class="num">200px</span>;
+  <span class="prop">gap</span>: <span class="num">12px</span>;
+}
+<span class="sel">.gallery img:nth-child(3n + 1)</span> { <span class="prop">grid-row</span>: <span class="kw">span</span> <span class="num">2</span>; }  <span class="cm">/* Tall image every 3rd */</span>
+
+<span class="cm">/* ── RESPONSIVE LAYOUT: change grid with media query ── */</span>
+<span class="sel">.page</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="num">1fr</span>;              <span class="cm">/* Mobile: single column */</span>
+  <span class="prop">grid-template-areas</span>: <span class="val">"header" "main" "sidebar" "footer"</span>;
+}
+
+<span class="sel">@media (min-width: 768px)</span> {
+  <span class="sel">.page</span> {
+    <span class="prop">grid-template-columns</span>: <span class="num">240px</span> <span class="num">1fr</span>;       <span class="cm">/* Tablet: sidebar + main */</span>
+    <span class="prop">grid-template-areas</span>:
+      <span class="val">"header  header"</span>
+      <span class="val">"sidebar main  "</span>
+      <span class="val">"footer  footer"</span>;
+  }
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 5: Grid vs Flexbox ── -->
+    <div class="section" id="grid-vs-flex">
+      <div class="section-header">
+        <div class="section-icon icon-yellow">⚖️</div>
+        <div>
+          <div class="section-title">CSS Grid vs Flexbox</div>
+          <div class="section-subtitle">When to use which — the most common interview question</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>The Golden Rule</h4>
+        <p>This question is asked in almost every CSS interview. The answer is not "one is better" — they are complementary tools designed for different jobs. A real-world page uses <strong>both</strong> at different levels of the hierarchy.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="mini-card">
+          <h5>Use CSS Grid when…</h5>
+          <p>✦ You have a <strong>two-dimensional layout</strong> — rows AND columns matter simultaneously.<br/><br/>
+          ✦ You're doing <strong>page-level layout</strong> — headers, sidebars, main content, footers.<br/><br/>
+          ✦ You need items to align across both axes at the same time.<br/><br/>
+          ✦ You want to <strong>define the structure</strong> first and place items into it (content-agnostic).<br/><br/>
+          ✦ Example: A dashboard grid, a magazine layout, a photo gallery.</p>
+        </div>
+        <div class="mini-card">
+          <h5>Use Flexbox when…</h5>
+          <p>✦ You have a <strong>one-dimensional layout</strong> — a row of items OR a column of items.<br/><br/>
+          ✦ You're doing <strong>component-level layout</strong> — inside a card, a navbar, a button group.<br/><br/>
+          ✦ You want items to <strong>flex and grow</strong> based on their content.<br/><br/>
+          ✦ You need items to wrap dynamically with flexible sizing.<br/><br/>
+          ✦ Example: A navbar, a button group, a form row, a list of badges.</p>
+        </div>
+      </div>
+
+      <div class="highlight-box green">
+        <strong>Real-world usage:</strong> Use Grid for the overall page skeleton (header/sidebar/main/footer). Use Flexbox inside each section (navbar items, card content layout, form controls). They nest perfectly and complement each other.
+      </div>
+
+      <div class="realworld">
+        <div class="realworld-label">🏢 Real World</div>
+        <h4>How Ahmedabad Companies Use Grid & Flexbox Together</h4>
+        <p>In a typical SaaS dashboard: <code style="color:var(--accent2)">CSS Grid</code> defines the outer shell — sidebar is 260px, content area takes 1fr, header is 60px tall. Inside the content area, <code style="color:var(--accent2)">CSS Grid</code> again creates the card grid with auto-fit. Inside each card, <code style="color:var(--accent2)">Flexbox</code> aligns the card header, body, and footer. Inside the navbar (which is itself a Grid item), <code style="color:var(--accent2)">Flexbox</code> positions the logo, links, and user avatar.</p>
+      </div>
+    </div>
+
+    <!-- ── SECTION 6: Transitions ── -->
+    <div class="section" id="transitions">
+      <div class="section-header">
+        <div class="section-icon icon-purple">✨</div>
+        <div>
+          <div class="section-title">CSS Transitions</div>
+          <div class="section-subtitle">Smooth, automatic animation between two states</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What is a Transition?</h4>
+        <p>A CSS transition smoothly animates a property <strong>from its current value to a new value</strong> when a change is triggered — such as a hover, focus, or class toggle. You define what properties to animate, how long, and how they ease. The browser handles all the in-between frames automatically.</p>
+        <p>Think of it as: "When <em>this</em> property changes, animate the change smoothly over <em>X</em> seconds instead of instantly."</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Transitions Complete</span>
+        </div>
+        <pre><code><span class="sel">.btn</span> {
+  <span class="prop">background</span>: <span class="val">#4facfe</span>;
+  <span class="prop">color</span>: <span class="val">white</span>;
+  <span class="prop">padding</span>: <span class="num">12px 24px</span>;
+  <span class="prop">border-radius</span>: <span class="num">8px</span>;
+
+  <span class="cm">/* ── TRANSITION SYNTAX ── */</span>
+  <span class="cm">/* transition: property  duration  timing-function  delay; */</span>
+  <span class="prop">transition</span>: <span class="val">background</span> <span class="num">0.3s</span> <span class="val">ease</span>;
+
+  <span class="cm">/* Multiple properties */</span>
+  <span class="prop">transition</span>:
+    <span class="val">background</span>   <span class="num">0.3s</span> <span class="val">ease</span>,
+    <span class="val">transform</span>    <span class="num">0.2s</span> <span class="val">ease</span>,
+    <span class="val">box-shadow</span>   <span class="num">0.3s</span> <span class="val">ease</span>;
+
+  <span class="cm">/* Transition ALL animatable properties (use carefully) */</span>
+  <span class="prop">transition</span>: <span class="val">all</span> <span class="num">0.3s</span> <span class="val">ease</span>;
+}
+
+<span class="sel">.btn:hover</span> {
+  <span class="prop">background</span>: <span class="val">#3d8fd4</span>;
+  <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">-2px</span>);
+  <span class="prop">box-shadow</span>: <span class="num">0 8px 20px</span> <span class="fn">rgba</span>(<span class="num">79</span>,<span class="num">172</span>,<span class="num">254</span>,<span class="num">0.4</span>);
+}
+
+<span class="cm">/* ── TIMING FUNCTIONS (easing) ── */</span>
+<span class="prop">transition-timing-function</span>: <span class="val">ease</span>;          <span class="cm">/* slow → fast → slow (default) */</span>
+<span class="prop">transition-timing-function</span>: <span class="val">ease-in</span>;       <span class="cm">/* slow start, fast end */</span>
+<span class="prop">transition-timing-function</span>: <span class="val">ease-out</span>;      <span class="cm">/* fast start, slow end */</span>
+<span class="prop">transition-timing-function</span>: <span class="val">ease-in-out</span>;   <span class="cm">/* slow start, slow end */</span>
+<span class="prop">transition-timing-function</span>: <span class="val">linear</span>;        <span class="cm">/* constant speed */</span>
+<span class="prop">transition-timing-function</span>: <span class="fn">cubic-bezier</span>(<span class="num">0.25</span>, <span class="num">0.46</span>, <span class="num">0.45</span>, <span class="num">0.94</span>);
+                                              <span class="cm">/* Custom bezier curve */</span>
+<span class="prop">transition-timing-function</span>: <span class="fn">steps</span>(<span class="num">4</span>);      <span class="cm">/* Jumpy (sprite animation) */</span>
+
+<span class="cm">/* ── INDIVIDUAL PROPERTIES ── */</span>
+<span class="prop">transition-property</span>: <span class="val">background</span>, <span class="val">transform</span>;
+<span class="prop">transition-duration</span>: <span class="num">0.3s</span>;
+<span class="prop">transition-timing-function</span>: <span class="val">ease</span>;
+<span class="prop">transition-delay</span>: <span class="num">0.1s</span>;  <span class="cm">/* wait 100ms before starting */</span>
+
+<span class="cm">/* ── COMMON ANIMATABLE PROPERTIES ── */</span>
+<span class="cm">/* opacity, transform, color, background-color, width, height,
+   border-radius, box-shadow, font-size, letter-spacing, margin, padding */</span>
+<span class="cm">/* NOT animatable: display, visibility (use opacity instead) */</span>
+
+<span class="cm">/* ── PERFORMANCE TIP: Only transition opacity and transform ── */</span>
+<span class="cm">/* These run on the GPU compositor (no layout recalculation) */</span>
+<span class="cm">/* Animating width/height/margin causes layout reflow = slower */</span>
+<span class="sel">.performant</span> {
+  <span class="prop">transition</span>: <span class="val">opacity</span> <span class="num">0.3s</span> <span class="val">ease</span>, <span class="val">transform</span> <span class="num">0.3s</span> <span class="val">ease</span>;
+}
+
+<span class="cm">/* ── WILL-CHANGE: hint to browser (use sparingly) ── */</span>
+<span class="sel">.heavy-animation</span> { <span class="prop">will-change</span>: <span class="val">transform</span>; }</code></pre>
+      </div>
+
+      <!-- Live Demo -->
+      <div class="demo-area">
+        <div class="demo-label">🎮 Live Demo — Hover over these buttons</div>
+        <div style="padding: 10px 0;">
+          <span class="trans-btn">Hover Me</span>
+          <span class="trans-btn" style="transition: all 0.5s cubic-bezier(0.34,1.56,0.64,1);">Bouncy</span>
+          <span class="trans-btn" style="transition: all 0.15s ease-in; border-radius:0">Sharp</span>
+          <span class="trans-btn" style="transition: all 0.8s ease-in-out;">Slow</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 7: Transforms ── -->
+    <div class="section" id="transforms">
+      <div class="section-header">
+        <div class="section-icon icon-green">🔄</div>
+        <div>
+          <div class="section-title">CSS Transforms</div>
+          <div class="section-subtitle">Move, scale, rotate, and skew elements — without affecting layout</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What is a CSS Transform?</h4>
+        <p>CSS transforms visually move, resize, rotate, or distort an element — <strong>without affecting the document layout</strong>. Other elements don't move to compensate. This is why transforms are the preferred tool for animation — they're GPU-accelerated and don't cause layout recalculations (reflow).</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — All Transform Functions</span>
+        </div>
+        <pre><code><span class="cm">/* ── TRANSLATE (move) ── */</span>
+<span class="prop">transform</span>: <span class="fn">translateX</span>(<span class="num">50px</span>);           <span class="cm">/* move right 50px */</span>
+<span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">-20px</span>);          <span class="cm">/* move up 20px */</span>
+<span class="prop">transform</span>: <span class="fn">translate</span>(<span class="num">50px</span>, <span class="num">-20px</span>);    <span class="cm">/* move right 50px, up 20px */</span>
+<span class="prop">transform</span>: <span class="fn">translate</span>(<span class="num">-50%</span>, <span class="num">-50%</span>);    <span class="cm">/* centre trick (used with position:absolute) */</span>
+
+<span class="cm">/* ── SCALE (resize) ── */</span>
+<span class="prop">transform</span>: <span class="fn">scale</span>(<span class="num">1.2</span>);               <span class="cm">/* 120% of original size */</span>
+<span class="prop">transform</span>: <span class="fn">scale</span>(<span class="num">1.2</span>, <span class="num">0.8</span>);          <span class="cm">/* 120% wide, 80% tall */</span>
+<span class="prop">transform</span>: <span class="fn">scaleX</span>(<span class="num">2</span>);               <span class="cm">/* double width */</span>
+<span class="prop">transform</span>: <span class="fn">scaleY</span>(<span class="num">0.5</span>);             <span class="cm">/* half height */</span>
+
+<span class="cm">/* ── ROTATE ── */</span>
+<span class="prop">transform</span>: <span class="fn">rotate</span>(<span class="num">45deg</span>);            <span class="cm">/* 45 degrees clockwise */</span>
+<span class="prop">transform</span>: <span class="fn">rotate</span>(<span class="num">-90deg</span>);           <span class="cm">/* 90 degrees counter-clockwise */</span>
+<span class="prop">transform</span>: <span class="fn">rotate</span>(<span class="num">0.5turn</span>);          <span class="cm">/* half turn = 180deg */</span>
+
+<span class="cm">/* ── SKEW ── */</span>
+<span class="prop">transform</span>: <span class="fn">skewX</span>(<span class="num">20deg</span>);             <span class="cm">/* slant horizontally */</span>
+<span class="prop">transform</span>: <span class="fn">skewY</span>(<span class="num">10deg</span>);             <span class="cm">/* slant vertically */</span>
+<span class="prop">transform</span>: <span class="fn">skew</span>(<span class="num">20deg</span>, <span class="num">10deg</span>);      <span class="cm">/* both */</span>
+
+<span class="cm">/* ── COMBINING (apply right to left!) ── */</span>
+<span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">-4px</span>) <span class="fn">scale</span>(<span class="num">1.02</span>);  <span class="cm">/* lift up + enlarge */</span>
+<span class="prop">transform</span>: <span class="fn">rotate</span>(<span class="num">45deg</span>) <span class="fn">scale</span>(<span class="num">1.5</span>);      <span class="cm">/* rotate then scale */</span>
+
+<span class="cm">/* ── 3D TRANSFORMS ── */</span>
+<span class="prop">transform</span>: <span class="fn">rotateX</span>(<span class="num">60deg</span>);           <span class="cm">/* tilt backward/forward */</span>
+<span class="prop">transform</span>: <span class="fn">rotateY</span>(<span class="num">45deg</span>);           <span class="cm">/* spin left/right */</span>
+<span class="prop">transform</span>: <span class="fn">perspective</span>(<span class="num">800px</span>) <span class="fn">rotateY</span>(<span class="num">30deg</span>);
+
+<span class="cm">/* ── TRANSFORM ORIGIN: pivot point for rotation/scale ── */</span>
+<span class="prop">transform-origin</span>: <span class="val">center</span>;      <span class="cm">/* default: 50% 50% */</span>
+<span class="prop">transform-origin</span>: <span class="val">top left</span>;   <span class="cm">/* rotate from top-left corner */</span>
+<span class="prop">transform-origin</span>: <span class="num">0 0</span>;         <span class="cm">/* same as top left */</span>
+<span class="prop">transform-origin</span>: <span class="num">100% 50%</span>;   <span class="cm">/* right-middle edge */</span>
+
+<span class="cm">/* ── REAL PATTERN: Card hover lift ── */</span>
+<span class="sel">.card</span> {
+  <span class="prop">transition</span>: <span class="val">transform</span> <span class="num">0.3s</span> <span class="val">ease</span>, <span class="val">box-shadow</span> <span class="num">0.3s</span> <span class="val">ease</span>;
+}
+<span class="sel">.card:hover</span> {
+  <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">-6px</span>);
+  <span class="prop">box-shadow</span>: <span class="num">0 20px 40px</span> <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.15</span>);
+}
+
+<span class="cm">/* ── REAL PATTERN: Rotating hamburger to X icon ── */</span>
+<span class="sel">.hamburger-line</span>      { <span class="prop">transition</span>: <span class="val">transform</span> <span class="num">0.3s</span> <span class="val">ease</span>, <span class="val">opacity</span> <span class="num">0.3s</span>; }
+<span class="sel">.open .line-1</span>        { <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">7px</span>) <span class="fn">rotate</span>(<span class="num">45deg</span>); }
+<span class="sel">.open .line-2</span>        { <span class="prop">opacity</span>: <span class="num">0</span>; }
+<span class="sel">.open .line-3</span>        { <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">-7px</span>) <span class="fn">rotate</span>(<span class="num">-45deg</span>); }</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 8: Animations ── -->
+    <div class="section" id="animations">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🎬</div>
+        <div>
+          <div class="section-title">CSS Animations — @keyframes</div>
+          <div class="section-subtitle">Multi-step, looping, and complex animations with full control</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Transition vs Animation</h4>
+        <p><strong>Transitions</strong> need an external trigger (hover, focus, class change) and animate between exactly 2 states (A → B).<br/>
+        <strong>Animations</strong> can start automatically, loop indefinitely, have multiple keyframe steps (A → B → C → D), run in reverse, and have precise per-step control. You define them with <code style="color:var(--accent)">@keyframes</code>.</p>
+      </div>
+
+      <!-- Live Animation Demo -->
+      <div class="demo-area">
+        <div class="demo-label">🎬 Live Animation Examples (all CSS, no JS)</div>
+        <div class="anim-demos">
+          <div class="anim-item">
+            <div class="anim-box anim-fadeIn">fade</div>
+            <div class="anim-label">fadeIn</div>
+          </div>
+          <div class="anim-item">
+            <div class="anim-box anim-spin">spin</div>
+            <div class="anim-label">spin</div>
+          </div>
+          <div class="anim-item">
+            <div class="anim-box anim-pulse">pulse</div>
+            <div class="anim-label">pulse</div>
+          </div>
+          <div class="anim-item">
+            <div class="anim-box anim-slide">slide</div>
+            <div class="anim-label">slideIn</div>
+          </div>
+          <div class="anim-item">
+            <div class="anim-box anim-bounce">bounce</div>
+            <div class="anim-label">bounceIn</div>
+          </div>
+          <div class="anim-item" style="align-self:center">
+            <div class="typing-demo">Full Stack Developer</div>
+            <div class="anim-label">typing cursor</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — @keyframes Animations Complete</span>
+        </div>
+        <pre><code><span class="cm">/* ── STEP 1: Define the animation with @keyframes ── */</span>
+<span class="sel">@keyframes</span> <span class="fn">fadeIn</span> {
+  <span class="sel">from</span> { <span class="prop">opacity</span>: <span class="num">0</span>; <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">20px</span>); }
+  <span class="sel">to</span>   { <span class="prop">opacity</span>: <span class="num">1</span>; <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">0</span>); }
+}
+
+<span class="cm">/* Multiple stops with percentages */</span>
+<span class="sel">@keyframes</span> <span class="fn">bounceIn</span> {
+  <span class="sel">0%</span>   { <span class="prop">transform</span>: <span class="fn">scale</span>(<span class="num">0</span>); <span class="prop">opacity</span>: <span class="num">0</span>; }
+  <span class="sel">60%</span>  { <span class="prop">transform</span>: <span class="fn">scale</span>(<span class="num">1.1</span>); <span class="prop">opacity</span>: <span class="num">1</span>; }
+  <span class="sel">80%</span>  { <span class="prop">transform</span>: <span class="fn">scale</span>(<span class="num">0.95</span>); }
+  <span class="sel">100%</span> { <span class="prop">transform</span>: <span class="fn">scale</span>(<span class="num">1</span>); }
+}
+
+<span class="sel">@keyframes</span> <span class="fn">spin</span> {
+  <span class="sel">from</span> { <span class="prop">transform</span>: <span class="fn">rotate</span>(<span class="num">0deg</span>); }
+  <span class="sel">to</span>   { <span class="prop">transform</span>: <span class="fn">rotate</span>(<span class="num">360deg</span>); }
+}
+
+<span class="sel">@keyframes</span> <span class="fn">pulse</span> {
+  <span class="sel">0%, 100%</span> { <span class="prop">transform</span>: <span class="fn">scale</span>(<span class="num">1</span>); <span class="prop">opacity</span>: <span class="num">1</span>; }
+  <span class="sel">50%</span>      { <span class="prop">transform</span>: <span class="fn">scale</span>(<span class="num">1.05</span>); <span class="prop">opacity</span>: <span class="num">0.8</span>; }
+}
+
+<span class="cm">/* ── STEP 2: Apply the animation ── */</span>
+<span class="sel">.element</span> {
+  <span class="cm">/* animation: name  duration  timing  delay  iteration  direction  fill-mode */</span>
+  <span class="prop">animation</span>: <span class="fn">fadeIn</span> <span class="num">0.6s</span> <span class="val">ease</span> <span class="num">0s</span> <span class="num">1</span> <span class="val">normal</span> <span class="val">both</span>;
+
+  <span class="cm">/* Common shorthand */</span>
+  <span class="prop">animation</span>: <span class="fn">fadeIn</span> <span class="num">0.6s</span> <span class="val">ease</span>;
+  <span class="prop">animation</span>: <span class="fn">spin</span> <span class="num">2s</span> <span class="val">linear</span> <span class="val">infinite</span>;  <span class="cm">/* spinner */</span>
+  <span class="prop">animation</span>: <span class="fn">pulse</span> <span class="num">1.5s</span> <span class="val">ease-in-out</span> <span class="val">infinite</span>;
+  <span class="prop">animation</span>: <span class="fn">bounceIn</span> <span class="num">0.8s</span> <span class="val">cubic-bezier(0.36, 0.07, 0.19, 0.97)</span> <span class="val">both</span>;
+}
+
+<span class="cm">/* ── INDIVIDUAL PROPERTIES ── */</span>
+<span class="prop">animation-name</span>:            <span class="fn">fadeIn</span>;
+<span class="prop">animation-duration</span>:        <span class="num">0.6s</span>;
+<span class="prop">animation-timing-function</span>: <span class="val">ease</span>;
+<span class="prop">animation-delay</span>:           <span class="num">0.2s</span>;
+<span class="prop">animation-iteration-count</span>: <span class="num">1</span> | <span class="val">infinite</span> | <span class="num">3</span>;
+<span class="prop">animation-direction</span>:       <span class="val">normal</span> | <span class="val">reverse</span> | <span class="val">alternate</span> | <span class="val">alternate-reverse</span>;
+<span class="prop">animation-fill-mode</span>:       <span class="val">none</span> | <span class="val">forwards</span> | <span class="val">backwards</span> | <span class="val">both</span>;
+  <span class="cm">/* forwards: keeps end state after animation finishes */</span>
+  <span class="cm">/* backwards: applies from-state during delay period */</span>
+  <span class="cm">/* both: both of the above */</span>
+<span class="prop">animation-play-state</span>:      <span class="val">running</span> | <span class="val">paused</span>;
+
+<span class="cm">/* Pause animation on hover */</span>
+<span class="sel">.loading:hover</span> { <span class="prop">animation-play-state</span>: <span class="val">paused</span>; }
+
+<span class="cm">/* Multiple animations on one element */</span>
+<span class="sel">.element</span> { <span class="prop">animation</span>: <span class="fn">spin</span> <span class="num">2s</span> <span class="val">linear</span> <span class="val">infinite</span>, <span class="fn">pulse</span> <span class="num">3s</span> <span class="val">ease</span> <span class="val">infinite</span>; }</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 9: Animation Patterns ── -->
+    <div class="section" id="anim-patterns">
+      <div class="section-header">
+        <div class="section-icon icon-orange">🔥</div>
+        <div>
+          <div class="section-title">Production Animation Patterns</div>
+          <div class="section-subtitle">Animations you'll build in real company projects</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — 6 Must-Know Animation Patterns</span>
+        </div>
+        <pre><code><span class="cm">/* ── 1. LOADING SPINNER ── */</span>
+<span class="sel">@keyframes</span> <span class="fn">spin</span> {
+  <span class="sel">to</span> { <span class="prop">transform</span>: <span class="fn">rotate</span>(<span class="num">360deg</span>); }
+}
+<span class="sel">.spinner</span> {
+  <span class="prop">width</span>: <span class="num">32px</span>; <span class="prop">height</span>: <span class="num">32px</span>;
+  <span class="prop">border</span>: <span class="num">3px</span> <span class="val">solid</span> <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.1</span>);
+  <span class="prop">border-top-color</span>: <span class="val">#4facfe</span>;
+  <span class="prop">border-radius</span>: <span class="num">50%</span>;
+  <span class="prop">animation</span>: <span class="fn">spin</span> <span class="num">0.8s</span> <span class="val">linear</span> <span class="val">infinite</span>;
+}
+
+<span class="cm">/* ── 2. SKELETON SCREEN SHIMMER (loading placeholder) ── */</span>
+<span class="sel">@keyframes</span> <span class="fn">shimmer</span> {
+  <span class="sel">0%</span>   { <span class="prop">background-position</span>: <span class="num">-200%</span> <span class="num">0</span>; }
+  <span class="sel">100%</span> { <span class="prop">background-position</span>:  <span class="num">200%</span> <span class="num">0</span>; }
+}
+<span class="sel">.skeleton</span> {
+  <span class="prop">background</span>: <span class="fn">linear-gradient</span>(<span class="num">90deg</span>, <span class="val">#e0e0e0</span> <span class="num">25%</span>, <span class="val">#f0f0f0</span> <span class="num">50%</span>, <span class="val">#e0e0e0</span> <span class="num">75%</span>);
+  <span class="prop">background-size</span>: <span class="num">200%</span> <span class="num">100%</span>;
+  <span class="prop">animation</span>: <span class="fn">shimmer</span> <span class="num">1.5s</span> <span class="val">infinite</span>;
+  <span class="prop">border-radius</span>: <span class="num">4px</span>;
+}
+<span class="sel">.skeleton-title</span> { <span class="prop">height</span>: <span class="num">20px</span>; <span class="prop">width</span>: <span class="num">60%</span>; <span class="prop">margin-bottom</span>: <span class="num">8px</span>; }
+<span class="sel">.skeleton-text</span>  { <span class="prop">height</span>: <span class="num">14px</span>; <span class="prop">width</span>: <span class="num">90%</span>; <span class="prop">margin-bottom</span>: <span class="num">6px</span>; }
+
+<span class="cm">/* ── 3. PAGE ENTRANCE (staggered reveal) ── */</span>
+<span class="sel">@keyframes</span> <span class="fn">slideUp</span> {
+  <span class="sel">from</span> { <span class="prop">opacity</span>: <span class="num">0</span>; <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">30px</span>); }
+  <span class="sel">to</span>   { <span class="prop">opacity</span>: <span class="num">1</span>; <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">0</span>); }
+}
+<span class="sel">.card</span> {
+  <span class="prop">animation</span>: <span class="fn">slideUp</span> <span class="num">0.6s</span> <span class="val">ease</span> <span class="val">both</span>;
+}
+<span class="cm">/* Stagger: each card delays a little more than the previous */</span>
+<span class="sel">.card:nth-child(1)</span> { <span class="prop">animation-delay</span>: <span class="num">0.0s</span>; }
+<span class="sel">.card:nth-child(2)</span> { <span class="prop">animation-delay</span>: <span class="num">0.1s</span>; }
+<span class="sel">.card:nth-child(3)</span> { <span class="prop">animation-delay</span>: <span class="num">0.2s</span>; }
+<span class="sel">.card:nth-child(4)</span> { <span class="prop">animation-delay</span>: <span class="num">0.3s</span>; }
+
+<span class="cm">/* ── 4. TYPING CURSOR EFFECT ── */</span>
+<span class="sel">@keyframes</span> <span class="fn">typing</span> {
+  <span class="sel">from</span> { <span class="prop">width</span>: <span class="num">0</span>; }
+  <span class="sel">to</span>   { <span class="prop">width</span>: <span class="num">100%</span>; }
+}
+<span class="sel">@keyframes</span> <span class="fn">blink</span> {
+  <span class="sel">0%, 100%</span> { <span class="prop">border-color</span>: <span class="val">transparent</span>; }
+  <span class="sel">50%</span>      { <span class="prop">border-color</span>: <span class="val">currentColor</span>; }
+}
+<span class="sel">.typing-text</span> {
+  <span class="prop">overflow</span>: <span class="val">hidden</span>;
+  <span class="prop">white-space</span>: <span class="val">nowrap</span>;
+  <span class="prop">border-right</span>: <span class="num">2px</span> <span class="val">solid</span>;
+  <span class="prop">animation</span>:
+    <span class="fn">typing</span> <span class="num">3s</span> <span class="fn">steps</span>(<span class="num">30</span>, <span class="val">end</span>) <span class="val">forwards</span>,
+    <span class="fn">blink</span> <span class="num">0.75s</span> <span class="val">step-end</span> <span class="val">infinite</span>;
+}
+
+<span class="cm">/* ── 5. NOTIFICATION BADGE PING ── */</span>
+<span class="sel">@keyframes</span> <span class="fn">ping</span> {
+  <span class="sel">0%</span>   { <span class="prop">transform</span>: <span class="fn">scale</span>(<span class="num">1</span>); <span class="prop">opacity</span>: <span class="num">1</span>; }
+  <span class="sel">75%, 100%</span> { <span class="prop">transform</span>: <span class="fn">scale</span>(<span class="num">2</span>); <span class="prop">opacity</span>: <span class="num">0</span>; }
+}
+<span class="sel">.badge-wrapper</span> { <span class="prop">position</span>: <span class="val">relative</span>; }
+<span class="sel">.badge-ping</span> {
+  <span class="prop">position</span>: <span class="val">absolute</span>;
+  <span class="prop">top</span>: <span class="num">-4px</span>; <span class="prop">right</span>: <span class="num">-4px</span>;
+  <span class="prop">width</span>: <span class="num">12px</span>; <span class="prop">height</span>: <span class="num">12px</span>;
+  <span class="prop">background</span>: <span class="val">red</span>;
+  <span class="prop">border-radius</span>: <span class="num">50%</span>;
+  <span class="prop">animation</span>: <span class="fn">ping</span> <span class="num">1s</span> <span class="val">ease-in-out</span> <span class="val">infinite</span>;
+}
+
+<span class="cm">/* ── 6. FLOATING / BREATHING EFFECT ── */</span>
+<span class="sel">@keyframes</span> <span class="fn">float</span> {
+  <span class="sel">0%, 100%</span> { <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">0px</span>); }
+  <span class="sel">50%</span>      { <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">-12px</span>); }
+}
+<span class="sel">.hero-image</span> {
+  <span class="prop">animation</span>: <span class="fn">float</span> <span class="num">3s</span> <span class="val">ease-in-out</span> <span class="val">infinite</span>;
+}</code></pre>
+      </div>
+
+      <!-- Skeleton Demo -->
+      <div class="demo-area">
+        <div class="demo-label">💀 Skeleton Screen Demo (used while content loads)</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;width:200px;">
+            <div class="skeleton" style="height:100px;width:100%;margin-bottom:12px;border-radius:6px;"></div>
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text" style="width:70%;"></div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;width:200px;">
+            <div class="skeleton" style="height:100px;width:100%;margin-bottom:12px;border-radius:6px;"></div>
+            <div class="skeleton skeleton-title" style="width:80%;"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text" style="width:50%;"></div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;width:200px;">
+            <div class="skeleton" style="height:100px;width:100%;margin-bottom:12px;border-radius:6px;"></div>
+            <div class="skeleton skeleton-title" style="width:55%;"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text" style="width:80%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 10: Overflow & Scroll ── -->
+    <div class="section" id="overflow-scroll">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📜</div>
+        <div>
+          <div class="section-title">Overflow, Scroll & Clipping</div>
+          <div class="section-subtitle">Controlling what happens when content is too big</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Overflow, Scroll & Clipping</span>
+        </div>
+        <pre><code><span class="cm">/* ── OVERFLOW ── */</span>
+<span class="sel">.box</span> {
+  <span class="prop">overflow</span>: <span class="val">visible</span>; <span class="cm">/* default: content spills out */</span>
+  <span class="prop">overflow</span>: <span class="val">hidden</span>;  <span class="cm">/* clips content, no scrollbar */</span>
+  <span class="prop">overflow</span>: <span class="val">scroll</span>;  <span class="cm">/* always shows scrollbar */</span>
+  <span class="prop">overflow</span>: <span class="val">auto</span>;    <span class="cm">/* scrollbar only when needed (BEST) */</span>
+  <span class="prop">overflow-x</span>: <span class="val">hidden</span>; <span class="prop">overflow-y</span>: <span class="val">auto</span>; <span class="cm">/* independent axes */</span>
+}
+
+<span class="cm">/* ── TEXT TRUNCATION ── */</span>
+<span class="sel">.truncate</span> {
+  <span class="prop">white-space</span>: <span class="val">nowrap</span>;    <span class="cm">/* prevent wrapping */</span>
+  <span class="prop">overflow</span>: <span class="val">hidden</span>;        <span class="cm">/* hide overflow */</span>
+  <span class="prop">text-overflow</span>: <span class="val">ellipsis</span>; <span class="cm">/* show "..." */</span>
+  <span class="prop">max-width</span>: <span class="num">200px</span>;
+}
+
+<span class="cm">/* Multi-line truncation */</span>
+<span class="sel">.clamp-3</span> {
+  <span class="prop">display</span>: <span class="val">-webkit-box</span>;
+  <span class="prop">-webkit-line-clamp</span>: <span class="num">3</span>;      <span class="cm">/* show max 3 lines */</span>
+  <span class="prop">-webkit-box-orient</span>: <span class="val">vertical</span>;
+  <span class="prop">overflow</span>: <span class="val">hidden</span>;
+}
+
+<span class="cm">/* ── SMOOTH SCROLLING ── */</span>
+<span class="sel">html</span> { <span class="prop">scroll-behavior</span>: <span class="val">smooth</span>; } <span class="cm">/* anchor links scroll smoothly */</span>
+
+<span class="cm">/* ── SCROLL SNAP ── */</span>
+<span class="sel">.scroll-container</span> {
+  <span class="prop">overflow-x</span>: <span class="val">auto</span>;
+  <span class="prop">scroll-snap-type</span>: <span class="val">x mandatory</span>; <span class="cm">/* snap horizontally */</span>
+  <span class="prop">display</span>: <span class="val">flex</span>;
+}
+<span class="sel">.slide</span> {
+  <span class="prop">scroll-snap-align</span>: <span class="val">start</span>;  <span class="cm">/* each slide snaps to start */</span>
+  <span class="prop">flex</span>: <span class="num">0 0 100%</span>;            <span class="cm">/* full width, no shrink */</span>
+  <span class="prop">width</span>: <span class="num">100%</span>;
+}
+
+<span class="cm">/* ── CUSTOM SCROLLBAR STYLING ── */</span>
+<span class="sel">::-webkit-scrollbar</span>       { <span class="prop">width</span>: <span class="num">8px</span>; <span class="prop">height</span>: <span class="num">8px</span>; }
+<span class="sel">::-webkit-scrollbar-track</span> { <span class="prop">background</span>: <span class="val">#f1f1f1</span>; <span class="prop">border-radius</span>: <span class="num">4px</span>; }
+<span class="sel">::-webkit-scrollbar-thumb</span> { <span class="prop">background</span>: <span class="val">#c1c1c1</span>; <span class="prop">border-radius</span>: <span class="num">4px</span>; }
+<span class="sel">::-webkit-scrollbar-thumb:hover</span> { <span class="prop">background</span>: <span class="val">#a0a0a0</span>; }</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 11: Full Example ── -->
+    <div class="section" id="fullexample">
+      <div class="section-header">
+        <div class="section-icon icon-green">🚀</div>
+        <div>
+          <div class="section-title">Full Layout: Dashboard Page</div>
+          <div class="section-subtitle">Complete Grid + Flexbox + Animations combined — exactly what companies build</div>
+        </div>
+      </div>
+
+      <div class="realworld">
+        <div class="realworld-label">🏢 Real World</div>
+        <h4>This is how a real SaaS dashboard is structured</h4>
+        <p>Companies like Ahmedabad-based SaaS startups, analytics tools, and admin panels use exactly this combination: CSS Grid for the outer shell, Flexbox inside components, transitions on interactions, and animations for loading states. This template is production-ready.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">CSS — Complete Dashboard Layout</span>
+        </div>
+        <pre><code><span class="cm">/* ── RESET ── */</span>
+<span class="sel">*, *::before, *::after</span> { <span class="prop">box-sizing</span>: <span class="val">border-box</span>; <span class="prop">margin</span>: <span class="num">0</span>; <span class="prop">padding</span>: <span class="num">0</span>; }
+
+<span class="sel">:root</span> {
+  <span class="prop">--sidebar-w</span>: <span class="num">260px</span>;
+  <span class="prop">--topbar-h</span>: <span class="num">60px</span>;
+  <span class="prop">--bg</span>:       <span class="val">#f8fafc</span>;
+  <span class="prop">--surface</span>:  <span class="val">#ffffff</span>;
+  <span class="prop">--border</span>:   <span class="val">#e2e8f0</span>;
+  <span class="prop">--primary</span>:  <span class="val">#4facfe</span>;
+  <span class="prop">--text</span>:     <span class="val">#1a202c</span>;
+  <span class="prop">--muted</span>:    <span class="val">#718096</span>;
+  <span class="prop">--shadow</span>:   <span class="num">0 1px 3px</span> <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.08</span>);
+}
+
+<span class="cm">/* ── OUTER GRID SHELL ── */</span>
+<span class="sel">.dashboard</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="fn">var</span>(<span class="prop">--sidebar-w</span>) <span class="num">1fr</span>;
+  <span class="prop">grid-template-rows</span>: <span class="fn">var</span>(<span class="prop">--topbar-h</span>) <span class="num">1fr</span>;
+  <span class="prop">grid-template-areas</span>:
+    <span class="val">"sidebar topbar"</span>
+    <span class="val">"sidebar content"</span>;
+  <span class="prop">min-height</span>: <span class="num">100vh</span>;
+  <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--bg</span>);
+}
+
+<span class="cm">/* ── SIDEBAR ── */</span>
+<span class="sel">.sidebar</span> {
+  <span class="prop">grid-area</span>: <span class="val">sidebar</span>;
+  <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--surface</span>);
+  <span class="prop">border-right</span>: <span class="num">1px</span> <span class="val">solid</span> <span class="fn">var</span>(<span class="prop">--border</span>);
+  <span class="prop">display</span>: <span class="val">flex</span>;
+  <span class="prop">flex-direction</span>: <span class="val">column</span>;
+  <span class="prop">padding</span>: <span class="num">20px 0</span>;
+  <span class="prop">overflow-y</span>: <span class="val">auto</span>;
+}
+
+<span class="cm">/* ── TOPBAR ── */</span>
+<span class="sel">.topbar</span> {
+  <span class="prop">grid-area</span>: <span class="val">topbar</span>;
+  <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--surface</span>);
+  <span class="prop">border-bottom</span>: <span class="num">1px</span> <span class="val">solid</span> <span class="fn">var</span>(<span class="prop">--border</span>);
+  <span class="prop">display</span>: <span class="val">flex</span>;
+  <span class="prop">align-items</span>: <span class="val">center</span>;
+  <span class="prop">justify-content</span>: <span class="val">space-between</span>;
+  <span class="prop">padding</span>: <span class="num">0 24px</span>;
+  <span class="prop">position</span>: <span class="val">sticky</span>;
+  <span class="prop">top</span>: <span class="num">0</span>;
+  <span class="prop">z-index</span>: <span class="num">10</span>;
+}
+
+<span class="cm">/* ── CONTENT AREA ── */</span>
+<span class="sel">.content</span> {
+  <span class="prop">grid-area</span>: <span class="val">content</span>;
+  <span class="prop">padding</span>: <span class="num">24px</span>;
+  <span class="prop">overflow-y</span>: <span class="val">auto</span>;
+}
+
+<span class="cm">/* ── STATS ROW (4 cards) ── */</span>
+<span class="sel">.stats-grid</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="kw">auto-fit</span>, <span class="fn">minmax</span>(<span class="num">180px</span>, <span class="num">1fr</span>));
+  <span class="prop">gap</span>: <span class="num">16px</span>;
+  <span class="prop">margin-bottom</span>: <span class="num">24px</span>;
+}
+
+<span class="sel">.stat-card</span> {
+  <span class="prop">background</span>: <span class="fn">var</span>(<span class="prop">--surface</span>);
+  <span class="prop">border</span>: <span class="num">1px</span> <span class="val">solid</span> <span class="fn">var</span>(<span class="prop">--border</span>);
+  <span class="prop">border-radius</span>: <span class="num">12px</span>;
+  <span class="prop">padding</span>: <span class="num">20px</span>;
+  <span class="prop">box-shadow</span>: <span class="fn">var</span>(<span class="prop">--shadow</span>);
+  <span class="prop">transition</span>: <span class="val">transform</span> <span class="num">0.2s</span> <span class="val">ease</span>, <span class="val">box-shadow</span> <span class="num">0.2s</span> <span class="val">ease</span>;
+  <span class="prop">animation</span>: <span class="fn">slideUp</span> <span class="num">0.5s</span> <span class="val">ease</span> <span class="val">both</span>;
+}
+<span class="sel">.stat-card:hover</span> {
+  <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">-4px</span>);
+  <span class="prop">box-shadow</span>: <span class="num">0 8px 24px</span> <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.12</span>);
+}
+
+<span class="cm">/* ── RESPONSIVE: stack sidebar on mobile ── */</span>
+<span class="sel">@media (max-width: 768px)</span> {
+  <span class="sel">.dashboard</span> {
+    <span class="prop">grid-template-columns</span>: <span class="num">1fr</span>;
+    <span class="prop">grid-template-areas</span>:
+      <span class="val">"topbar"</span>
+      <span class="val">"content"</span>;
+  }
+  <span class="sel">.sidebar</span> { <span class="prop">display</span>: <span class="val">none</span>; } <span class="cm">/* Hide on mobile, show with hamburger */</span>
+}
+
+<span class="cm">/* ── ANIMATION ── */</span>
+<span class="sel">@keyframes</span> <span class="fn">slideUp</span> {
+  <span class="sel">from</span> { <span class="prop">opacity</span>: <span class="num">0</span>; <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">16px</span>); }
+  <span class="sel">to</span>   { <span class="prop">opacity</span>: <span class="num">1</span>; <span class="prop">transform</span>: <span class="fn">translateY</span>(<span class="num">0</span>); }
+}
+<span class="sel">.stat-card:nth-child(1)</span> { <span class="prop">animation-delay</span>: <span class="num">0.0s</span>; }
+<span class="sel">.stat-card:nth-child(2)</span> { <span class="prop">animation-delay</span>: <span class="num">0.1s</span>; }
+<span class="sel">.stat-card:nth-child(3)</span> { <span class="prop">animation-delay</span>: <span class="num">0.2s</span>; }
+<span class="sel">.stat-card:nth-child(4)</span> { <span class="prop">animation-delay</span>: <span class="num">0.3s</span>; }</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 12: Interview Q&A ── -->
+    <div class="section" id="interview">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🎯</div>
+        <div>
+          <div class="section-title">Placement Interview Q&A</div>
+          <div class="section-subtitle">Top CSS Grid & Animation questions from real company interviews</div>
+        </div>
+      </div>
+
+      <ul class="qa-list">
+        <li class="qa-item">
+          <div class="qa-q">Q1. What is the difference between CSS Grid and Flexbox?</div>
+          <div class="qa-a">Flexbox is one-dimensional — it arranges items in a single row OR column. Grid is two-dimensional — it controls rows AND columns simultaneously. Use Flexbox for component-level layout (navbars, card internals, button groups) where you're arranging items along one axis. Use Grid for page-level layout (dashboard shells, magazine layouts, card grids) where you need to control both dimensions at once. In real projects, you use both together — Grid for the page skeleton, Flexbox inside each section.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q2. What is the fr unit in CSS Grid?</div>
+          <div class="qa-a">The fr (fraction) unit represents a fraction of the available space in the grid container after fixed-size columns/rows are accounted for. For example, grid-template-columns: 1fr 2fr means the available space is divided into 3 parts: first column gets 1 part (~33%), second gets 2 parts (~67%). It's like flex-grow but for grid tracks. It's the key to creating flexible, proportional grids without fixed pixel widths.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q3. How do you make a responsive grid without media queries?</div>
+          <div class="qa-a">Using repeat() with auto-fit or auto-fill and minmax(): grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)). This creates as many columns as fit in the container, each at minimum 280px and maximum 1fr. On a 1200px screen it fits 4 cards; on 600px it fits 2; on 320px it shows 1 — all without any media queries. auto-fit collapses empty tracks so items stretch; auto-fill keeps empty track space.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q4. What is the difference between CSS transitions and CSS animations?</div>
+          <div class="qa-a">Transitions require a trigger (hover, focus, class toggle) and animate between exactly two states. They're simpler and defined with the transition property. Animations use @keyframes to define multiple steps and can: run automatically on page load, loop infinitely, run in reverse, have precise per-frame control, and be paused or replayed. For a hover effect, use transition. For a loading spinner, page entrance, or looping effect, use animation.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q5. What is grid-template-areas and why is it useful?</div>
+          <div class="qa-a">grid-template-areas lets you define a grid layout visually using named regions. You write strings where each word is the area name and each string is a row: "header header" / "sidebar main" / "footer footer". Then assign items to areas with grid-area: header. It makes the layout self-documenting — you can see the page structure at a glance in CSS. Changing the layout for different screen sizes is as simple as rewriting the template string in a media query.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q6. Why should you prefer animating transform and opacity over width or background?</div>
+          <div class="qa-a">Transform (translate, scale, rotate) and opacity are handled by the browser's compositor on the GPU — they don't cause layout recalculation or repaint. Animating properties like width, height, margin, top, or left causes the browser to recalculate layout (reflow) on every frame, which is expensive and causes jank on low-powered devices. As a rule: for smooth 60fps animations, use transform and opacity. If you need to show/hide something, use opacity: 0 + pointer-events: none instead of display: none (which can't be transitioned).</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q7. What is animation-fill-mode: forwards and when do you use it?</div>
+          <div class="qa-a">By default, when a CSS animation ends, the element snaps back to its pre-animation styles. animation-fill-mode: forwards tells the browser to keep the final keyframe styles applied after the animation completes. You use this when you want an entrance animation (like a fade-in or slide-up) to keep its result — so the element stays visible and in its final position after animating in. Without it, elements would flash back to their invisible/off-screen starting state.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q8. What is a skeleton screen and how is it implemented with CSS?</div>
+          <div class="qa-a">A skeleton screen is a loading placeholder that mimics the shape of the content that's loading — grey blocks in place of text, images, and cards. It uses a shimmer animation: a linear-gradient from grey to lighter grey to grey, with background-size: 200%, animated with background-position moving from -200% to 200% repeatedly. This gives the illusion of a light sweeping across the placeholder. It's better UX than a spinner because it shows users the expected layout structure while they wait.</div>
+        </li>
+      </ul>
+
+      <div class="highlight-box green" style="margin-top:24px">
+        <strong>🎯 Day 3 Checklist — Before Day 4:</strong><br/>
+        ✓ Can build a responsive card grid with auto-fit + minmax &nbsp;|&nbsp;
+        ✓ Know grid-template-areas and can draw a dashboard layout &nbsp;|&nbsp;
+        ✓ Understand fr unit and grid line numbering &nbsp;|&nbsp;
+        ✓ Know when to use Grid vs Flexbox &nbsp;|&nbsp;
+        ✓ Can write keyframe animations: spinner, fade, skeleton shimmer &nbsp;|&nbsp;
+        ✓ Know why transform/opacity are preferred for animation performance
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- Day Nav -->
+  <div class="day-nav">
+    <div class="day-nav-info">
+      Previous<strong>Day 2 — CSS3 & Flexbox</strong>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="day-nav-info" style="text-align:right">
+        Next up<strong>Day 4 — JavaScript Basics</strong>
+      </div>
+      <button class="next-btn" onclick="alert('Say \"Day 4\" to Claude to continue!')">Day 4 →</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+  const navLinks = document.querySelectorAll('.nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
