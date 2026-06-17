@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Day 5 — JavaScript Intermediate | Full Stack Placement Prep</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0d0f14;--surface:#13161e;--surface2:#1a1e2a;--border:#252a38;
+      --accent:#34d399;--accent2:#fbbf24;--accent3:#4facfe;--text:#e8eaf0;
+      --muted:#7a8099;--code-bg:#0a0c11;--tag-bg:#1e2230;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:16px;line-height:1.7;}
+    .sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:24px 0;}
+    .sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+    .day-badge{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+    .sidebar-logo h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;}
+    .nav-section-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:12px 20px 6px;}
+    .nav-item{display:block;padding:8px 20px;color:var(--muted);text-decoration:none;font-size:13.5px;font-weight:500;border-left:2px solid transparent;transition:all 0.2s;}
+    .nav-item:hover,.nav-item.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent);}
+    .main{margin-left:240px;min-height:100vh;}
+    .hero{background:linear-gradient(135deg,#0d0f14 0%,#0a1612 50%,#0d0f14 100%);border-bottom:1px solid var(--border);padding:64px 60px 56px;position:relative;overflow:hidden;}
+    .hero::before{content:'[ ]';position:absolute;right:60px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:140px;font-weight:800;color:var(--border);line-height:1;pointer-events:none;}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+    .hero-eyebrow span{width:24px;height:1px;background:var(--accent);display:inline-block;}
+    .hero h1{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;line-height:1.1;margin-bottom:16px;}
+    .hero h1 em{font-style:normal;color:var(--accent);}
+    .hero-sub{font-size:17px;color:var(--muted);max-width:540px;margin-bottom:32px;}
+    .hero-tags{display:flex;flex-wrap:wrap;gap:10px;}
+    .tag{background:var(--tag-bg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12.5px;font-family:'JetBrains Mono',monospace;color:var(--accent3);}
+    .progress-strip{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 60px;display:flex;align-items:center;gap:16px;}
+    .progress-label{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);white-space:nowrap;}
+    .progress-bar-track{flex:1;height:4px;background:var(--border);border-radius:2px;}
+    .progress-bar-fill{height:100%;width:16.66%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:2px;}
+    .progress-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);}
+    .content{padding:0 60px 80px;}
+    .section{padding:56px 0 0;border-top:1px solid var(--border);margin-top:56px;}
+    .section:first-child{margin-top:0;padding-top:48px;border-top:none;}
+    .section-header{display:flex;align-items:flex-start;gap:20px;margin-bottom:32px;}
+    .section-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;margin-top:2px;}
+    .icon-green{background:rgba(52,211,153,0.12);}.icon-yellow{background:rgba(251,191,36,0.12);}
+    .icon-blue{background:rgba(79,172,254,0.12);}.icon-orange{background:rgba(251,146,60,0.12);}
+    .icon-purple{background:rgba(167,139,250,0.12);}.icon-pink{background:rgba(236,72,153,0.12);}
+    .section-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:6px;}
+    .section-subtitle{font-size:14px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .theory-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 32px;margin-bottom:20px;}
+    .theory-block h4{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--accent);margin-bottom:12px;}
+    .theory-block p{font-size:15px;line-height:1.75;margin-bottom:10px;}
+    .theory-block p:last-child{margin-bottom:0;}
+    .highlight-box{border-left:3px solid var(--accent);background:rgba(52,211,153,0.06);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;font-size:14.5px;}
+    .highlight-box.yellow{border-left-color:var(--accent2);background:rgba(251,191,36,0.06);}
+    .highlight-box.blue{border-left-color:var(--accent3);background:rgba(79,172,254,0.06);}
+    .highlight-box.red{border-left-color:#f87171;background:rgba(248,113,113,0.06);}
+    .code-wrapper{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;margin:20px 0;overflow:hidden;}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--surface2);border-bottom:1px solid var(--border);}
+    .code-dots{display:flex;gap:6px;}
+    .code-dots span{width:10px;height:10px;border-radius:50%;}
+    .dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+    .code-lang{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+    .code-wrapper pre{padding:22px 24px;overflow-x:auto;margin:0;}
+    .code-wrapper code{font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.8;}
+    .kw{color:#c792ea;}.str{color:#c3e88d;}.num{color:#f78c6c;}.cm{color:#546e7a;font-style:italic;}
+    .fn{color:#82aaff;}.prop{color:#f07178;}.bool{color:#ff9d00;}.op{color:#89ddff;}.cls{color:#ffcb6b;}
+    .realworld{background:linear-gradient(135deg,rgba(52,211,153,0.05),rgba(79,172,254,0.05));border:1px solid rgba(52,211,153,0.2);border-radius:12px;padding:24px 28px;margin:24px 0;}
+    .realworld-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+    .realworld h4{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:10px;}
+    .realworld p{font-size:14.5px;color:var(--muted);line-height:1.7;}
+    .qa-list{list-style:none;display:flex;flex-direction:column;gap:14px;margin-top:20px;}
+    .qa-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 22px;}
+    .qa-q{font-weight:600;color:var(--accent);font-size:14.5px;margin-bottom:8px;}
+    .qa-a{font-size:14px;color:var(--muted);line-height:1.65;}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:20px 0;}
+    .mini-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
+    .mini-card h5{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent);}
+    .mini-card p{font-size:13.5px;color:var(--muted);line-height:1.6;}
+    .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+    .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:14.5px;}
+    .checklist li::before{content:'✓';color:var(--accent);font-weight:700;font-size:14px;margin-top:1px;flex-shrink:0;}
+    .method-table{width:100%;border-collapse:collapse;margin:16px 0;border-radius:12px;overflow:hidden;border:1px solid var(--border);}
+    .method-table th{background:var(--surface2);padding:11px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
+    .method-table td{padding:11px 16px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:top;}
+    .method-table tr:last-child td{border-bottom:none;}
+    .method-table tr:hover td{background:var(--surface2);}
+    .method-table td:first-child{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:13px;white-space:nowrap;}
+    .method-table td:last-child{color:var(--muted);font-size:13px;}
+    .demo-area{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;}
+    .demo-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
+    .js-demo-output{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);min-height:44px;margin-top:10px;white-space:pre-wrap;}
+    .demo-btn{background:var(--accent);color:#0d0f14;border:none;border-radius:7px;padding:9px 20px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;margin-top:10px;margin-right:8px;transition:opacity 0.2s;}
+    .demo-btn:hover{opacity:0.85;}
+    .demo-btn.blue{background:var(--accent3);}
+    .demo-btn.yellow{background:var(--accent2);}
+    .day-nav{background:var(--surface);border-top:1px solid var(--border);padding:24px 60px;display:flex;align-items:center;justify-content:space-between;}
+    .day-nav-info{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+    .day-nav-info strong{color:var(--text);font-size:14px;display:block;margin-top:4px;}
+    .next-btn{background:var(--accent);color:#0d0f14;border:none;border-radius:8px;padding:10px 22px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:opacity 0.2s;}
+    .next-btn:hover{opacity:0.85;}
+    ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+    @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;}.hero{padding:40px 24px 36px;}.hero h1{font-size:34px;}.hero::before{display:none;}.content{padding:0 24px 60px;}.progress-strip,.day-nav{padding:14px 24px;}.grid-2,.grid-3{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="day-badge">Day 05 / 30</div>
+    <h2>JS Intermediate</h2>
+  </div>
+  <div class="nav-section-label">Topics</div>
+  <a class="nav-item active" href="#arrays">Arrays Deep Dive</a>
+  <a class="nav-item" href="#array-methods">Array Methods (map/filter/reduce)</a>
+  <a class="nav-item" href="#objects">Objects Deep Dive</a>
+  <a class="nav-item" href="#destructuring">Destructuring</a>
+  <a class="nav-item" href="#spread-rest">Spread & Rest</a>
+  <a class="nav-item" href="#es6-features">ES6+ Features</a>
+  <a class="nav-item" href="#json">JSON</a>
+  <a class="nav-item" href="#this-keyword">The 'this' Keyword</a>
+  <a class="nav-item" href="#fullexample">Real Project Example</a>
+  <a class="nav-item" href="#interview">Interview Q&A</a>
+</nav>
+
+<div class="main">
+  <div class="progress-strip">
+    <span class="progress-label">30-Day Journey</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill"></div></div>
+    <span class="progress-pct">Day 5</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-eyebrow"><span></span>Full Stack Placement Prep</div>
+    <h1>Day 5 — <em>JavaScript</em><br/>Intermediate</h1>
+    <p class="hero-sub">Arrays, Objects, destructuring, and modern ES6+ syntax — the tools you'll use in every single line of frontend and backend JavaScript.</p>
+    <div class="hero-tags">
+      <span class="tag">Arrays & map/filter/reduce</span><span class="tag">Objects</span>
+      <span class="tag">Destructuring</span><span class="tag">Spread/Rest</span><span class="tag">ES6+</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── SECTION 1: Arrays ── -->
+    <div class="section" id="arrays">
+      <div class="section-header">
+        <div class="section-icon icon-green">📚</div>
+        <div>
+          <div class="section-title">Arrays — Deep Dive</div>
+          <div class="section-subtitle">Ordered lists of values — the most used data structure in JS</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What is an Array?</h4>
+        <p>An array is an ordered, zero-indexed collection of values. In JavaScript, arrays are actually special objects — that's why <code style="color:var(--accent)">typeof []</code> returns <code style="color:var(--accent)">"object"</code>. Arrays can hold mixed types (numbers, strings, objects, even other arrays) since JS is dynamically typed.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JavaScript — Array Basics</span></div>
+        <pre><code><span class="cm">// ── CREATING ARRAYS ──</span>
+<span class="kw">const</span> fruits <span class="op">=</span> [<span class="str">'apple'</span>, <span class="str">'banana'</span>, <span class="str">'mango'</span>];
+<span class="kw">const</span> mixed  <span class="op">=</span> [<span class="num">1</span>, <span class="str">'two'</span>, <span class="bool">true</span>, { id: <span class="num">4</span> }, [<span class="num">5</span>, <span class="num">6</span>]];
+<span class="kw">const</span> empty  <span class="op">=</span> [];
+<span class="kw">const</span> arr2   <span class="op">=</span> <span class="kw">new</span> <span class="cls">Array</span>(<span class="num">5</span>);       <span class="cm">// creates array with 5 empty slots</span>
+<span class="kw">const</span> filled <span class="op">=</span> <span class="cls">Array</span>.<span class="fn">from</span>({length: <span class="num">5</span>}, (_, i) <span class="op">=&gt;</span> i); <span class="cm">// [0,1,2,3,4]</span>
+
+<span class="cm">// ── ACCESSING & MODIFYING ──</span>
+fruits[<span class="num">0</span>]                  <span class="cm">// 'apple' (zero-indexed)</span>
+fruits[fruits.<span class="prop">length</span> <span class="op">-</span> <span class="num">1</span>]  <span class="cm">// 'mango' (last item)</span>
+fruits.<span class="fn">at</span>(<span class="op">-</span><span class="num">1</span>)             <span class="cm">// 'mango' (modern way to get last item)</span>
+fruits[<span class="num">0</span>] <span class="op">=</span> <span class="str">'orange'</span>;        <span class="cm">// modify in place</span>
+fruits.<span class="prop">length</span>               <span class="cm">// 3</span>
+
+<span class="cm">// ── ADDING / REMOVING (mutating methods) ──</span>
+fruits.<span class="fn">push</span>(<span class="str">'grape'</span>);        <span class="cm">// add to END → returns new length</span>
+fruits.<span class="fn">pop</span>();                <span class="cm">// remove from END → returns removed item</span>
+fruits.<span class="fn">unshift</span>(<span class="str">'kiwi'</span>);      <span class="cm">// add to START → returns new length</span>
+fruits.<span class="fn">shift</span>();              <span class="cm">// remove from START → returns removed item</span>
+
+<span class="cm">// splice(start, deleteCount, ...itemsToAdd) — swiss-army knife</span>
+fruits.<span class="fn">splice</span>(<span class="num">1</span>, <span class="num">1</span>);          <span class="cm">// remove 1 item at index 1</span>
+fruits.<span class="fn">splice</span>(<span class="num">1</span>, <span class="num">0</span>, <span class="str">'pear'</span>);  <span class="cm">// insert 'pear' at index 1 (delete 0)</span>
+fruits.<span class="fn">splice</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="str">'fig'</span>);   <span class="cm">// replace 2 items starting at index 1</span>
+
+<span class="cm">// ── NON-MUTATING (return NEW array, original unchanged) ──</span>
+fruits.<span class="fn">slice</span>(<span class="num">1</span>, <span class="num">3</span>);            <span class="cm">// new array from index 1 to 2 (end exclusive)</span>
+fruits.<span class="fn">slice</span>(<span class="op">-</span><span class="num">2</span>);              <span class="cm">// last 2 items</span>
+fruits.<span class="fn">concat</span>([<span class="str">'x'</span>, <span class="str">'y'</span>]);     <span class="cm">// merge arrays (returns new)</span>
+[...fruits, <span class="str">'x'</span>];           <span class="cm">// merge using spread (modern way)</span>
+fruits.<span class="fn">toReversed</span>();         <span class="cm">// reversed copy (ES2023) — non-mutating</span>
+fruits.<span class="fn">reverse</span>();            <span class="cm">// ⚠️ MUTATES original array, reverses in place</span>
+
+<span class="cm">// ── SEARCHING ──</span>
+fruits.<span class="fn">indexOf</span>(<span class="str">'mango'</span>);     <span class="cm">// index, or -1 if not found</span>
+fruits.<span class="fn">includes</span>(<span class="str">'mango'</span>);   <span class="cm">// true/false</span>
+fruits.<span class="fn">find</span>(f <span class="op">=&gt;</span> f.<span class="fn">startsWith</span>(<span class="str">'m'</span>)); <span class="cm">// first matching ELEMENT or undefined</span>
+fruits.<span class="fn">findIndex</span>(f <span class="op">=&gt;</span> f <span class="op">===</span> <span class="str">'mango'</span>); <span class="cm">// first matching INDEX or -1</span>
+fruits.<span class="fn">findLast</span>(f <span class="op">=&gt;</span> f.<span class="prop">length</span> <span class="op">&gt;</span> <span class="num">5</span>);   <span class="cm">// last matching element</span>
+
+<span class="cm">// ── CHECKING TYPE ──</span>
+<span class="cls">Array</span>.<span class="fn">isArray</span>(fruits);    <span class="cm">// true — reliable array check</span>
+<span class="cls">Array</span>.<span class="fn">isArray</span>(<span class="str">'hello'</span>);  <span class="cm">// false</span>
+
+<span class="cm">// ── SORTING (⚠️ MUTATES original array!) ──</span>
+<span class="kw">const</span> nums <span class="op">=</span> [<span class="num">5</span>, <span class="num">2</span>, <span class="num">8</span>, <span class="num">1</span>];
+nums.<span class="fn">sort</span>();                  <span class="cm">// [1, 2, 5, 8] — default: lexicographic (string) order!</span>
+[<span class="num">10</span>, <span class="num">2</span>, <span class="num">1</span>].<span class="fn">sort</span>();         <span class="cm">// [1, 10, 2] ← BUG: sorts as strings by default</span>
+nums.<span class="fn">sort</span>((a, b) <span class="op">=&gt;</span> a <span class="op">-</span> b); <span class="cm">// ascending numeric: [1, 2, 5, 8]</span>
+nums.<span class="fn">sort</span>((a, b) <span class="op">=&gt;</span> b <span class="op">-</span> a); <span class="cm">// descending numeric: [8, 5, 2, 1]</span>
+
+<span class="cm">// Sort objects by property</span>
+<span class="kw">const</span> users <span class="op">=</span> [{name:<span class="str">'Bob'</span>,age:<span class="num">25</span>}, {name:<span class="str">'Amy'</span>,age:<span class="num">30</span>}];
+users.<span class="fn">sort</span>((a, b) <span class="op">=&gt;</span> a.age <span class="op">-</span> b.age);       <span class="cm">// youngest first</span>
+users.<span class="fn">sort</span>((a, b) <span class="op">=&gt;</span> a.name.<span class="fn">localeCompare</span>(b.name)); <span class="cm">// alphabetical</span>
+
+<span class="cm">// ── FLATTENING NESTED ARRAYS ──</span>
+[<span class="num">1</span>, [<span class="num">2</span>, <span class="num">3</span>], [<span class="num">4</span>, [<span class="num">5</span>, <span class="num">6</span>]]].<span class="fn">flat</span>();     <span class="cm">// [1, 2, 3, 4, [5, 6]] (1 level)</span>
+[<span class="num">1</span>, [<span class="num">2</span>, [<span class="num">3</span>, [<span class="num">4</span>]]]].<span class="fn">flat</span>(<span class="cls">Infinity</span>);  <span class="cm">// [1, 2, 3, 4] (all levels)</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: Array Methods (map/filter/reduce) ── -->
+    <div class="section" id="array-methods">
+      <div class="section-header">
+        <div class="section-icon icon-blue">🔄</div>
+        <div>
+          <div class="section-title">map, filter, reduce, forEach</div>
+          <div class="section-subtitle">The most important array methods in modern JavaScript — master these completely</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Why These Methods Matter So Much</h4>
+        <p>These are <strong>functional, non-mutating, higher-order array methods</strong>. They take a callback function and apply it to every element. They are the backbone of modern JavaScript and React — you will use them constantly to transform data fetched from APIs into UI.</p>
+      </div>
+
+      <table class="method-table">
+        <thead><tr><th>Method</th><th>Returns</th><th>Use when…</th></tr></thead>
+        <tbody>
+          <tr><td>forEach</td><td>undefined</td><td>You just need to "do something" with each item (side effects)</td></tr>
+          <tr><td>map</td><td>New array (same length)</td><td>You want to transform each item into something new</td></tr>
+          <tr><td>filter</td><td>New array (≤ length)</td><td>You want to keep only items matching a condition</td></tr>
+          <tr><td>reduce</td><td>Single value</td><td>You want to combine all items into one result (sum, object, etc.)</td></tr>
+          <tr><td>find / findIndex</td><td>Single item / index</td><td>You want the first match only</td></tr>
+          <tr><td>some</td><td>Boolean</td><td>You want to check if AT LEAST ONE item matches</td></tr>
+          <tr><td>every</td><td>Boolean</td><td>You want to check if ALL items match</td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JavaScript — map, filter, reduce Complete</span></div>
+        <pre><code><span class="kw">const</span> products <span class="op">=</span> [
+  { id: <span class="num">1</span>, name: <span class="str">'Laptop'</span>, price: <span class="num">55000</span>, category: <span class="str">'electronics'</span>, inStock: <span class="bool">true</span> },
+  { id: <span class="num">2</span>, name: <span class="str">'Shirt'</span>,  price: <span class="num">799</span>,   category: <span class="str">'clothing'</span>,   inStock: <span class="bool">true</span> },
+  { id: <span class="num">3</span>, name: <span class="str">'Phone'</span>,  price: <span class="num">22000</span>, category: <span class="str">'electronics'</span>, inStock: <span class="bool">false</span> },
+  { id: <span class="num">4</span>, name: <span class="str">'Shoes'</span>,  price: <span class="num">2499</span>,  category: <span class="str">'clothing'</span>,   inStock: <span class="bool">true</span> },
+];
+
+<span class="cm">// ── forEach: loop with side effects, returns undefined ──</span>
+products.<span class="fn">forEach</span>(p <span class="op">=&gt;</span> <span class="fn">console</span>.<span class="fn">log</span>(p.name));
+<span class="cm">// 'Laptop' 'Shirt' 'Phone' 'Shoes' — just logs, doesn't return anything</span>
+
+<span class="cm">// ── map: TRANSFORM every item into something new ──</span>
+<span class="kw">const</span> names <span class="op">=</span> products.<span class="fn">map</span>(p <span class="op">=&gt;</span> p.name);
+<span class="cm">// ['Laptop', 'Shirt', 'Phone', 'Shoes']</span>
+
+<span class="kw">const</span> withTax <span class="op">=</span> products.<span class="fn">map</span>(p <span class="op">=&gt;</span> ({
+  ...p,                          <span class="cm">// spread existing properties</span>
+  priceWithTax: p.price <span class="op">*</span> <span class="num">1.18</span>  <span class="cm">// add new computed property</span>
+}));
+
+<span class="cm">// THE most common React pattern — render a list:</span>
+<span class="cm">// products.map(p => &lt;ProductCard key={p.id} product={p} /&gt;)</span>
+
+<span class="cm">// ── filter: KEEP only items matching condition ──</span>
+<span class="kw">const</span> inStockOnly <span class="op">=</span> products.<span class="fn">filter</span>(p <span class="op">=&gt;</span> p.inStock);
+<span class="cm">// [Laptop, Shirt, Shoes] — Phone removed (inStock: false)</span>
+
+<span class="kw">const</span> electronics <span class="op">=</span> products.<span class="fn">filter</span>(p <span class="op">=&gt;</span> p.category <span class="op">===</span> <span class="str">'electronics'</span>);
+<span class="kw">const</span> expensive   <span class="op">=</span> products.<span class="fn">filter</span>(p <span class="op">=&gt;</span> p.price <span class="op">&gt;</span> <span class="num">5000</span>);
+
+<span class="cm">// CHAINING filter + map (extremely common pattern)</span>
+<span class="kw">const</span> cheapElectronicNames <span class="op">=</span> products
+  .<span class="fn">filter</span>(p <span class="op">=&gt;</span> p.category <span class="op">===</span> <span class="str">'electronics'</span>)
+  .<span class="fn">filter</span>(p <span class="op">=&gt;</span> p.price <span class="op">&lt;</span> <span class="num">30000</span>)
+  .<span class="fn">map</span>(p <span class="op">=&gt;</span> p.name);
+<span class="cm">// ['Phone']</span>
+
+<span class="cm">// ── reduce: COMBINE all items into ONE value ──</span>
+<span class="cm">// reduce(callback(accumulator, currentItem), initialValue)</span>
+<span class="kw">const</span> totalPrice <span class="op">=</span> products.<span class="fn">reduce</span>((sum, p) <span class="op">=&gt;</span> sum <span class="op">+</span> p.price, <span class="num">0</span>);
+<span class="cm">// 55000+799+22000+2499 = 80298</span>
+
+<span class="kw">const</span> mostExpensive <span class="op">=</span> products.<span class="fn">reduce</span>((max, p) <span class="op">=&gt;</span>
+  p.price <span class="op">&gt;</span> max.price <span class="op">?</span> p <span class="op">:</span> max
+);
+<span class="cm">// the Laptop object (price: 55000)</span>
+
+<span class="cm">// reduce to build an OBJECT — grouping by category</span>
+<span class="kw">const</span> byCategory <span class="op">=</span> products.<span class="fn">reduce</span>((groups, p) <span class="op">=&gt;</span> {
+  <span class="kw">const</span> key <span class="op">=</span> p.category;
+  <span class="kw">if</span> (<span class="op">!</span>groups[key]) groups[key] <span class="op">=</span> [];
+  groups[key].<span class="fn">push</span>(p);
+  <span class="kw">return</span> groups;
+}, {});
+<span class="cm">// { electronics: [Laptop, Phone], clothing: [Shirt, Shoes] }</span>
+
+<span class="cm">// reduce to count occurrences</span>
+<span class="kw">const</span> counts <span class="op">=</span> products.<span class="fn">reduce</span>((acc, p) <span class="op">=&gt;</span> {
+  acc[p.category] <span class="op">=</span> (acc[p.category] <span class="op">||</span> <span class="num">0</span>) <span class="op">+</span> <span class="num">1</span>;
+  <span class="kw">return</span> acc;
+}, {});
+<span class="cm">// { electronics: 2, clothing: 2 }</span>
+
+<span class="cm">// ── find / some / every ──</span>
+<span class="kw">const</span> laptop <span class="op">=</span> products.<span class="fn">find</span>(p <span class="op">=&gt;</span> p.name <span class="op">===</span> <span class="str">'Laptop'</span>);  <span class="cm">// the object, or undefined</span>
+
+<span class="kw">const</span> hasOutOfStock <span class="op">=</span> products.<span class="fn">some</span>(p <span class="op">=&gt;</span> <span class="op">!</span>p.inStock);  <span class="cm">// true (Phone is out)</span>
+<span class="kw">const</span> allInStock     <span class="op">=</span> products.<span class="fn">every</span>(p <span class="op">=&gt;</span> p.inStock);  <span class="cm">// false (Phone breaks it)</span>
+
+<span class="cm">// ── CHAINING EVERYTHING TOGETHER (real-world pattern) ──</span>
+<span class="kw">const</span> summary <span class="op">=</span> products
+  .<span class="fn">filter</span>(p <span class="op">=&gt;</span> p.inStock)
+  .<span class="fn">map</span>(p <span class="op">=&gt;</span> p.price)
+  .<span class="fn">reduce</span>((sum, price) <span class="op">=&gt;</span> sum <span class="op">+</span> price, <span class="num">0</span>);
+<span class="cm">// Total value of in-stock products: 58298</span></code></pre>
+      </div>
+
+      <!-- Interactive demo -->
+      <div class="demo-area">
+        <div class="demo-label">🎮 Try It — Array Methods Live Demo</div>
+        <div class="js-demo-output" id="array-output">Click a button to see the result →</div>
+        <div style="margin-top:10px;">
+          <button class="demo-btn" onclick="document.getElementById('array-output').textContent = JSON.stringify([10,25,7,42,3].map(n => n * 2))">map: double each</button>
+          <button class="demo-btn blue" onclick="document.getElementById('array-output').textContent = JSON.stringify([10,25,7,42,3].filter(n => n > 10))">filter: greater than 10</button>
+          <button class="demo-btn yellow" onclick="document.getElementById('array-output').textContent = [10,25,7,42,3].reduce((a,b) => a + b, 0)">reduce: sum all</button>
+        </div>
+      </div>
+
+      <div class="realworld">
+        <div class="realworld-label">🏢 Real World</div>
+        <h4>Why Companies Test This So Heavily</h4>
+        <p>In a React frontend pulling data from an API, you constantly: filter products by category from a dropdown, map an array of users into card components, reduce a cart's items into a total price, and find a specific item by ID for an edit page. Mastering these methods is non-negotiable — they appear in nearly every coding round and every real project.</p>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: Objects ── -->
+    <div class="section" id="objects">
+      <div class="section-header">
+        <div class="section-icon icon-orange">🗂️</div>
+        <div>
+          <div class="section-title">Objects — Deep Dive</div>
+          <div class="section-subtitle">Key-value pairs — how JavaScript models real-world entities</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JavaScript — Objects Complete</span></div>
+        <pre><code><span class="cm">// ── CREATING OBJECTS ──</span>
+<span class="kw">const</span> user <span class="op">=</span> {
+  name: <span class="str">'Poorv'</span>,
+  age: <span class="num">21</span>,
+  isStudent: <span class="bool">true</span>,
+  address: { city: <span class="str">'Junagadh'</span>, state: <span class="str">'Gujarat'</span> },  <span class="cm">// nested object</span>
+  skills: [<span class="str">'HTML'</span>, <span class="str">'CSS'</span>, <span class="str">'JS'</span>],                  <span class="cm">// array as value</span>
+  greet() {                                       <span class="cm">// method (ES6 shorthand)</span>
+    <span class="kw">return</span> <span class="str">`Hi, I'm <span class="op">${</span><span class="kw">this</span>.name<span class="op">}</span>`</span>;
+  }
+};
+
+<span class="cm">// ── ACCESSING PROPERTIES ──</span>
+user.name              <span class="cm">// dot notation — 'Poorv'</span>
+user[<span class="str">'name'</span>]          <span class="cm">// bracket notation — 'Poorv'</span>
+<span class="kw">const</span> key <span class="op">=</span> <span class="str">'age'</span>;
+user[key]               <span class="cm">// 21 — bracket notation needed for DYNAMIC keys</span>
+user.address.city       <span class="cm">// 'Junagadh' — chaining for nested access</span>
+user.<span class="fn">greet</span>()            <span class="cm">// "Hi, I'm Poorv"</span>
+
+<span class="cm">// ── ADDING / UPDATING / DELETING ──</span>
+user.email <span class="op">=</span> <span class="str">'poorv@email.com'</span>;  <span class="cm">// add new property</span>
+user.age <span class="op">=</span> <span class="num">22</span>;                  <span class="cm">// update existing</span>
+<span class="kw">delete</span> user.isStudent;            <span class="cm">// remove property</span>
+
+<span class="cm">// ── CHECKING IF PROPERTY EXISTS ──</span>
+<span class="str">'name'</span> <span class="kw">in</span> user;              <span class="cm">// true</span>
+user.<span class="fn">hasOwnProperty</span>(<span class="str">'age'</span>); <span class="cm">// true</span>
+user.phone <span class="op">===</span> <span class="kw">undefined</span>;     <span class="cm">// true (doesn't exist)</span>
+
+<span class="cm">// ── GETTING KEYS, VALUES, ENTRIES ──</span>
+<span class="cls">Object</span>.<span class="fn">keys</span>(user);       <span class="cm">// ['name', 'age', 'address', 'skills', 'greet']</span>
+<span class="cls">Object</span>.<span class="fn">values</span>(user);     <span class="cm">// ['Poorv', 22, {...}, [...], function]</span>
+<span class="cls">Object</span>.<span class="fn">entries</span>(user);     <span class="cm">// [['name','Poorv'], ['age',22], ...]</span>
+
+<span class="cm">// Iterate over an object's key-value pairs</span>
+<span class="kw">for</span> (<span class="kw">const</span> [key, value] <span class="kw">of</span> <span class="cls">Object</span>.<span class="fn">entries</span>(user)) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">`<span class="op">${</span>key<span class="op">}</span>: <span class="op">${</span>value<span class="op">}</span>`</span>);
+}
+
+<span class="cm">// ── MERGING OBJECTS ──</span>
+<span class="kw">const</span> defaults <span class="op">=</span> { theme: <span class="str">'light'</span>, fontSize: <span class="num">14</span> };
+<span class="kw">const</span> userPrefs <span class="op">=</span> { fontSize: <span class="num">18</span> };
+<span class="kw">const</span> merged <span class="op">=</span> { ...defaults, ...userPrefs };
+<span class="cm">// { theme: 'light', fontSize: 18 } — later spread overrides earlier</span>
+<span class="cls">Object</span>.<span class="fn">assign</span>({}, defaults, userPrefs); <span class="cm">// same result, older syntax</span>
+
+<span class="cm">// ── COPYING OBJECTS (be careful — shallow vs deep) ──</span>
+<span class="kw">const</span> shallowCopy <span class="op">=</span> { ...user };    <span class="cm">// shallow copy — nested objects still shared!</span>
+shallowCopy.address.city <span class="op">=</span> <span class="str">'Surat'</span>;  <span class="cm">// ⚠️ this ALSO changes user.address.city!</span>
+
+<span class="kw">const</span> deepCopy <span class="op">=</span> <span class="cls">JSON</span>.<span class="fn">parse</span>(<span class="cls">JSON</span>.<span class="fn">stringify</span>(user)); <span class="cm">// simple deep copy (loses functions/dates)</span>
+<span class="kw">const</span> deepCopy2 <span class="op">=</span> <span class="fn">structuredClone</span>(user); <span class="cm">// modern, correct deep copy (no functions)</span>
+
+<span class="cm">// ── FREEZING (immutability) ──</span>
+<span class="kw">const</span> config <span class="op">=</span> <span class="cls">Object</span>.<span class="fn">freeze</span>({ apiUrl: <span class="str">'https://api.com'</span> });
+config.apiUrl <span class="op">=</span> <span class="str">'hacked'</span>; <span class="cm">// silently fails (or throws in strict mode)</span>
+
+<span class="cm">// ── COMPUTED PROPERTY NAMES (ES6) ──</span>
+<span class="kw">const</span> dynamicKey <span class="op">=</span> <span class="str">'role'</span>;
+<span class="kw">const</span> obj <span class="op">=</span> {
+  [dynamicKey]: <span class="str">'admin'</span>,      <span class="cm">// key is the VALUE of dynamicKey variable</span>
+  [<span class="str">`is<span class="op">${</span>dynamicKey<span class="op">}</span>`</span>]: <span class="bool">true</span>   <span class="cm">// "isrole": true</span>
+};
+<span class="cm">// { role: 'admin', isrole: true }</span>
+
+<span class="cm">// ── OPTIONAL CHAINING + NULLISH (covered Day 4, used heavily with objects) ──</span>
+<span class="kw">const</span> city <span class="op">=</span> user.address<span class="op">?.</span>city <span class="op">??</span> <span class="str">'Unknown'</span>;</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: Destructuring ── -->
+    <div class="section" id="destructuring">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🧩</div>
+        <div>
+          <div class="section-title">Destructuring</div>
+          <div class="section-subtitle">Unpacking values from arrays and objects — used constantly in React</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Why Destructuring Matters</h4>
+        <p>Destructuring lets you extract multiple values from arrays or objects in a single statement. It dramatically reduces boilerplate code, and is the standard way props and state are accessed in React.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JavaScript — Destructuring Complete</span></div>
+        <pre><code><span class="cm">// ── ARRAY DESTRUCTURING ──</span>
+<span class="kw">const</span> coords <span class="op">=</span> [<span class="num">12.9</span>, <span class="num">77.6</span>];
+<span class="kw">const</span> [lat, lng] <span class="op">=</span> coords;     <span class="cm">// lat=12.9, lng=77.6</span>
+
+<span class="cm">// Skipping items with commas</span>
+<span class="kw">const</span> [first, , third] <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]; <span class="cm">// first=1, third=3 (skip index 1)</span>
+
+<span class="cm">// Swapping variables (classic trick)</span>
+<span class="kw">let</span> a <span class="op">=</span> <span class="num">1</span>, b <span class="op">=</span> <span class="num">2</span>;
+[a, b] <span class="op">=</span> [b, a];   <span class="cm">// a=2, b=1 — no temp variable needed!</span>
+
+<span class="cm">// Default values</span>
+<span class="kw">const</span> [x <span class="op">=</span> <span class="num">10</span>, y <span class="op">=</span> <span class="num">20</span>] <span class="op">=</span> [<span class="num">5</span>]; <span class="cm">// x=5, y=20 (default used since no 2nd item)</span>
+
+<span class="cm">// With rest pattern</span>
+<span class="kw">const</span> [winner, runnerUp, ...others] <span class="op">=</span> [<span class="str">'Amy'</span>, <span class="str">'Bob'</span>, <span class="str">'Cat'</span>, <span class="str">'Dan'</span>];
+<span class="cm">// winner='Amy', runnerUp='Bob', others=['Cat','Dan']</span>
+
+<span class="cm">// React's useState ALWAYS uses array destructuring:</span>
+<span class="cm">// const [count, setCount] = useState(0);</span>
+
+<span class="cm">// ── OBJECT DESTRUCTURING ──</span>
+<span class="kw">const</span> user <span class="op">=</span> { name: <span class="str">'Poorv'</span>, age: <span class="num">21</span>, city: <span class="str">'Junagadh'</span>, country: <span class="str">'India'</span> };
+
+<span class="kw">const</span> { name, age } <span class="op">=</span> user;     <span class="cm">// extract by KEY NAME (order doesn't matter)</span>
+
+<span class="cm">// Renaming while destructuring</span>
+<span class="kw">const</span> { name: fullName, city: hometown } <span class="op">=</span> user;
+<span class="cm">// fullName='Poorv', hometown='Junagadh'</span>
+
+<span class="cm">// Default values</span>
+<span class="kw">const</span> { name: n, phone <span class="op">=</span> <span class="str">'Not provided'</span> } <span class="op">=</span> user;
+<span class="cm">// phone='Not provided' since user.phone doesn't exist</span>
+
+<span class="cm">// Nested destructuring</span>
+<span class="kw">const</span> response <span class="op">=</span> { data: { user: { name: <span class="str">'Poorv'</span>, id: <span class="num">42</span> } } };
+<span class="kw">const</span> { data: { user: { name: userName, id } } } <span class="op">=</span> response;
+<span class="cm">// userName='Poorv', id=42</span>
+
+<span class="cm">// Rest pattern with objects</span>
+<span class="kw">const</span> { name: theName, ...rest } <span class="op">=</span> user;
+<span class="cm">// theName='Poorv', rest={age:21, city:'Junagadh', country:'India'}</span>
+
+<span class="cm">// ── DESTRUCTURING IN FUNCTION PARAMETERS (VERY common in React) ──</span>
+<span class="kw">function</span> <span class="fn">greet</span>({ name, age }) {     <span class="cm">// destructure right in the parameter</span>
+  <span class="kw">return</span> <span class="str">`<span class="op">${</span>name<span class="op">}</span> is <span class="op">${</span>age<span class="op">}</span> years old`</span>;
+}
+<span class="fn">greet</span>(user); <span class="cm">// "Poorv is 21 years old"</span>
+
+<span class="cm">// React component props (THIS is the #1 use case):</span>
+<span class="cm">// function ProductCard({ title, price, image }) {
+//   return &lt;div&gt;{title} - ₹{price}&lt;/div&gt;
+// }</span>
+
+<span class="cm">// Destructuring with default values in parameters</span>
+<span class="kw">function</span> <span class="fn">createUser</span>({ name, role <span class="op">=</span> <span class="str">'user'</span>, isActive <span class="op">=</span> <span class="bool">true</span> } <span class="op">=</span> {}) {
+  <span class="kw">return</span> { name, role, isActive };
+}
+<span class="fn">createUser</span>({ name: <span class="str">'Poorv'</span> }); <span class="cm">// { name:'Poorv', role:'user', isActive:true }</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 5: Spread & Rest ── -->
+    <div class="section" id="spread-rest">
+      <div class="section-header">
+        <div class="section-icon icon-pink">📤</div>
+        <div>
+          <div class="section-title">Spread & Rest Operators</div>
+          <div class="section-subtitle">The same ... syntax, two opposite jobs</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Spread vs Rest — Same Symbol, Opposite Direction</h4>
+        <p><strong>Spread (...)</strong> EXPANDS an array/object into individual elements — used when calling functions or building new arrays/objects.<br/>
+        <strong>Rest (...)</strong> COLLECTS multiple elements INTO an array — used in function parameters or destructuring.</p>
+        <div class="highlight-box blue">
+          <strong>Quick rule:</strong> If <code>...</code> is on the LEFT side of an assignment or in a function parameter, it's REST (collecting). If it's used to EXPAND something into a new array/object/argument list, it's SPREAD.
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JavaScript — Spread & Rest in Practice</span></div>
+        <pre><code><span class="cm">// ── SPREAD with arrays ──</span>
+<span class="kw">const</span> arr1 <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="kw">const</span> arr2 <span class="op">=</span> [<span class="num">4</span>, <span class="num">5</span>];
+<span class="kw">const</span> combined <span class="op">=</span> [...arr1, ...arr2];      <span class="cm">// [1,2,3,4,5]</span>
+<span class="kw">const</span> copy <span class="op">=</span> [...arr1];                 <span class="cm">// shallow copy</span>
+<span class="kw">const</span> withExtra <span class="op">=</span> [<span class="num">0</span>, ...arr1, <span class="num">4</span>];     <span class="cm">// [0,1,2,3,4]</span>
+<span class="cls">Math</span>.<span class="fn">max</span>(...arr1);                    <span class="cm">// 3 — spread as function args</span>
+
+<span class="cm">// ── SPREAD with objects ──</span>
+<span class="kw">const</span> base <span class="op">=</span> { a: <span class="num">1</span>, b: <span class="num">2</span> };
+<span class="kw">const</span> extended <span class="op">=</span> { ...base, c: <span class="num">3</span> };       <span class="cm">// {a:1, b:2, c:3}</span>
+<span class="kw">const</span> overridden <span class="op">=</span> { ...base, a: <span class="num">99</span> };    <span class="cm">// {a:99, b:2} — later key wins</span>
+
+<span class="cm">// Common React pattern: updating state immutably</span>
+<span class="cm">// setUser(prevUser => ({ ...prevUser, name: 'New Name' }));</span>
+
+<span class="cm">// ── SPREAD with strings ──</span>
+<span class="kw">const</span> chars <span class="op">=</span> [...<span class="str">'hello'</span>];   <span class="cm">// ['h','e','l','l','o']</span>
+
+<span class="cm">// ── REST in function parameters ──</span>
+<span class="kw">function</span> <span class="fn">sum</span>(...numbers) {       <span class="cm">// collects ALL args into an array</span>
+  <span class="kw">return</span> numbers.<span class="fn">reduce</span>((a,b) <span class="op">=&gt;</span> a<span class="op">+</span>b, <span class="num">0</span>);
+}
+<span class="fn">sum</span>(<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>); <span class="cm">// 10</span>
+
+<span class="cm">// Combining named params + rest</span>
+<span class="kw">function</span> <span class="fn">logScores</span>(name, ...scores) {
+  <span class="fn">console</span>.<span class="fn">log</span>(name, scores);
+}
+<span class="fn">logScores</span>(<span class="str">'Poorv'</span>, <span class="num">90</span>, <span class="num">85</span>, <span class="num">95</span>); <span class="cm">// 'Poorv' [90, 85, 95]</span>
+
+<span class="cm">// ── REST in destructuring ──</span>
+<span class="kw">const</span> [first, ...rest] <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>]; <span class="cm">// first=1, rest=[2,3,4]</span>
+<span class="kw">const</span> { id, ...otherProps } <span class="op">=</span> { id: <span class="num">1</span>, name: <span class="str">'X'</span>, age: <span class="num">5</span> };
+<span class="cm">// id=1, otherProps={name:'X', age:5}</span>
+
+<span class="cm">// ── REAL PATTERN: removing a property immutably ──</span>
+<span class="kw">const</span> user <span class="op">=</span> { id: <span class="num">1</span>, name: <span class="str">'Poorv'</span>, password: <span class="str">'secret123'</span> };
+<span class="kw">const</span> { password, ...safeUser } <span class="op">=</span> user;
+<span class="cm">// safeUser = { id:1, name:'Poorv' } — password excluded, safe to send to client</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 6: ES6+ Features ── -->
+    <div class="section" id="es6-features">
+      <div class="section-header">
+        <div class="section-icon icon-yellow">✨</div>
+        <div>
+          <div class="section-title">ES6+ Modern Features</div>
+          <div class="section-subtitle">Template literals, classes, modules, Map/Set — the modern JS toolkit</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JavaScript — ES6 Classes</span></div>
+        <pre><code><span class="cm">// ── CLASSES (ES6) — syntactic sugar over prototypes ──</span>
+<span class="kw">class</span> <span class="cls">Animal</span> {
+  <span class="fn">constructor</span>(name, sound) {
+    <span class="kw">this</span>.name <span class="op">=</span> name;
+    <span class="kw">this</span>.sound <span class="op">=</span> sound;
+  }
+
+  makeSound() {                      <span class="cm">// method (no 'function' keyword needed)</span>
+    <span class="kw">return</span> <span class="str">`<span class="op">${</span><span class="kw">this</span>.name<span class="op">}</span> says <span class="op">${</span><span class="kw">this</span>.sound<span class="op">}</span>`</span>;
+  }
+
+  <span class="kw">static</span> create(name) {            <span class="cm">// static method — called on class itself</span>
+    <span class="kw">return</span> <span class="kw">new</span> <span class="cls">Animal</span>(name, <span class="str">'...'</span>);
+  }
+
+  get info() {                       <span class="cm">// getter — accessed like a property</span>
+    <span class="kw">return</span> <span class="str">`Animal: <span class="op">${</span><span class="kw">this</span>.name<span class="op">}</span>`</span>;
+  }
+}
+
+<span class="kw">const</span> dog <span class="op">=</span> <span class="kw">new</span> <span class="cls">Animal</span>(<span class="str">'Dog'</span>, <span class="str">'Woof'</span>);
+dog.<span class="fn">makeSound</span>();    <span class="cm">// 'Dog says Woof'</span>
+dog.info;            <span class="cm">// 'Animal: Dog' (getter — no parens!)</span>
+<span class="cls">Animal</span>.<span class="fn">create</span>(<span class="str">'Cat'</span>); <span class="cm">// static method call</span>
+
+<span class="cm">// ── INHERITANCE ──</span>
+<span class="kw">class</span> <span class="cls">Dog</span> <span class="kw">extends</span> <span class="cls">Animal</span> {
+  <span class="fn">constructor</span>(name, breed) {
+    <span class="kw">super</span>(name, <span class="str">'Woof'</span>);     <span class="cm">// call parent constructor</span>
+    <span class="kw">this</span>.breed <span class="op">=</span> breed;
+  }
+
+  makeSound() {                  <span class="cm">// override parent method</span>
+    <span class="kw">return</span> <span class="kw">super</span>.makeSound() <span class="op">+</span> <span class="str">' (loudly)'</span>; <span class="cm">// call parent's version too</span>
+  }
+}
+<span class="kw">const</span> labrador <span class="op">=</span> <span class="kw">new</span> <span class="cls">Dog</span>(<span class="str">'Rex'</span>, <span class="str">'Labrador'</span>);
+labrador.<span class="fn">makeSound</span>(); <span class="cm">// 'Rex says Woof (loudly)'</span>
+labrador <span class="kw">instanceof</span> <span class="cls">Animal</span>; <span class="cm">// true</span>
+
+<span class="cm">// ── PRIVATE FIELDS (ES2022) ──</span>
+<span class="kw">class</span> <span class="cls">BankAccount</span> {
+  <span class="prop">#balance</span> <span class="op">=</span> <span class="num">0</span>;  <span class="cm">// # makes it truly private — not accessible outside</span>
+
+  deposit(amount) { <span class="kw">this</span>.<span class="prop">#balance</span> <span class="op">+=</span> amount; }
+  getBalance() { <span class="kw">return</span> <span class="kw">this</span>.<span class="prop">#balance</span>; }
+}
+<span class="kw">const</span> acc <span class="op">=</span> <span class="kw">new</span> <span class="cls">BankAccount</span>();
+acc.<span class="fn">deposit</span>(<span class="num">100</span>);
+acc.<span class="fn">getBalance</span>(); <span class="cm">// 100</span>
+<span class="cm">// acc.#balance; // ❌ SyntaxError — private, inaccessible from outside</span></code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JavaScript — Modules, Map, Set, Template Literals</span></div>
+        <pre><code><span class="cm">// ── ES6 MODULES (import/export) ──</span>
+<span class="cm">// In math.js:</span>
+<span class="kw">export</span> <span class="kw">const</span> PI <span class="op">=</span> <span class="num">3.14159</span>;
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">add</span>(a, b) { <span class="kw">return</span> a <span class="op">+</span> b; }
+<span class="kw">export</span> <span class="kw">default</span> <span class="kw">function</span> <span class="fn">multiply</span>(a, b) { <span class="kw">return</span> a <span class="op">*</span> b; } <span class="cm">// only ONE default export per file</span>
+
+<span class="cm">// In main.js:</span>
+<span class="kw">import</span> multiply, { PI, add } <span class="kw">from</span> <span class="str">'./math.js'</span>;  <span class="cm">// default + named imports</span>
+<span class="kw">import</span> * <span class="kw">as</span> mathUtils <span class="kw">from</span> <span class="str">'./math.js'</span>;     <span class="cm">// import everything as namespace</span>
+
+<span class="cm">// ── MAP — like objects, but keys can be ANY type, preserves insertion order ──</span>
+<span class="kw">const</span> userRoles <span class="op">=</span> <span class="kw">new</span> <span class="cls">Map</span>();
+userRoles.<span class="fn">set</span>(<span class="str">'poorv'</span>, <span class="str">'admin'</span>);
+userRoles.<span class="fn">set</span>(<span class="str">'riya'</span>, <span class="str">'editor'</span>);
+userRoles.<span class="fn">get</span>(<span class="str">'poorv'</span>);     <span class="cm">// 'admin'</span>
+userRoles.<span class="fn">has</span>(<span class="str">'riya'</span>);     <span class="cm">// true</span>
+userRoles.<span class="fn">delete</span>(<span class="str">'riya'</span>);  <span class="cm">// removes entry</span>
+userRoles.<span class="prop">size</span>;             <span class="cm">// number of entries</span>
+<span class="kw">for</span> (<span class="kw">const</span> [key, val] <span class="kw">of</span> userRoles) { <span class="fn">console</span>.<span class="fn">log</span>(key, val); }
+
+<span class="cm">// ── SET — collection of UNIQUE values ──</span>
+<span class="kw">const</span> uniqueIds <span class="op">=</span> <span class="kw">new</span> <span class="cls">Set</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">3</span>, <span class="num">3</span>]);
+<span class="fn">console</span>.<span class="fn">log</span>(uniqueIds);  <span class="cm">// Set {1, 2, 3} — duplicates auto-removed</span>
+uniqueIds.<span class="fn">add</span>(<span class="num">4</span>);
+uniqueIds.<span class="fn">has</span>(<span class="num">2</span>);       <span class="cm">// true</span>
+[...uniqueIds];        <span class="cm">// [1, 2, 3, 4] — convert back to array</span>
+
+<span class="cm">// Common pattern: remove duplicates from an array</span>
+<span class="kw">const</span> nums <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">1</span>, <span class="num">4</span>];
+<span class="kw">const</span> unique <span class="op">=</span> [...<span class="kw">new</span> <span class="cls">Set</span>(nums)];  <span class="cm">// [1, 2, 3, 4]</span>
+
+<span class="cm">// ── TEMPLATE LITERALS — tagged templates, multiline ──</span>
+<span class="kw">const</span> name <span class="op">=</span> <span class="str">'Poorv'</span>, role <span class="op">=</span> <span class="str">'Developer'</span>;
+<span class="kw">const</span> card <span class="op">=</span> <span class="str">`
+  &lt;div class="card"&gt;
+    &lt;h3&gt;<span class="op">${</span>name<span class="op">}</span>&lt;/h3&gt;
+    &lt;p&gt;<span class="op">${</span>role<span class="op">}</span>&lt;/p&gt;
+  &lt;/div&gt;
+`</span>;  <span class="cm">// multi-line string with embedded expressions — common for HTML generation</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 7: JSON ── -->
+    <div class="section" id="json">
+      <div class="section-header">
+        <div class="section-icon icon-blue">📄</div>
+        <div>
+          <div class="section-title">JSON — JavaScript Object Notation</div>
+          <div class="section-subtitle">The universal data format for APIs — every backend speaks this</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Why JSON Matters for Full Stack</h4>
+        <p>JSON is a lightweight, text-based data format derived from JavaScript object syntax — but it's language-independent. Every REST API you'll build or consume sends and receives JSON. Understanding <code style="color:var(--accent)">JSON.stringify</code> and <code style="color:var(--accent)">JSON.parse</code> is essential for all API work.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JavaScript — JSON Complete</span></div>
+        <pre><code><span class="cm">// ── JSON RULES ──</span>
+<span class="cm">// - Keys MUST be double-quoted strings
+// - Values can be: string, number, boolean, null, object, array
+// - NO functions, NO undefined, NO comments, NO trailing commas</span>
+
+<span class="kw">const</span> jsonString <span class="op">=</span> <span class="str">'{"name":"Poorv","age":21,"skills":["JS","React"]}'</span>;
+
+<span class="cm">// ── JSON.parse: STRING → JavaScript OBJECT ──</span>
+<span class="kw">const</span> obj <span class="op">=</span> <span class="cls">JSON</span>.<span class="fn">parse</span>(jsonString);
+obj.name;    <span class="cm">// 'Poorv' — now a real JS object you can use</span>
+
+<span class="cm">// ── JSON.stringify: JavaScript OBJECT → STRING ──</span>
+<span class="kw">const</span> data <span class="op">=</span> { name: <span class="str">'Poorv'</span>, age: <span class="num">21</span>, isActive: <span class="bool">true</span> };
+<span class="kw">const</span> str <span class="op">=</span> <span class="cls">JSON</span>.<span class="fn">stringify</span>(data);
+<span class="cm">// '{"name":"Poorv","age":21,"isActive":true}'</span>
+
+<span class="cm">// Pretty-print with indentation (useful for debugging/logging)</span>
+<span class="cls">JSON</span>.<span class="fn">stringify</span>(data, <span class="kw">null</span>, <span class="num">2</span>);
+<span class="cm">/* {
+  "name": "Poorv",
+  "age": 21,
+  "isActive": true
+} */</span>
+
+<span class="cm">// ── REAL-WORLD USE: Fetching from an API ──</span>
+<span class="kw">async</span> <span class="kw">function</span> <span class="fn">getUser</span>() {
+  <span class="kw">const</span> response <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://api.example.com/user/1'</span>);
+  <span class="kw">const</span> user <span class="op">=</span> <span class="kw">await</span> response.<span class="fn">json</span>();  <span class="cm">// parses JSON response automatically</span>
+  <span class="fn">console</span>.<span class="fn">log</span>(user.name);
+}
+
+<span class="cm">// ── SENDING JSON in a POST request ──</span>
+<span class="kw">async</span> <span class="kw">function</span> <span class="fn">createUser</span>(userData) {
+  <span class="kw">const</span> response <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://api.example.com/users'</span>, {
+    method: <span class="str">'POST'</span>,
+    headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+    body: <span class="cls">JSON</span>.<span class="fn">stringify</span>(userData)  <span class="cm">// MUST stringify before sending</span>
+  });
+  <span class="kw">return</span> response.<span class="fn">json</span>();
+}
+
+<span class="cm">// ── localStorage works only with strings — use JSON to store objects ──</span>
+<span class="kw">const</span> cart <span class="op">=</span> [{ id: <span class="num">1</span>, name: <span class="str">'Laptop'</span> }];
+localStorage.<span class="fn">setItem</span>(<span class="str">'cart'</span>, <span class="cls">JSON</span>.<span class="fn">stringify</span>(cart));
+<span class="kw">const</span> savedCart <span class="op">=</span> <span class="cls">JSON</span>.<span class="fn">parse</span>(localStorage.<span class="fn">getItem</span>(<span class="str">'cart'</span>) <span class="op">||</span> <span class="str">'[]'</span>);</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 8: this Keyword ── -->
+    <div class="section" id="this-keyword">
+      <div class="section-header">
+        <div class="section-icon icon-green">🎯</div>
+        <div>
+          <div class="section-title">The 'this' Keyword</div>
+          <div class="section-subtitle">The most confusing concept in JavaScript — finally explained clearly</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>The Core Rule</h4>
+        <p>Unlike most languages, <code style="color:var(--accent)">this</code> in JavaScript is determined by <strong>how a function is called</strong>, not where it's defined (except for arrow functions). This is called "dynamic this binding."</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JavaScript — 'this' in 5 Contexts</span></div>
+        <pre><code><span class="cm">// ── 1. GLOBAL CONTEXT ──</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">this</span>); <span class="cm">// in browser: Window object (in strict mode/modules: undefined)</span>
+
+<span class="cm">// ── 2. INSIDE A REGULAR METHOD — 'this' = the object before the dot ──</span>
+<span class="kw">const</span> user <span class="op">=</span> {
+  name: <span class="str">'Poorv'</span>,
+  greet() {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">this</span>.name); <span class="cm">// 'this' = user object → 'Poorv'</span>
+  }
+};
+user.<span class="fn">greet</span>(); <span class="cm">// 'Poorv'</span>
+
+<span class="cm">// ── 3. LOSING CONTEXT (a VERY common bug!) ──</span>
+<span class="kw">const</span> greetFn <span class="op">=</span> user.greet;
+greetFn(); <span class="cm">// ❌ undefined — 'this' is now undefined/window, NOT user!</span>
+<span class="cm">// Why? Because greetFn is called standalone, with no object before the dot.</span>
+
+<span class="cm">// ── 4. ARROW FUNCTIONS — 'this' is INHERITED from enclosing scope ──</span>
+<span class="kw">const</span> user2 <span class="op">=</span> {
+  name: <span class="str">'Poorv'</span>,
+  greet: () <span class="op">=&gt;</span> {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">this</span>.name); <span class="cm">// ❌ undefined! Arrow fn took 'this' from OUTSIDE (global)</span>
+  }
+};
+<span class="cm">// Arrow functions don't have their OWN 'this' — they use the surrounding scope's.</span>
+<span class="cm">// This is why arrow functions should NOT be used as object methods.</span>
+
+<span class="cm">// BUT arrow functions are PERFECT inside regular methods (common React/event pattern):</span>
+<span class="kw">class</span> <span class="cls">Counter</span> {
+  count <span class="op">=</span> <span class="num">0</span>;
+  increment <span class="op">=</span> () <span class="op">=&gt;</span> {        <span class="cm">// arrow function as class property</span>
+    <span class="kw">this</span>.count<span class="op">++</span>;            <span class="cm">// 'this' correctly refers to the Counter instance</span>
+  }
+}
+<span class="cm">// Without arrow function, 'this' inside a callback (like setTimeout, onClick)
+// often loses its binding — arrow functions fix this by inheriting 'this'.</span>
+
+<span class="cm">// ── 5. EXPLICIT BINDING: call, apply, bind ──</span>
+<span class="kw">function</span> <span class="fn">introduce</span>() {
+  <span class="kw">return</span> <span class="str">`I am <span class="op">${</span><span class="kw">this</span>.name<span class="op">}</span>`</span>;
+}
+<span class="kw">const</span> person1 <span class="op">=</span> { name: <span class="str">'Poorv'</span> };
+<span class="kw">const</span> person2 <span class="op">=</span> { name: <span class="str">'Riya'</span> };
+
+introduce.<span class="fn">call</span>(person1);          <span class="cm">// 'I am Poorv' — call(thisArg, ...args)</span>
+introduce.<span class="fn">apply</span>(person2);         <span class="cm">// 'I am Riya' — apply(thisArg, [argsArray])</span>
+<span class="kw">const</span> boundFn <span class="op">=</span> introduce.<span class="fn">bind</span>(person1); <span class="cm">// bind RETURNS a new function with 'this' locked</span>
+<span class="fn">boundFn</span>();                       <span class="cm">// 'I am Poorv' — can call anytime, 'this' is fixed</span>
+
+<span class="cm">// ── REAL-WORLD FIX for losing 'this' in event handlers ──</span>
+<span class="kw">class</span> <span class="cls">Button</span> {
+  <span class="fn">constructor</span>() {
+    <span class="kw">this</span>.label <span class="op">=</span> <span class="str">'Click me'</span>;
+    <span class="cm">// Fix 1: bind in constructor</span>
+    <span class="kw">this</span>.handleClick <span class="op">=</span> <span class="kw">this</span>.handleClick.<span class="fn">bind</span>(<span class="kw">this</span>);
+  }
+  handleClick() {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">this</span>.label); <span class="cm">// correctly bound now</span>
+  }
+}
+<span class="cm">// Fix 2 (modern, simpler): use arrow function as class property
+// handleClick = () => { console.log(this.label); }</span></code></pre>
+      </div>
+
+      <div class="highlight-box red">
+        <strong>Interview Trap:</strong> "Why does this lose its value when I pass a method as a callback?" — Answer: because <code>this</code> depends on HOW a function is called (the calling context), not where it's defined. Passing <code>obj.method</code> as a callback strips it from <code>obj</code> — it becomes a standalone function call. Fix with arrow functions, <code>.bind()</code>, or by calling it as <code>() =&gt; obj.method()</code>.
+      </div>
+    </div>
+
+    <!-- ── SECTION 9: Real Project Example ── -->
+    <div class="section" id="fullexample">
+      <div class="section-header">
+        <div class="section-icon icon-orange">🚀</div>
+        <div>
+          <div class="section-title">Real Project: Shopping Cart Logic</div>
+          <div class="section-subtitle">Combining everything learned today into one realistic feature</div>
+        </div>
+      </div>
+
+      <div class="realworld">
+        <div class="realworld-label">🏢 Real World</div>
+        <h4>This is exactly what e-commerce companies build</h4>
+        <p>Shopping cart logic — adding items, removing items, calculating totals, applying discounts — uses arrays, objects, destructuring, spread, and array methods together. This is a common take-home assignment or live coding question.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JavaScript — Shopping Cart (Real Project Pattern)</span></div>
+        <pre><code><span class="kw">class</span> <span class="cls">ShoppingCart</span> {
+  <span class="prop">#items</span> <span class="op">=</span> [];  <span class="cm">// private field — array of { product, quantity }</span>
+
+  addItem(product, quantity <span class="op">=</span> <span class="num">1</span>) {
+    <span class="kw">const</span> existing <span class="op">=</span> <span class="kw">this</span>.<span class="prop">#items</span>.<span class="fn">find</span>(item <span class="op">=&gt;</span> item.product.id <span class="op">===</span> product.id);
+
+    <span class="kw">if</span> (existing) {
+      existing.quantity <span class="op">+=</span> quantity; <span class="cm">// already in cart — increase quantity</span>
+    } <span class="kw">else</span> {
+      <span class="kw">this</span>.<span class="prop">#items</span>.<span class="fn">push</span>({ product, quantity }); <span class="cm">// new item</span>
+    }
+    <span class="kw">return</span> <span class="kw">this</span>; <span class="cm">// enable method chaining</span>
+  }
+
+  removeItem(productId) {
+    <span class="kw">this</span>.<span class="prop">#items</span> <span class="op">=</span> <span class="kw">this</span>.<span class="prop">#items</span>.<span class="fn">filter</span>(item <span class="op">=&gt;</span> item.product.id <span class="op">!==</span> productId);
+    <span class="kw">return</span> <span class="kw">this</span>;
+  }
+
+  updateQuantity(productId, quantity) {
+    <span class="kw">const</span> item <span class="op">=</span> <span class="kw">this</span>.<span class="prop">#items</span>.<span class="fn">find</span>(i <span class="op">=&gt;</span> i.product.id <span class="op">===</span> productId);
+    <span class="kw">if</span> (item) item.quantity <span class="op">=</span> <span class="cls">Math</span>.<span class="fn">max</span>(<span class="num">0</span>, quantity);
+    <span class="kw">return</span> <span class="kw">this</span>;
+  }
+
+  get itemCount() {
+    <span class="kw">return</span> <span class="kw">this</span>.<span class="prop">#items</span>.<span class="fn">reduce</span>((sum, item) <span class="op">=&gt;</span> sum <span class="op">+</span> item.quantity, <span class="num">0</span>);
+  }
+
+  get subtotal() {
+    <span class="kw">return</span> <span class="kw">this</span>.<span class="prop">#items</span>.<span class="fn">reduce</span>(
+      (sum, item) <span class="op">=&gt;</span> sum <span class="op">+</span> (item.product.price <span class="op">*</span> item.quantity), <span class="num">0</span>
+    );
+  }
+
+  applyDiscount(percent) {
+    <span class="kw">return</span> <span class="kw">this</span>.subtotal <span class="op">*</span> (<span class="num">1</span> <span class="op">-</span> percent <span class="op">/</span> <span class="num">100</span>);
+  }
+
+  getSummary() {
+    <span class="kw">return</span> <span class="kw">this</span>.<span class="prop">#items</span>.<span class="fn">map</span>(({ product, quantity }) <span class="op">=&gt;</span> ({
+      name: product.name,
+      quantity,
+      lineTotal: product.price <span class="op">*</span> quantity
+    }));
+  }
+}
+
+<span class="cm">// ── USAGE ──</span>
+<span class="kw">const</span> cart <span class="op">=</span> <span class="kw">new</span> <span class="cls">ShoppingCart</span>();
+
+cart
+  .<span class="fn">addItem</span>({ id: <span class="num">1</span>, name: <span class="str">'Laptop'</span>, price: <span class="num">55000</span> }, <span class="num">1</span>)
+  .<span class="fn">addItem</span>({ id: <span class="num">2</span>, name: <span class="str">'Mouse'</span>,  price: <span class="num">499</span> },  <span class="num">2</span>)
+  .<span class="fn">addItem</span>({ id: <span class="num">1</span>, name: <span class="str">'Laptop'</span>, price: <span class="num">55000</span> }, <span class="num">1</span>); <span class="cm">// adds to existing</span>
+
+<span class="fn">console</span>.<span class="fn">log</span>(cart.itemCount);   <span class="cm">// 4 (2 laptops + 2 mice)</span>
+<span class="fn">console</span>.<span class="fn">log</span>(cart.subtotal);    <span class="cm">// 110998</span>
+<span class="fn">console</span>.<span class="fn">log</span>(cart.<span class="fn">applyDiscount</span>(<span class="num">10</span>)); <span class="cm">// 99898.2 (10% off)</span>
+<span class="fn">console</span>.<span class="fn">log</span>(cart.<span class="fn">getSummary</span>());
+<span class="cm">// [{name:'Laptop', quantity:2, lineTotal:110000}, {name:'Mouse', quantity:2, lineTotal:998}]</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 10: Interview Q&A ── -->
+    <div class="section" id="interview">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🎯</div>
+        <div>
+          <div class="section-title">Placement Interview Q&A</div>
+          <div class="section-subtitle">Top intermediate JavaScript questions asked in Ahmedabad company interviews</div>
+        </div>
+      </div>
+
+      <ul class="qa-list">
+        <li class="qa-item">
+          <div class="qa-q">Q1. What is the difference between map and forEach?</div>
+          <div class="qa-a">map returns a NEW array containing the result of calling the callback on every element — it's used for transformation. forEach returns undefined — it's used purely for side effects (like logging or making API calls per item) and doesn't build a new array. If you need to use the result, use map. If you're just performing an action without needing a returned array, use forEach. A related point: map (and filter, reduce) are chainable; forEach is not since it returns undefined.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q2. Explain reduce() with a real example.</div>
+          <div class="qa-a">reduce() takes a callback (accumulator, currentValue) and an initial value, and "reduces" an entire array down to a single value by repeatedly applying the callback. For example, to sum an array: arr.reduce((sum, n) => sum + n, 0). The accumulator carries forward the running result through each iteration. It's also used to build objects (grouping data by category), find min/max, or flatten arrays — anywhere you need to combine many values into one.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q3. What is destructuring and why is it useful?</div>
+          <div class="qa-a">Destructuring is a syntax for unpacking values from arrays or properties from objects into individual variables in a single statement. For arrays: const [a, b] = [1, 2]. For objects: const { name, age } = user. It reduces boilerplate (no need to write user.name, user.age repeatedly), supports default values and renaming, and is the standard way React components receive props: function Card({ title, price }) {}.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q4. What's the difference between spread and rest operators? They look the same.</div>
+          <div class="qa-a">Both use the ... syntax but do opposite things depending on context. Spread EXPANDS an iterable into individual elements — used when building a new array/object or passing arguments: [...arr1, ...arr2] or Math.max(...numbers). Rest COLLECTS multiple arguments or remaining destructured items INTO a single array — used in function parameters or destructuring: function sum(...nums) or const [first, ...rest] = arr. The simple way to tell them apart: rest appears where you're "receiving" values (parameters, destructuring left-side); spread appears where you're "giving" or expanding values.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q5. How do you remove duplicates from an array?</div>
+          <div class="qa-a">The cleanest modern way is using a Set, which only stores unique values: [...new Set(array)]. This converts the array to a Set (auto-removing duplicates), then spreads it back into a new array. For arrays of primitive values (numbers, strings) this works perfectly. For arrays of objects, you'd need a different approach since objects are compared by reference — typically using a Map keyed by a unique property, or filter with findIndex to check first occurrence.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q6. What is the difference between shallow copy and deep copy?</div>
+          <div class="qa-a">A shallow copy (using spread {...obj} or Object.assign) copies only the top-level properties. If a property's value is itself an object or array, both the original and copy share a reference to that SAME nested object — mutating it through one affects the other. A deep copy creates entirely independent copies of nested structures too, so mutations don't leak across. Deep copies can be made with structuredClone(obj) (modern, recommended) or JSON.parse(JSON.stringify(obj)) (older, loses functions and special types like Date).</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q7. Why does 'this' sometimes become undefined inside a method?</div>
+          <div class="qa-a">'this' in JavaScript is determined by HOW a function is called, not where it's defined. If you call obj.method(), 'this' is obj. But if you extract the method (const fn = obj.method) and call it standalone (fn()), 'this' is lost — it becomes undefined (in strict mode) because there's no object before the dot at call time. This commonly happens when passing a method as a callback (e.g., to setTimeout or an event listener). Fixes: use .bind(obj), wrap in an arrow function () => obj.method(), or define the method as an arrow function class property which inherits 'this' from the surrounding scope.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q8. What is JSON and why is it used in APIs?</div>
+          <div class="qa-a">JSON (JavaScript Object Notation) is a lightweight, text-based data interchange format. Despite the name, it's language-independent — virtually every programming language can parse and generate it. APIs use JSON because it's human-readable, maps cleanly to common data structures (objects, arrays, strings, numbers, booleans, null), and is much lighter than older formats like XML. In JavaScript, JSON.stringify() converts an object to a JSON string (for sending in a request body), and JSON.parse() converts a JSON string back into a usable JavaScript object (for reading a response).</div>
+        </li>
+      </ul>
+
+      <div class="highlight-box" style="margin-top:24px">
+        <strong>🎯 Day 5 Checklist — Before Day 6:</strong><br/>
+        ✓ Can write map/filter/reduce from memory and explain return types &nbsp;|&nbsp;
+        ✓ Comfortable with object & array destructuring including nested &nbsp;|&nbsp;
+        ✓ Know spread vs rest cold &nbsp;|&nbsp;
+        ✓ Can write an ES6 class with inheritance &nbsp;|&nbsp;
+        ✓ Understand JSON.stringify/parse for API work &nbsp;|&nbsp;
+        ✓ Can explain why 'this' breaks in callbacks and how to fix it
+      </div>
+    </div>
+
+  </div>
+
+  <div class="day-nav">
+    <div class="day-nav-info">Previous<strong>Day 4 — JavaScript Basics</strong></div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="day-nav-info" style="text-align:right">Next up<strong>Day 6 — JavaScript Advanced: Async/Await, Promises, Fetch API</strong></div>
+      <button class="next-btn" onclick="alert('Say \"Day 6\" to Claude to continue!')">Day 6 →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const navLinks = document.querySelectorAll('.nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) link.classList.add('active');
+        });
+      }
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
