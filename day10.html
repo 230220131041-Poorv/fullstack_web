@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Day 10 — Context API & React Router | Full Stack Placement Prep</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0d0f14;--surface:#13161e;--surface2:#1a1e2a;--border:#252a38;
+      --accent:#a78bfa;--accent2:#61dafb;--accent3:#34d399;--text:#e8eaf0;
+      --muted:#7a8099;--code-bg:#0a0c11;--tag-bg:#1e2230;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:16px;line-height:1.7;}
+    .sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:24px 0;}
+    .sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+    .day-badge{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+    .sidebar-logo h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;}
+    .nav-section-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:12px 20px 6px;}
+    .nav-item{display:block;padding:8px 20px;color:var(--muted);text-decoration:none;font-size:13.5px;font-weight:500;border-left:2px solid transparent;transition:all 0.2s;}
+    .nav-item:hover,.nav-item.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent);}
+    .main{margin-left:240px;min-height:100vh;}
+    .hero{background:linear-gradient(135deg,#0d0f14 0%,#150f1f 50%,#0d0f14 100%);border-bottom:1px solid var(--border);padding:64px 60px 56px;position:relative;overflow:hidden;}
+    .hero::before{content:'⟷';position:absolute;right:60px;top:50%;transform:translateY(-50%);font-size:150px;color:var(--border);pointer-events:none;line-height:1;}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+    .hero-eyebrow span{width:24px;height:1px;background:var(--accent);display:inline-block;}
+    .hero h1{font-family:'Syne',sans-serif;font-size:50px;font-weight:800;line-height:1.1;margin-bottom:16px;}
+    .hero h1 em{font-style:normal;color:var(--accent);}
+    .hero-sub{font-size:17px;color:var(--muted);max-width:540px;margin-bottom:32px;}
+    .hero-tags{display:flex;flex-wrap:wrap;gap:10px;}
+    .tag{background:var(--tag-bg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12.5px;font-family:'JetBrains Mono',monospace;color:var(--accent2);}
+    .progress-strip{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 60px;display:flex;align-items:center;gap:16px;}
+    .progress-label{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);white-space:nowrap;}
+    .progress-bar-track{flex:1;height:4px;background:var(--border);border-radius:2px;}
+    .progress-bar-fill{height:100%;width:33.33%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;}
+    .progress-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);}
+    .content{padding:0 60px 80px;}
+    .section{padding:56px 0 0;border-top:1px solid var(--border);margin-top:56px;}
+    .section:first-child{margin-top:0;padding-top:48px;border-top:none;}
+    .section-header{display:flex;align-items:flex-start;gap:20px;margin-bottom:32px;}
+    .section-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;margin-top:2px;}
+    .icon-purple{background:rgba(167,139,250,0.12);}.icon-cyan{background:rgba(97,218,251,0.12);}
+    .icon-green{background:rgba(52,211,153,0.12);}.icon-orange{background:rgba(251,146,60,0.12);}
+    .icon-yellow{background:rgba(251,191,36,0.12);}.icon-pink{background:rgba(236,72,153,0.12);}
+    .section-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:6px;}
+    .section-subtitle{font-size:14px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .theory-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 32px;margin-bottom:20px;}
+    .theory-block h4{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--accent);margin-bottom:12px;}
+    .theory-block p{font-size:15px;line-height:1.75;margin-bottom:10px;}
+    .theory-block p:last-child{margin-bottom:0;}
+    .highlight-box{border-left:3px solid var(--accent);background:rgba(167,139,250,0.06);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;font-size:14.5px;}
+    .highlight-box.cyan{border-left-color:var(--accent2);background:rgba(97,218,251,0.06);}
+    .highlight-box.green{border-left-color:var(--accent3);background:rgba(52,211,153,0.06);}
+    .highlight-box.red{border-left-color:#f87171;background:rgba(248,113,113,0.06);}
+    .code-wrapper{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;margin:20px 0;overflow:hidden;}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--surface2);border-bottom:1px solid var(--border);}
+    .code-dots{display:flex;gap:6px;}
+    .code-dots span{width:10px;height:10px;border-radius:50%;}
+    .dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+    .code-lang{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+    .code-wrapper pre{padding:22px 24px;overflow-x:auto;margin:0;}
+    .code-wrapper code{font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.8;}
+    .kw{color:#c792ea;}.str{color:#c3e88d;}.num{color:#f78c6c;}.cm{color:#546e7a;font-style:italic;}
+    .fn{color:#82aaff;}.prop{color:#f07178;}.bool{color:#ff9d00;}.op{color:#89ddff;}.cls{color:#ffcb6b;}.tg{color:#f07178;}.at{color:#ffcb6b;}
+    .realworld{background:linear-gradient(135deg,rgba(167,139,250,0.05),rgba(97,218,251,0.05));border:1px solid rgba(167,139,250,0.2);border-radius:12px;padding:24px 28px;margin:24px 0;}
+    .realworld-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+    .realworld h4{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:10px;}
+    .realworld p{font-size:14.5px;color:var(--muted);line-height:1.7;}
+    .qa-list{list-style:none;display:flex;flex-direction:column;gap:14px;margin-top:20px;}
+    .qa-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 22px;}
+    .qa-q{font-weight:600;color:var(--accent);font-size:14.5px;margin-bottom:8px;}
+    .qa-a{font-size:14px;color:var(--muted);line-height:1.65;}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+    .mini-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
+    .mini-card h5{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent);}
+    .mini-card p{font-size:13.5px;color:var(--muted);line-height:1.6;}
+    .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+    .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:14.5px;}
+    .checklist li::before{content:'✓';color:var(--accent3);font-weight:700;font-size:14px;margin-top:1px;flex-shrink:0;}
+    .demo-area{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;}
+    .demo-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
+    .day-nav{background:var(--surface);border-top:1px solid var(--border);padding:24px 60px;display:flex;align-items:center;justify-content:space-between;}
+    .day-nav-info{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+    .day-nav-info strong{color:var(--text);font-size:14px;display:block;margin-top:4px;}
+    .next-btn{background:var(--accent);color:#0d0f14;border:none;border-radius:8px;padding:10px 22px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:opacity 0.2s;}
+    .next-btn:hover{opacity:0.85;}
+    ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+    @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;}.hero{padding:40px 24px 36px;}.hero h1{font-size:32px;}.hero::before{display:none;}.content{padding:0 24px 60px;}.progress-strip,.day-nav{padding:14px 24px;}.grid-2{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="day-badge">Day 10 / 30</div>
+    <h2>Context & Router</h2>
+  </div>
+  <div class="nav-section-label">Topics</div>
+  <a class="nav-item active" href="#prop-drilling">The Prop Drilling Problem</a>
+  <a class="nav-item" href="#context-basics">Context API Basics</a>
+  <a class="nav-item" href="#context-custom-hook">Custom Hooks for Context</a>
+  <a class="nav-item" href="#context-vs-redux">Context vs Redux</a>
+  <a class="nav-item" href="#router-intro">React Router Intro</a>
+  <a class="nav-item" href="#router-setup">Router Setup & Routes</a>
+  <a class="nav-item" href="#router-navigation">Navigation & Links</a>
+  <a class="nav-item" href="#router-dynamic">Dynamic Routes & Params</a>
+  <a class="nav-item" href="#router-nested">Nested Routes & Layouts</a>
+  <a class="nav-item" href="#protected-routes">Protected Routes</a>
+  <a class="nav-item" href="#fullexample">Real Project: E-commerce Shell</a>
+  <a class="nav-item" href="#interview">Interview Q&A</a>
+</nav>
+
+<div class="main">
+  <div class="progress-strip">
+    <span class="progress-label">30-Day Journey</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill"></div></div>
+    <span class="progress-pct">Day 10</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-eyebrow"><span></span>Full Stack Placement Prep</div>
+    <h1>Day 10 — <em>Context API</em><br/>& React Router</h1>
+    <p class="hero-sub">Share state across your entire app without prop drilling, and turn your single-page React app into a true multi-page experience with client-side routing.</p>
+    <div class="hero-tags">
+      <span class="tag">Context API</span><span class="tag">Custom Hooks</span><span class="tag">React Router</span>
+      <span class="tag">Dynamic Routes</span><span class="tag">Protected Routes</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── SECTION 1: Prop Drilling ── -->
+    <div class="section" id="prop-drilling">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🕳️</div>
+        <div>
+          <div class="section-title">The Prop Drilling Problem</div>
+          <div class="section-subtitle">Why Context exists — the pain it solves</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What is Prop Drilling?</h4>
+        <p><strong>Prop drilling</strong> happens when you need to pass data through many layers of components, even though only the deepest component actually uses it. Every component in between must accept and forward the prop just to relay it, even if they don't need it themselves.</p>
+        <div class="highlight-box">
+          <strong>Real-world example:</strong> A logged-in user's theme preference needs to reach a deeply nested Button component. You'd have to pass "theme" through App → Layout → Sidebar → Menu → MenuItem → Button — 5 components just relaying a prop they never use themselves.
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Prop Drilling Example (the problem)</span></div>
+        <pre><code><span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [theme, setTheme] <span class="op">=</span> <span class="fn">useState</span>(<span class="str">'dark'</span>);
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="cls">Layout</span> <span class="at">theme</span><span class="op">=</span><span class="op">{</span>theme<span class="op">}</span> <span class="op">/&gt;</span>;  <span class="cm">// pass it down...</span>
+}
+
+<span class="kw">function</span> <span class="fn">Layout</span>({ theme }) {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="cls">Sidebar</span> <span class="at">theme</span><span class="op">=</span><span class="op">{</span>theme<span class="op">}</span> <span class="op">/&gt;</span>;  <span class="cm">// Layout doesn't use theme, just relays it</span>
+}
+
+<span class="kw">function</span> <span class="fn">Sidebar</span>({ theme }) {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="cls">Menu</span> <span class="at">theme</span><span class="op">=</span><span class="op">{</span>theme<span class="op">}</span> <span class="op">/&gt;</span>;    <span class="cm">// Sidebar doesn't use theme either...</span>
+}
+
+<span class="kw">function</span> <span class="fn">Menu</span>({ theme }) {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="cls">MenuItem</span> <span class="at">theme</span><span class="op">=</span><span class="op">{</span>theme<span class="op">}</span> <span class="op">/&gt;</span>; <span class="cm">// still just relaying...</span>
+}
+
+<span class="kw">function</span> <span class="fn">MenuItem</span>({ theme }) {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">button</span> <span class="at">className</span><span class="op">=</span><span class="op">{</span>theme<span class="op">}</span><span class="op">&gt;</span>Click<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>; <span class="cm">// FINALLY used here</span>
+}
+
+<span class="cm">// 4 components had to know about "theme" just to pass it along.
+// Adding a new layer, renaming the prop, or adding more shared data
+// means touching every single file in the chain. This doesn't scale.</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: Context Basics ── -->
+    <div class="section" id="context-basics">
+      <div class="section-header">
+        <div class="section-icon icon-cyan">🌐</div>
+        <div>
+          <div class="section-title">Context API Basics</div>
+          <div class="section-subtitle">Built-in React solution — share state without passing through every layer</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What is Context?</h4>
+        <p>The <strong>Context API</strong> lets you create a "global" value for a part of your component tree, which ANY descendant can read directly — no matter how deeply nested — without it being passed as a prop through every intermediate component. There are 3 steps: <strong>create</strong> the context, <strong>provide</strong> a value, and <strong>consume</strong> it wherever needed.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Solving Prop Drilling with Context</span></div>
+        <pre><code><span class="kw">import</span> { createContext, useContext, useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="cm">// ── STEP 1: CREATE the context (usually in its own file) ──</span>
+<span class="kw">const</span> ThemeContext <span class="op">=</span> <span class="fn">createContext</span>();  <span class="cm">// optionally pass a default value: createContext('light')</span>
+
+<span class="cm">// ── STEP 2: PROVIDE a value at the top of the tree ──</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [theme, setTheme] <span class="op">=</span> <span class="fn">useState</span>(<span class="str">'dark'</span>);
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="cls">ThemeContext</span>.Provider <span class="at">value</span><span class="op">=</span><span class="op">{</span>{ theme, setTheme }<span class="op">}</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">Layout</span> <span class="op">/&gt;</span>   <span class="cm">// theme is now available to EVERY descendant, no props needed</span>
+    <span class="op">&lt;/</span><span class="cls">ThemeContext</span>.Provider<span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── Intermediate components — NO LONGER need to know about theme at all! ──</span>
+<span class="kw">function</span> <span class="fn">Layout</span>() {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="cls">Sidebar</span> <span class="op">/&gt;</span>;  <span class="cm">// clean — no theme prop being relayed</span>
+}
+<span class="kw">function</span> <span class="fn">Sidebar</span>() {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="cls">Menu</span> <span class="op">/&gt;</span>;
+}
+<span class="kw">function</span> <span class="fn">Menu</span>() {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="cls">MenuItem</span> <span class="op">/&gt;</span>;
+}
+
+<span class="cm">// ── STEP 3: CONSUME the context wherever it's actually needed ──</span>
+<span class="kw">function</span> <span class="fn">MenuItem</span>() {
+  <span class="kw">const</span> { theme, setTheme } <span class="op">=</span> <span class="fn">useContext</span>(ThemeContext); <span class="cm">// reaches DIRECTLY into context</span>
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">button</span>
+      <span class="at">className</span><span class="op">=</span><span class="op">{</span>theme<span class="op">}</span>
+      <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>() <span class="op">=&gt;</span> setTheme(theme <span class="op">===</span> <span class="str">'dark'</span> <span class="op">?</span> <span class="str">'light'</span> <span class="op">:</span> <span class="str">'dark'</span>)<span class="op">}</span>
+    <span class="op">&gt;</span>
+      Toggle Theme
+    <span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+  );
+}
+<span class="cm">// Only the components that ACTUALLY need theme touch the Context — everyone else stays clean</span></code></pre>
+      </div>
+
+      <div class="highlight-box cyan">
+        <strong>How Context re-rendering works:</strong> Whenever the value passed to a Provider changes, ALL components consuming that context (via useContext) re-render — regardless of how deep they are. This is powerful but means you shouldn't put rapidly-changing or unrelated data into one giant context, as it can cause unnecessary re-renders across your app.
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: Custom Hooks for Context ── -->
+    <div class="section" id="context-custom-hook">
+      <div class="section-header">
+        <div class="section-icon icon-green">🪝</div>
+        <div>
+          <div class="section-title">Custom Hooks + Context Pattern</div>
+          <div class="section-subtitle">The professional way real codebases structure Context</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Wrapping Context in a Custom Hook</h4>
+        <p>Real production codebases almost never call <code style="color:var(--accent)">useContext</code> directly in components. Instead, they wrap it in a custom hook (a function starting with <code style="color:var(--accent)">use</code> that uses other hooks inside). This gives cleaner imports and lets you add error handling for misuse.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Full Auth Context Pattern (Real-World Structure)</span></div>
+        <pre><code><span class="cm">// ── AuthContext.jsx — a complete, reusable context module ──</span>
+<span class="kw">import</span> { createContext, useContext, useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">const</span> AuthContext <span class="op">=</span> <span class="fn">createContext</span>(<span class="kw">null</span>);
+
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">AuthProvider</span>({ children }) {
+  <span class="kw">const</span> [user, setUser] <span class="op">=</span> <span class="fn">useState</span>(<span class="kw">null</span>);
+  <span class="kw">const</span> [loading, setLoading] <span class="op">=</span> <span class="fn">useState</span>(<span class="bool">true</span>);
+
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    <span class="cm">// check if user is already logged in (e.g. from a saved token)</span>
+    <span class="kw">const</span> savedUser <span class="op">=</span> localStorage.<span class="fn">getItem</span>(<span class="str">'user'</span>);
+    <span class="kw">if</span> (savedUser) setUser(<span class="cls">JSON</span>.<span class="fn">parse</span>(savedUser));
+    setLoading(<span class="bool">false</span>);
+  }, []);
+
+  <span class="kw">async</span> <span class="kw">function</span> <span class="fn">login</span>(email, password) {
+    <span class="kw">const</span> response <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/login'</span>, {
+      method: <span class="str">'POST'</span>,
+      headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+      body: <span class="cls">JSON</span>.<span class="fn">stringify</span>({ email, password })
+    });
+    <span class="kw">const</span> data <span class="op">=</span> <span class="kw">await</span> response.<span class="fn">json</span>();
+    setUser(data.user);
+    localStorage.<span class="fn">setItem</span>(<span class="str">'user'</span>, <span class="cls">JSON</span>.<span class="fn">stringify</span>(data.user));
+  }
+
+  <span class="kw">function</span> <span class="fn">logout</span>() {
+    setUser(<span class="kw">null</span>);
+    localStorage.<span class="fn">removeItem</span>(<span class="str">'user'</span>);
+  }
+
+  <span class="kw">const</span> value <span class="op">=</span> { user, loading, login, logout, isAuthenticated: <span class="op">!!</span>user };
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="cls">AuthContext</span>.Provider <span class="at">value</span><span class="op">=</span><span class="op">{</span>value<span class="op">}</span><span class="op">&gt;</span><span class="op">{</span>children<span class="op">}</span><span class="op">&lt;/</span><span class="cls">AuthContext</span>.Provider<span class="op">&gt;</span>;
+}
+
+<span class="cm">// ── CUSTOM HOOK — the clean public interface to this context ──</span>
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">useAuth</span>() {
+  <span class="kw">const</span> context <span class="op">=</span> <span class="fn">useContext</span>(AuthContext);
+  <span class="kw">if</span> (context <span class="op">===</span> <span class="kw">null</span>) {
+    <span class="kw">throw</span> <span class="kw">new</span> <span class="cls">Error</span>(<span class="str">'useAuth must be used within an AuthProvider'</span>); <span class="cm">// catches misuse early!</span>
+  }
+  <span class="kw">return</span> context;
+}
+
+<span class="cm">// ── main.jsx — wrap the WHOLE app once ──</span>
+<span class="kw">import</span> { AuthProvider } <span class="kw">from</span> <span class="str">'./AuthContext'</span>;
+createRoot(document.<span class="fn">getElementById</span>(<span class="str">'root'</span>)).<span class="fn">render</span>(
+  <span class="op">&lt;</span><span class="cls">AuthProvider</span><span class="op">&gt;</span>
+    <span class="op">&lt;</span><span class="cls">App</span> <span class="op">/&gt;</span>
+  <span class="op">&lt;/</span><span class="cls">AuthProvider</span><span class="op">&gt;</span>
+);
+
+<span class="cm">// ── ANY component, anywhere, can now use it cleanly ──</span>
+<span class="kw">import</span> { useAuth } <span class="kw">from</span> <span class="str">'./AuthContext'</span>;
+
+<span class="kw">function</span> <span class="fn">ProfileButton</span>() {
+  <span class="kw">const</span> { user, logout, isAuthenticated } <span class="op">=</span> <span class="fn">useAuth</span>(); <span class="cm">// one clean line, no useContext/import of raw Context</span>
+
+  <span class="kw">if</span> (<span class="op">!</span>isAuthenticated) <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">a</span> <span class="at">href</span><span class="op">=</span><span class="str">"/login"</span><span class="op">&gt;</span>Log In<span class="op">&lt;/</span><span class="tg">a</span><span class="op">&gt;</span>;
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">span</span><span class="op">&gt;</span><span class="op">{</span>user.name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">span</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">button</span> <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>logout<span class="op">}</span><span class="op">&gt;</span>Log Out<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: Context vs Redux ── -->
+    <div class="section" id="context-vs-redux">
+      <div class="section-header">
+        <div class="section-icon icon-orange">⚖️</div>
+        <div>
+          <div class="section-title">Context API vs Redux / Zustand</div>
+          <div class="section-subtitle">Knowing when built-in Context is enough — vs when you need a state library</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="mini-card">
+          <h5>Use Context for…</h5>
+          <p>Theme (dark/light mode), authenticated user info, language/locale preference, simple global UI state (modal open/closed). Data that changes infrequently and isn't extremely performance-sensitive.</p>
+        </div>
+        <div class="mini-card">
+          <h5>Use Redux/Zustand for…</h5>
+          <p>Large apps with complex, frequently-changing state shared across many unrelated parts of the tree (e.g., a shopping cart with live price calculations, real-time collaborative data). These libraries offer better performance optimization and devtools for large-scale state.</p>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <strong>Interview framing:</strong> Context API is built into React (no extra dependency) and perfect for simple, infrequently-changing global state. Redux/Zustand/Recoil are external libraries built for complex state logic, offering finer-grained re-render control, middleware, and debugging tools — but add complexity. Most placement-level projects only need Context.
+      </div>
+    </div>
+
+    <!-- ── SECTION 5: React Router Intro ── -->
+    <div class="section" id="router-intro">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🗺️</div>
+        <div>
+          <div class="section-title">React Router — Introduction</div>
+          <div class="section-subtitle">Turning a Single Page App into a multi-page experience</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What Problem Does React Router Solve?</h4>
+        <p>React apps are <strong>Single Page Applications (SPAs)</strong> — only ONE actual HTML page is ever loaded; everything else is JavaScript swapping out content in the DOM. Without a router, you can't have shareable URLs like <code style="color:var(--accent)">/products/42</code> or <code style="color:var(--accent)">/about</code> — there's nothing connecting URLs to which component should render.</p>
+        <p><strong>React Router</strong> (the most widely used routing library, now on v6+) maps URL paths to components, handles browser back/forward buttons, and updates the URL without a full page reload — giving you the UX of a traditional multi-page site with the performance and smoothness of an SPA.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Bash — Installing React Router</span></div>
+        <pre><code>npm install react-router-dom</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 6: Router Setup ── -->
+    <div class="section" id="router-setup">
+      <div class="section-header">
+        <div class="section-icon icon-cyan">⚙️</div>
+        <div>
+          <div class="section-title">Router Setup & Basic Routes</div>
+          <div class="section-subtitle">BrowserRouter, Routes, and Route — the foundation</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Basic Router Setup</span></div>
+        <pre><code><span class="kw">import</span> { BrowserRouter, Routes, Route } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+<span class="kw">import</span> Home <span class="kw">from</span> <span class="str">'./pages/Home'</span>;
+<span class="kw">import</span> About <span class="kw">from</span> <span class="str">'./pages/About'</span>;
+<span class="kw">import</span> Products <span class="kw">from</span> <span class="str">'./pages/Products'</span>;
+<span class="kw">import</span> Contact <span class="kw">from</span> <span class="str">'./pages/Contact'</span>;
+<span class="kw">import</span> NotFound <span class="kw">from</span> <span class="str">'./pages/NotFound'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="cls">BrowserRouter</span><span class="op">&gt;</span>            <span class="cm">{/* wraps the WHOLE app — enables routing */}</span>
+      <span class="op">&lt;</span><span class="cls">Routes</span><span class="op">&gt;</span>                  <span class="cm">{/* container for all your Route definitions */}</span>
+        <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Home</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+        <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/about"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">About</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+        <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/products"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Products</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+        <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/contact"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Contact</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+        <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"*"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">NotFound</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>  <span class="cm">{/* catch-all 404 — always LAST */}</span>
+      <span class="op">&lt;/</span><span class="cls">Routes</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="cls">BrowserRouter</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// Only ONE Route's element renders at a time, matching the current URL path.
+// React Router compares the browser's current path against each "path" prop.</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 7: Navigation ── -->
+    <div class="section" id="router-navigation">
+      <div class="section-header">
+        <div class="section-icon icon-green">🧭</div>
+        <div>
+          <div class="section-title">Navigation: Link, NavLink, useNavigate</div>
+          <div class="section-subtitle">Moving between pages without full reloads</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Why Not Just Use &lt;a href&gt;?</h4>
+        <p>A regular <code style="color:var(--accent)">&lt;a href="/about"&gt;</code> tag triggers a FULL PAGE RELOAD — the browser re-downloads the entire app, defeating the purpose of an SPA. React Router's <code style="color:var(--accent)">&lt;Link&gt;</code> intercepts the click and updates the URL + renders the new component WITHOUT reloading the page.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Navigation Components</span></div>
+        <pre><code><span class="kw">import</span> { Link, NavLink, useNavigate } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="cm">// ── Link — basic client-side navigation (replaces &lt;a&gt;) ──</span>
+<span class="kw">function</span> <span class="fn">Navbar</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">nav</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">Link</span> <span class="at">to</span><span class="op">=</span><span class="str">"/"</span><span class="op">&gt;</span>Home<span class="op">&lt;/</span><span class="cls">Link</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">Link</span> <span class="at">to</span><span class="op">=</span><span class="str">"/products"</span><span class="op">&gt;</span>Products<span class="op">&lt;/</span><span class="cls">Link</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">Link</span> <span class="at">to</span><span class="op">=</span><span class="str">"/about"</span><span class="op">&gt;</span>About<span class="op">&lt;/</span><span class="cls">Link</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">nav</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── NavLink — like Link, but knows when it's "active" (current page) ──</span>
+<span class="kw">function</span> <span class="fn">Navbar</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">nav</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">NavLink</span>
+        <span class="at">to</span><span class="op">=</span><span class="str">"/products"</span>
+        <span class="at">className</span><span class="op">=</span><span class="op">{</span>({ isActive }) <span class="op">=&gt;</span> isActive <span class="op">?</span> <span class="str">'nav-link active'</span> <span class="op">:</span> <span class="str">'nav-link'</span><span class="op">}</span>
+      <span class="op">&gt;</span>
+        Products
+      <span class="op">&lt;/</span><span class="cls">NavLink</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">nav</span><span class="op">&gt;</span>
+  );
+}
+<span class="cm">// NavLink auto-applies styling/class when its 'to' matches the current URL — great for highlighting the active nav item</span>
+
+<span class="cm">// ── useNavigate — programmatic navigation (e.g. after form submit) ──</span>
+<span class="kw">function</span> <span class="fn">LoginForm</span>() {
+  <span class="kw">const</span> navigate <span class="op">=</span> <span class="fn">useNavigate</span>();
+
+  <span class="kw">async</span> <span class="kw">function</span> <span class="fn">handleSubmit</span>(e) {
+    e.<span class="fn">preventDefault</span>();
+    <span class="kw">const</span> success <span class="op">=</span> <span class="kw">await</span> <span class="fn">loginUser</span>();
+    <span class="kw">if</span> (success) {
+      navigate(<span class="str">'/dashboard'</span>);       <span class="cm">// redirect after successful login</span>
+    }
+  }
+
+  <span class="kw">function</span> <span class="fn">goBack</span>() {
+    navigate(<span class="op">-</span><span class="num">1</span>);  <span class="cm">// go back one step in history (like browser back button)</span>
+  }
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">form</span> <span class="at">onSubmit</span><span class="op">=</span><span class="op">{</span>handleSubmit<span class="op">}</span><span class="op">&gt;</span>...<span class="op">&lt;/</span><span class="tg">form</span><span class="op">&gt;</span>;
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 8: Dynamic Routes ── -->
+    <div class="section" id="router-dynamic">
+      <div class="section-header">
+        <div class="section-icon icon-orange">🔢</div>
+        <div>
+          <div class="section-title">Dynamic Routes & URL Parameters</div>
+          <div class="section-subtitle">One route template handling infinite pages — product detail, user profile, etc.</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>The Problem Dynamic Routes Solve</h4>
+        <p>You don't want to write a separate <code style="color:var(--accent)">&lt;Route&gt;</code> for every single product (<code style="color:var(--accent)">/products/1</code>, <code style="color:var(--accent)">/products/2</code>, ...). Instead, you define ONE route with a dynamic <strong>parameter</strong> using a colon, and read the actual value from the URL using <code style="color:var(--accent)">useParams</code>.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Dynamic Routes with useParams</span></div>
+        <pre><code><span class="kw">import</span> { Routes, Route, useParams, useSearchParams } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="cm">// ── DEFINING a dynamic route ──</span>
+<span class="op">&lt;</span><span class="cls">Routes</span><span class="op">&gt;</span>
+  <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/products/:productId"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">ProductDetail</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+  <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/users/:userId/posts/:postId"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">UserPost</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>  <span class="cm">{/* multiple params */}</span>
+<span class="op">&lt;/</span><span class="cls">Routes</span><span class="op">&gt;</span>
+
+<span class="cm">// ── READING the param inside the component ──</span>
+<span class="kw">function</span> <span class="fn">ProductDetail</span>() {
+  <span class="kw">const</span> { productId } <span class="op">=</span> <span class="fn">useParams</span>();  <span class="cm">// extracts ':productId' from current URL — always a STRING</span>
+  <span class="kw">const</span> [product, setProduct] <span class="op">=</span> <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    <span class="fn">fetch</span>(<span class="str">`/api/products/<span class="op">${</span>productId<span class="op">}</span>`</span>)
+      .<span class="fn">then</span>(res <span class="op">=&gt;</span> res.<span class="fn">json</span>())
+      .<span class="fn">then</span>(setProduct);
+  }, [productId]); <span class="cm">// re-fetch if the user navigates to a DIFFERENT product</span>
+
+  <span class="kw">if</span> (<span class="op">!</span>product) <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Loading...<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span><span class="op">{</span>product.name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>₹<span class="op">{</span>product.price<span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── QUERY STRINGS (?key=value) with useSearchParams ──</span>
+<span class="cm">// URL example: /products?category=electronics&sort=price</span>
+<span class="kw">function</span> <span class="fn">ProductList</span>() {
+  <span class="kw">const</span> [searchParams, setSearchParams] <span class="op">=</span> <span class="fn">useSearchParams</span>();
+
+  <span class="kw">const</span> category <span class="op">=</span> searchParams.<span class="fn">get</span>(<span class="str">'category'</span>); <span class="cm">// 'electronics'</span>
+  <span class="kw">const</span> sort     <span class="op">=</span> searchParams.<span class="fn">get</span>(<span class="str">'sort'</span>);     <span class="cm">// 'price'</span>
+
+  <span class="kw">function</span> <span class="fn">updateCategory</span>(newCategory) {
+    setSearchParams({ category: newCategory, sort }); <span class="cm">// updates the URL ?query string</span>
+  }
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>Filtering by: <span class="op">{</span>category<span class="op">}</span>, sorted by: <span class="op">{</span>sort<span class="op">}</span><span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>;
+}</code></pre>
+      </div>
+
+      <div class="highlight-box red">
+        <strong>Gotcha:</strong> URL params from <code>useParams()</code> are ALWAYS strings, even if they look numeric. <code>const { productId } = useParams()</code> gives you the string "42", not the number 42. Convert with <code>Number(productId)</code> if you need to do math or strict-equality compare with numeric IDs.
+      </div>
+    </div>
+
+    <!-- ── SECTION 9: Nested Routes ── -->
+    <div class="section" id="router-nested">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🪜</div>
+        <div>
+          <div class="section-title">Nested Routes & Shared Layouts</div>
+          <div class="section-subtitle">Reusing a navbar/sidebar across multiple pages without repeating it</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>The Outlet Component</h4>
+        <p>When multiple pages share a common layout (navbar, sidebar, footer), you define a parent "layout route" and use <code style="color:var(--accent)">&lt;Outlet /&gt;</code> as a placeholder for wherever the matching CHILD route's content should render.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Nested Routes with Outlet</span></div>
+        <pre><code><span class="kw">import</span> { Routes, Route, Outlet, Link } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="cm">// ── DashboardLayout.jsx — shared shell for all dashboard pages ──</span>
+<span class="kw">function</span> <span class="fn">DashboardLayout</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"dashboard"</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">nav</span> <span class="at">className</span><span class="op">=</span><span class="str">"sidebar"</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="cls">Link</span> <span class="at">to</span><span class="op">=</span><span class="str">"/dashboard"</span><span class="op">&gt;</span>Overview<span class="op">&lt;/</span><span class="cls">Link</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="cls">Link</span> <span class="at">to</span><span class="op">=</span><span class="str">"/dashboard/orders"</span><span class="op">&gt;</span>Orders<span class="op">&lt;/</span><span class="cls">Link</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="cls">Link</span> <span class="at">to</span><span class="op">=</span><span class="str">"/dashboard/settings"</span><span class="op">&gt;</span>Settings<span class="op">&lt;/</span><span class="cls">Link</span><span class="op">&gt;</span>
+      <span class="op">&lt;/</span><span class="tg">nav</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">main</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="cls">Outlet</span> <span class="op">/&gt;</span>  <span class="cm">{/* the matching child route renders HERE */}</span>
+      <span class="op">&lt;/</span><span class="tg">main</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── App.jsx — defining the route nesting ──</span>
+<span class="op">&lt;</span><span class="cls">Routes</span><span class="op">&gt;</span>
+  <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/dashboard"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">DashboardLayout</span> <span class="op">/&gt;</span><span class="op">}</span><span class="op">&gt;</span>
+    <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">index</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Overview</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>          <span class="cm">{/* renders at exactly /dashboard */}</span>
+    <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"orders"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Orders</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>    <span class="cm">{/* /dashboard/orders */}</span>
+    <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"settings"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Settings</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span> <span class="cm">{/* /dashboard/settings */}</span>
+  <span class="op">&lt;/</span><span class="cls">Route</span><span class="op">&gt;</span>
+<span class="op">&lt;/</span><span class="cls">Routes</span><span class="op">&gt;</span>
+<span class="cm">// The sidebar nav renders ONCE; only &lt;Outlet/&gt;'s content swaps as you navigate
+// between Overview / Orders / Settings — no repeated layout code!</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 10: Protected Routes ── -->
+    <div class="section" id="protected-routes">
+      <div class="section-header">
+        <div class="section-icon icon-yellow">🔒</div>
+        <div>
+          <div class="section-title">Protected Routes</div>
+          <div class="section-subtitle">Blocking access to pages unless the user is authenticated</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Protected Route Pattern (combines Context + Router)</span></div>
+        <pre><code><span class="kw">import</span> { Navigate, Outlet } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+<span class="kw">import</span> { useAuth } <span class="kw">from</span> <span class="str">'./AuthContext'</span>;
+
+<span class="cm">// ── A wrapper component that guards its children ──</span>
+<span class="kw">function</span> <span class="fn">ProtectedRoute</span>() {
+  <span class="kw">const</span> { isAuthenticated, loading } <span class="op">=</span> <span class="fn">useAuth</span>();
+
+  <span class="kw">if</span> (loading) <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Loading...<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;  <span class="cm">// wait for auth check to complete</span>
+
+  <span class="kw">if</span> (<span class="op">!</span>isAuthenticated) {
+    <span class="kw">return</span> <span class="op">&lt;</span><span class="cls">Navigate</span> <span class="at">to</span><span class="op">=</span><span class="str">"/login"</span> <span class="at">replace</span> <span class="op">/&gt;</span>;  <span class="cm">// redirect, don't render children</span>
+  }
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="cls">Outlet</span> <span class="op">/&gt;</span>;  <span class="cm">// authenticated — render whatever child route matched</span>
+}
+
+<span class="cm">// ── USAGE: wrap any routes that require login ──</span>
+<span class="op">&lt;</span><span class="cls">Routes</span><span class="op">&gt;</span>
+  <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/login"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Login</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+  <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Home</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+
+  <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">ProtectedRoute</span> <span class="op">/&gt;</span><span class="op">}</span><span class="op">&gt;</span>     <span class="cm">{/* guard applies to ALL routes nested below */}</span>
+    <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/dashboard"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Dashboard</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+    <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/settings"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Settings</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+  <span class="op">&lt;/</span><span class="cls">Route</span><span class="op">&gt;</span>
+<span class="op">&lt;/</span><span class="cls">Routes</span><span class="op">&gt;</span>
+<span class="cm">// Trying to visit /dashboard while logged out → instantly redirected to /login</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 11: Real Project ── -->
+    <div class="section" id="fullexample">
+      <div class="section-header">
+        <div class="section-icon icon-cyan">🚀</div>
+        <div>
+          <div class="section-title">Real Project: E-commerce App Shell</div>
+          <div class="section-subtitle">Combining Context (cart state) + Router (multi-page navigation)</div>
+        </div>
+      </div>
+
+      <div class="realworld">
+        <div class="realworld-label">🏢 Real World</div>
+        <h4>This exact combination powers most e-commerce sites</h4>
+        <p>Cart state needs to be available on every page (Context), while Home, Product Detail, Cart, and Checkout are separate routes (Router) — this is the standard architecture for shopping platforms built by Ahmedabad web development companies.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Complete App Structure</span></div>
+        <pre><code><span class="cm">// ── CartContext.jsx ──</span>
+<span class="kw">import</span> { createContext, useContext, useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">const</span> CartContext <span class="op">=</span> <span class="fn">createContext</span>(<span class="kw">null</span>);
+
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">CartProvider</span>({ children }) {
+  <span class="kw">const</span> [items, setItems] <span class="op">=</span> <span class="fn">useState</span>([]);
+
+  <span class="kw">function</span> <span class="fn">addToCart</span>(product) {
+    setItems(prev <span class="op">=&gt;</span> [...prev, product]);
+  }
+  <span class="kw">function</span> <span class="fn">removeFromCart</span>(productId) {
+    setItems(prev <span class="op">=&gt;</span> prev.<span class="fn">filter</span>(p <span class="op">=&gt;</span> p.id <span class="op">!==</span> productId));
+  }
+  <span class="kw">const</span> cartCount <span class="op">=</span> items.<span class="prop">length</span>;
+  <span class="kw">const</span> cartTotal <span class="op">=</span> items.<span class="fn">reduce</span>((sum, p) <span class="op">=&gt;</span> sum <span class="op">+</span> p.price, <span class="num">0</span>);
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="cls">CartContext</span>.Provider <span class="at">value</span><span class="op">=</span><span class="op">{</span>{ items, addToCart, removeFromCart, cartCount, cartTotal }<span class="op">}</span><span class="op">&gt;</span>
+      <span class="op">{</span>children<span class="op">}</span>
+    <span class="op">&lt;/</span><span class="cls">CartContext</span>.Provider<span class="op">&gt;</span>
+  );
+}
+
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">useCart</span>() {
+  <span class="kw">return</span> <span class="fn">useContext</span>(CartContext);
+}
+
+<span class="cm">// ── App.jsx — Router + Context combined ──</span>
+<span class="kw">import</span> { BrowserRouter, Routes, Route } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+<span class="kw">import</span> { CartProvider } <span class="kw">from</span> <span class="str">'./CartContext'</span>;
+<span class="kw">import</span> Layout <span class="kw">from</span> <span class="str">'./Layout'</span>;
+<span class="kw">import</span> Home <span class="kw">from</span> <span class="str">'./pages/Home'</span>;
+<span class="kw">import</span> ProductDetail <span class="kw">from</span> <span class="str">'./pages/ProductDetail'</span>;
+<span class="kw">import</span> Cart <span class="kw">from</span> <span class="str">'./pages/Cart'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="cls">CartProvider</span><span class="op">&gt;</span>                  <span class="cm">{/* cart state available EVERYWHERE inside */}</span>
+      <span class="op">&lt;</span><span class="cls">BrowserRouter</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="cls">Routes</span><span class="op">&gt;</span>
+          <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"/"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Layout</span> <span class="op">/&gt;</span><span class="op">}</span><span class="op">&gt;</span>
+            <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">index</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Home</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+            <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"products/:productId"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">ProductDetail</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+            <span class="op">&lt;</span><span class="cls">Route</span> <span class="at">path</span><span class="op">=</span><span class="str">"cart"</span> <span class="at">element</span><span class="op">=</span><span class="op">{</span><span class="op">&lt;</span><span class="cls">Cart</span> <span class="op">/&gt;</span><span class="op">}</span> <span class="op">/&gt;</span>
+          <span class="op">&lt;/</span><span class="cls">Route</span><span class="op">&gt;</span>
+        <span class="op">&lt;/</span><span class="cls">Routes</span><span class="op">&gt;</span>
+      <span class="op">&lt;/</span><span class="cls">BrowserRouter</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="cls">CartProvider</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── Layout.jsx — navbar shows live cart count on EVERY page ──</span>
+<span class="kw">import</span> { Outlet, Link } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+<span class="kw">import</span> { useCart } <span class="kw">from</span> <span class="str">'./CartContext'</span>;
+
+<span class="kw">function</span> <span class="fn">Layout</span>() {
+  <span class="kw">const</span> { cartCount } <span class="op">=</span> <span class="fn">useCart</span>();  <span class="cm">// no prop drilling — reads cart directly!</span>
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">nav</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="cls">Link</span> <span class="at">to</span><span class="op">=</span><span class="str">"/"</span><span class="op">&gt;</span>Shop<span class="op">&lt;/</span><span class="cls">Link</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="cls">Link</span> <span class="at">to</span><span class="op">=</span><span class="str">"/cart"</span><span class="op">&gt;</span>Cart (<span class="op">{</span>cartCount<span class="op">}</span>)<span class="op">&lt;/</span><span class="cls">Link</span><span class="op">&gt;</span>
+      <span class="op">&lt;/</span><span class="tg">nav</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">Outlet</span> <span class="op">/&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── ProductDetail.jsx — uses BOTH Router (params) and Context (cart) ──</span>
+<span class="kw">import</span> { useParams } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+<span class="kw">import</span> { useCart } <span class="kw">from</span> <span class="str">'./CartContext'</span>;
+
+<span class="kw">function</span> <span class="fn">ProductDetail</span>() {
+  <span class="kw">const</span> { productId } <span class="op">=</span> <span class="fn">useParams</span>();    <span class="cm">// from the URL</span>
+  <span class="kw">const</span> { addToCart } <span class="op">=</span> <span class="fn">useCart</span>();      <span class="cm">// from Context</span>
+  <span class="kw">const</span> [product, setProduct] <span class="op">=</span> <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    <span class="fn">fetch</span>(<span class="str">`/api/products/<span class="op">${</span>productId<span class="op">}</span>`</span>).<span class="fn">then</span>(r <span class="op">=&gt;</span> r.<span class="fn">json</span>()).<span class="fn">then</span>(setProduct);
+  }, [productId]);
+
+  <span class="kw">if</span> (<span class="op">!</span>product) <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Loading...<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span><span class="op">{</span>product.name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">button</span> <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>() <span class="op">=&gt;</span> <span class="fn">addToCart</span>(product)<span class="op">}</span><span class="op">&gt;</span>Add to Cart<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 12: Interview Q&A ── -->
+    <div class="section" id="interview">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🎯</div>
+        <div>
+          <div class="section-title">Placement Interview Q&A</div>
+          <div class="section-subtitle">Top Context API & React Router questions for company interviews</div>
+        </div>
+      </div>
+
+      <ul class="qa-list">
+        <li class="qa-item">
+          <div class="qa-q">Q1. What is prop drilling and how does Context solve it?</div>
+          <div class="qa-a">Prop drilling is passing a prop through multiple layers of components that don't actually use it themselves, just to get it to a deeply nested component that does. This makes refactoring painful — every intermediate component must know about and forward the prop. Context API solves this by letting you create a value at a high level (via a Provider) that any descendant component can access directly with useContext, regardless of nesting depth, without it being threaded through every component in between.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q2. Explain the 3 steps to use Context API.</div>
+          <div class="qa-a">(1) Create the context with createContext(), typically with a default value or null. (2) Provide a value by wrapping part of your component tree in <Context.Provider value={...}> — usually near the top of the app or around the section that needs the shared data. (3) Consume the context in any descendant component using the useContext(Context) hook, which returns whatever value the nearest Provider above it supplied.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q3. Why do real codebases wrap useContext in a custom hook instead of calling it directly?</div>
+          <div class="qa-a">Wrapping it in a custom hook (e.g., useAuth() instead of useContext(AuthContext)) gives a cleaner, more readable API for consumers — they don't need to import and know about the raw Context object. It also lets you add a safety check that throws a clear error if the hook is used outside its Provider (e.g., "useAuth must be used within an AuthProvider"), catching integration mistakes early with a helpful message instead of a confusing undefined error deep in the component.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q4. What is React Router and what problem does it solve in a Single Page Application?</div>
+          <div class="qa-a">React apps are Single Page Applications — only one HTML file is ever loaded, and JavaScript swaps content in and out of the DOM. Without a router, there's no concept of distinct, shareable, bookmarkable URLs (like /products/42) mapping to different views, and the browser back/forward buttons wouldn't work meaningfully. React Router maps URL paths to components, intercepts navigation to avoid full page reloads, and keeps the URL bar, browser history, and rendered UI all in sync — giving the experience of a multi-page site with SPA performance.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q5. What is the difference between Link and a regular anchor tag (a href)?</div>
+          <div class="qa-a">A regular <a href="/about"> tag triggers a full page reload — the browser discards the current JavaScript app state and re-downloads everything from the server, which is slow and defeats the purpose of a SPA. React Router's <Link to="/about"> intercepts the click with JavaScript, updates the URL and browser history, and re-renders only the matching Route's component — no network round-trip or full reload, preserving any existing app state (like Context values) that doesn't need to change.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q6. How do you create a dynamic route and access its parameter?</div>
+          <div class="qa-a">Define the route with a colon-prefixed segment, like <Route path="/products/:productId" element={<ProductDetail />} />. This matches any URL like /products/1, /products/42, etc. Inside the ProductDetail component, you call const { productId } = useParams() to extract the actual value from the current URL. Note that the value is always a string, even if it looks numeric — convert with Number(productId) if you need to do arithmetic or strict type comparisons.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q7. What is the Outlet component used for?</div>
+          <div class="qa-a">Outlet is a placeholder component used in nested routing — it marks WHERE a matching child route's element should render within a parent "layout route." For example, a DashboardLayout component can render a shared sidebar and header once, with an <Outlet /> in the content area; as the user navigates between /dashboard, /dashboard/orders, and /dashboard/settings, only the content inside that Outlet swaps out, while the surrounding layout stays mounted and doesn't re-render unnecessarily.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q8. How would you implement a protected route that requires authentication?</div>
+          <div class="qa-a">Create a wrapper component (commonly called ProtectedRoute) that reads authentication state — usually from a Context like useAuth(). Inside, check if the user is authenticated: if not, return a <Navigate to="/login" replace /> component, which redirects without rendering the protected content at all. If authenticated, render an <Outlet /> so the actual matched child route renders normally. You then wrap any routes requiring login as children of this ProtectedRoute in your route configuration, so the check applies uniformly to all of them.</div>
+        </li>
+      </ul>
+
+      <div class="highlight-box green" style="margin-top:24px">
+        <strong>🎯 Day 10 Checklist — Before Day 11:</strong><br/>
+        ✓ Can explain prop drilling and fix it with Context &nbsp;|&nbsp;
+        ✓ Comfortable creating Provider + custom hook pattern &nbsp;|&nbsp;
+        ✓ Know when to use Context vs a state library &nbsp;|&nbsp;
+        ✓ Can set up BrowserRouter, Routes, and dynamic params &nbsp;|&nbsp;
+        ✓ Understand Outlet for nested/shared layouts &nbsp;|&nbsp;
+        ✓ Can build a protected route guard
+      </div>
+    </div>
+
+  </div>
+
+  <div class="day-nav">
+    <div class="day-nav-info">Previous<strong>Day 9 — State & Hooks</strong></div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="day-nav-info" style="text-align:right">Next up<strong>Day 11 — Tailwind CSS with React</strong></div>
+      <button class="next-btn" onclick="window.location.href='day11.html'">Day 11 →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const navLinks = document.querySelectorAll('.nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) link.classList.add('active');
+        });
+      }
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
