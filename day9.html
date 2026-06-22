@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Day 9 — React State & Hooks | Full Stack Placement Prep</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0d0f14;--surface:#13161e;--surface2:#1a1e2a;--border:#252a38;
+      --accent:#61dafb;--accent2:#f472b6;--accent3:#34d399;--text:#e8eaf0;
+      --muted:#7a8099;--code-bg:#0a0c11;--tag-bg:#1e2230;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:16px;line-height:1.7;}
+    .sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:24px 0;}
+    .sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+    .day-badge{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+    .sidebar-logo h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;}
+    .nav-section-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:12px 20px 6px;}
+    .nav-item{display:block;padding:8px 20px;color:var(--muted);text-decoration:none;font-size:13.5px;font-weight:500;border-left:2px solid transparent;transition:all 0.2s;}
+    .nav-item:hover,.nav-item.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent);}
+    .main{margin-left:240px;min-height:100vh;}
+    .hero{background:linear-gradient(135deg,#0d0f14 0%,#0a1a1f 50%,#0d0f14 100%);border-bottom:1px solid var(--border);padding:64px 60px 56px;position:relative;overflow:hidden;}
+    .hero::before{content:'useState';position:absolute;right:60px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:70px;font-weight:800;color:var(--border);line-height:1;pointer-events:none;}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+    .hero-eyebrow span{width:24px;height:1px;background:var(--accent);display:inline-block;}
+    .hero h1{font-family:'Syne',sans-serif;font-size:50px;font-weight:800;line-height:1.1;margin-bottom:16px;}
+    .hero h1 em{font-style:normal;color:var(--accent);}
+    .hero-sub{font-size:17px;color:var(--muted);max-width:540px;margin-bottom:32px;}
+    .hero-tags{display:flex;flex-wrap:wrap;gap:10px;}
+    .tag{background:var(--tag-bg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12.5px;font-family:'JetBrains Mono',monospace;color:var(--accent2);}
+    .progress-strip{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 60px;display:flex;align-items:center;gap:16px;}
+    .progress-label{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);white-space:nowrap;}
+    .progress-bar-track{flex:1;height:4px;background:var(--border);border-radius:2px;}
+    .progress-bar-fill{height:100%;width:30%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;}
+    .progress-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);}
+    .content{padding:0 60px 80px;}
+    .section{padding:56px 0 0;border-top:1px solid var(--border);margin-top:56px;}
+    .section:first-child{margin-top:0;padding-top:48px;border-top:none;}
+    .section-header{display:flex;align-items:flex-start;gap:20px;margin-bottom:32px;}
+    .section-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;margin-top:2px;}
+    .icon-cyan{background:rgba(97,218,251,0.12);}.icon-pink{background:rgba(244,114,182,0.12);}
+    .icon-green{background:rgba(52,211,153,0.12);}.icon-purple{background:rgba(167,139,250,0.12);}
+    .icon-orange{background:rgba(251,146,60,0.12);}.icon-yellow{background:rgba(251,191,36,0.12);}
+    .section-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:6px;}
+    .section-subtitle{font-size:14px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .theory-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 32px;margin-bottom:20px;}
+    .theory-block h4{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--accent);margin-bottom:12px;}
+    .theory-block p{font-size:15px;line-height:1.75;margin-bottom:10px;}
+    .theory-block p:last-child{margin-bottom:0;}
+    .highlight-box{border-left:3px solid var(--accent);background:rgba(97,218,251,0.06);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;font-size:14.5px;}
+    .highlight-box.pink{border-left-color:var(--accent2);background:rgba(244,114,182,0.06);}
+    .highlight-box.green{border-left-color:var(--accent3);background:rgba(52,211,153,0.06);}
+    .highlight-box.red{border-left-color:#f87171;background:rgba(248,113,113,0.06);}
+    .code-wrapper{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;margin:20px 0;overflow:hidden;}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--surface2);border-bottom:1px solid var(--border);}
+    .code-dots{display:flex;gap:6px;}
+    .code-dots span{width:10px;height:10px;border-radius:50%;}
+    .dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+    .code-lang{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+    .code-wrapper pre{padding:22px 24px;overflow-x:auto;margin:0;}
+    .code-wrapper code{font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.8;}
+    .kw{color:#c792ea;}.str{color:#c3e88d;}.num{color:#f78c6c;}.cm{color:#546e7a;font-style:italic;}
+    .fn{color:#82aaff;}.prop{color:#f07178;}.bool{color:#ff9d00;}.op{color:#89ddff;}.cls{color:#ffcb6b;}.tg{color:#f07178;}.at{color:#ffcb6b;}
+    .realworld{background:linear-gradient(135deg,rgba(97,218,251,0.05),rgba(244,114,182,0.05));border:1px solid rgba(97,218,251,0.2);border-radius:12px;padding:24px 28px;margin:24px 0;}
+    .realworld-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+    .realworld h4{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:10px;}
+    .realworld p{font-size:14.5px;color:var(--muted);line-height:1.7;}
+    .qa-list{list-style:none;display:flex;flex-direction:column;gap:14px;margin-top:20px;}
+    .qa-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 22px;}
+    .qa-q{font-weight:600;color:var(--accent);font-size:14.5px;margin-bottom:8px;}
+    .qa-a{font-size:14px;color:var(--muted);line-height:1.65;}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+    .mini-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
+    .mini-card h5{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent);}
+    .mini-card p{font-size:13.5px;color:var(--muted);line-height:1.6;}
+    .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+    .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:14.5px;}
+    .checklist li::before{content:'✓';color:var(--accent3);font-weight:700;font-size:14px;margin-top:1px;flex-shrink:0;}
+    .demo-area{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;}
+    .demo-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
+    .live-counter{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:24px;display:flex;align-items:center;justify-content:center;gap:16px;}
+    .counter-display{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--accent);min-width:60px;text-align:center;}
+    .counter-btn{background:var(--accent);color:#0d0f14;border:none;width:40px;height:40px;border-radius:8px;font-size:20px;font-weight:700;cursor:pointer;transition:opacity 0.2s;}
+    .counter-btn:hover{opacity:0.8;}
+    .counter-btn.pink{background:var(--accent2);}
+    .effect-table{width:100%;border-collapse:collapse;margin:16px 0;border-radius:12px;overflow:hidden;border:1px solid var(--border);}
+    .effect-table th{background:var(--surface2);padding:11px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
+    .effect-table td{padding:11px 16px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:top;}
+    .effect-table tr:last-child td{border-bottom:none;}
+    .effect-table tr:hover td{background:var(--surface2);}
+    .effect-table td:first-child{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:13px;}
+    .effect-table td:last-child{color:var(--muted);font-size:13px;}
+    .day-nav{background:var(--surface);border-top:1px solid var(--border);padding:24px 60px;display:flex;align-items:center;justify-content:space-between;}
+    .day-nav-info{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+    .day-nav-info strong{color:var(--text);font-size:14px;display:block;margin-top:4px;}
+    .next-btn{background:var(--accent);color:#0d0f14;border:none;border-radius:8px;padding:10px 22px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:opacity 0.2s;}
+    .next-btn:hover{opacity:0.85;}
+    ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+    @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;}.hero{padding:40px 24px 36px;}.hero h1{font-size:32px;}.hero::before{display:none;}.content{padding:0 24px 60px;}.progress-strip,.day-nav{padding:14px 24px;}.grid-2{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="day-badge">Day 09 / 30</div>
+    <h2>State & Hooks</h2>
+  </div>
+  <div class="nav-section-label">Topics</div>
+  <a class="nav-item active" href="#state-vs-props">State vs Props</a>
+  <a class="nav-item" href="#usestate">useState Hook</a>
+  <a class="nav-item" href="#state-objects">State with Objects & Arrays</a>
+  <a class="nav-item" href="#useeffect">useEffect Hook</a>
+  <a class="nav-item" href="#useeffect-cleanup">Cleanup & Dependencies</a>
+  <a class="nav-item" href="#lifting-state">Lifting State Up</a>
+  <a class="nav-item" href="#forms">Controlled Forms</a>
+  <a class="nav-item" href="#other-hooks">useRef & Other Hooks</a>
+  <a class="nav-item" href="#fullexample">Real Project: Todo App</a>
+  <a class="nav-item" href="#interview">Interview Q&A</a>
+</nav>
+
+<div class="main">
+  <div class="progress-strip">
+    <span class="progress-label">30-Day Journey</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill"></div></div>
+    <span class="progress-pct">Day 9</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-eyebrow"><span></span>Full Stack Placement Prep</div>
+    <h1>Day 9 — <em>React</em> State<br/>& Hooks</h1>
+    <p class="hero-sub">This is where components become interactive. Master useState and useEffect — the two hooks you'll use in nearly every component you ever write.</p>
+    <div class="hero-tags">
+      <span class="tag">useState</span><span class="tag">useEffect</span><span class="tag">Lifting State</span>
+      <span class="tag">Controlled Forms</span><span class="tag">useRef</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── SECTION 1: State vs Props ── -->
+    <div class="section" id="state-vs-props">
+      <div class="section-header">
+        <div class="section-icon icon-cyan">⚖️</div>
+        <div>
+          <div class="section-title">State vs Props</div>
+          <div class="section-subtitle">The two ways data exists in a React component — know the difference cold</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>The Core Distinction</h4>
+        <p><strong>Props</strong> are data passed INTO a component from its parent — read-only, controlled from outside. <strong>State</strong> is data OWNED and managed BY the component itself — it can change over time (user clicks, typing, API responses) and when it changes, React automatically re-renders that component to reflect the new value.</p>
+        <div class="highlight-box">
+          <strong>Mental model:</strong> Props are like function parameters — passed in, can't be changed by the function itself. State is like a function's own local variable that, when updated, triggers React to re-run the component and produce updated UI.
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="mini-card">
+          <h5>Props</h5>
+          <p>✦ Passed from parent<br/>✦ Read-only (immutable)<br/>✦ Component cannot change its own props<br/>✦ Changes when PARENT re-renders with new values</p>
+        </div>
+        <div class="mini-card">
+          <h5>State</h5>
+          <p>✦ Owned by the component itself<br/>✦ Mutable (via setter function)<br/>✦ Component fully controls its own state<br/>✦ Changing it triggers a re-render of THAT component</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: useState ── -->
+    <div class="section" id="usestate">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🎛️</div>
+        <div>
+          <div class="section-title">The useState Hook</div>
+          <div class="section-subtitle">Giving components memory — the most-used hook in all of React</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What is a Hook?</h4>
+        <p>A <strong>Hook</strong> is a special function that lets you "hook into" React features (state, lifecycle, context) from function components. Hooks always start with <code style="color:var(--accent)">use</code>. <code style="color:var(--accent)">useState</code> is the hook that gives a component the ability to remember a value across re-renders.</p>
+        <div class="highlight-box pink">
+          <strong>The Two Rules of Hooks (asked constantly in interviews):</strong><br/>
+          1. Only call hooks at the TOP LEVEL of a component — never inside loops, conditions, or nested functions.<br/>
+          2. Only call hooks from React function components or custom hooks — never from regular JS functions.
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — useState Basics</span></div>
+        <pre><code><span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Counter</span>() {
+  <span class="cm">// useState(initialValue) returns [currentValue, setterFunction]</span>
+  <span class="kw">const</span> [count, setCount] <span class="op">=</span> <span class="fn">useState</span>(<span class="num">0</span>);  <span class="cm">// 0 = initial value, ONLY used on first render</span>
+
+  <span class="kw">function</span> <span class="fn">increment</span>() {
+    setCount(count <span class="op">+</span> <span class="num">1</span>);  <span class="cm">// updates state AND triggers a re-render</span>
+  }
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Count: <span class="op">{</span>count<span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">button</span> <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>increment<span class="op">}</span><span class="op">&gt;</span>+1<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── ARRAY DESTRUCTURING NAMING CONVENTION ──</span>
+<span class="cm">// [value, setValue] — always pair "noun" with "setNoun"</span>
+<span class="kw">const</span> [name, setName]       <span class="op">=</span> <span class="fn">useState</span>(<span class="str">''</span>);
+<span class="kw">const</span> [isOpen, setIsOpen]   <span class="op">=</span> <span class="fn">useState</span>(<span class="bool">false</span>);
+<span class="kw">const</span> [items, setItems]     <span class="op">=</span> <span class="fn">useState</span>([]);
+<span class="kw">const</span> [user, setUser]       <span class="op">=</span> <span class="fn">useState</span>(<span class="kw">null</span>);
+
+<span class="cm">// ── INLINE event handler (no separate function needed) ──</span>
+<span class="kw">function</span> <span class="fn">Counter</span>() {
+  <span class="kw">const</span> [count, setCount] <span class="op">=</span> <span class="fn">useState</span>(<span class="num">0</span>);
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">button</span> <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>() <span class="op">=&gt;</span> setCount(count <span class="op">+</span> <span class="num">1</span>)<span class="op">}</span><span class="op">&gt;</span>
+      Clicked <span class="op">{</span>count<span class="op">}</span> times
+    <span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── FUNCTIONAL UPDATES — when new state depends on OLD state ──</span>
+<span class="kw">function</span> <span class="fn">increment</span>() {
+  setCount(count <span class="op">+</span> <span class="num">1</span>);  <span class="cm">// works, but "count" might be stale in some scenarios</span>
+}
+<span class="kw">function</span> <span class="fn">incrementSafe</span>() {
+  setCount(prevCount <span class="op">=&gt;</span> prevCount <span class="op">+</span> <span class="num">1</span>);  <span class="cm">// ✅ ALWAYS correct — gets the LATEST state</span>
+}
+
+<span class="cm">// Why this matters: calling setCount 3 times in a row</span>
+<span class="kw">function</span> <span class="fn">incrementThreeTimes</span>() {
+  setCount(count <span class="op">+</span> <span class="num">1</span>); <span class="cm">// these all read the SAME "count" from this render</span>
+  setCount(count <span class="op">+</span> <span class="num">1</span>); <span class="cm">// → count only increases by 1 total, not 3! (common bug)</span>
+  setCount(count <span class="op">+</span> <span class="num">1</span>);
+}
+<span class="kw">function</span> <span class="fn">incrementThreeTimesCorrect</span>() {
+  setCount(c <span class="op">=&gt;</span> c <span class="op">+</span> <span class="num">1</span>); <span class="cm">// ✅ each call uses the latest value</span>
+  setCount(c <span class="op">=&gt;</span> c <span class="op">+</span> <span class="num">1</span>); <span class="cm">// → count correctly increases by 3</span>
+  setCount(c <span class="op">=&gt;</span> c <span class="op">+</span> <span class="num">1</span>);
+}</code></pre>
+      </div>
+
+      <!-- Live demo -->
+      <div class="demo-area">
+        <div class="demo-label">🎮 Live useState Demo — This is real React-like behaviour</div>
+        <div class="live-counter">
+          <button class="counter-btn pink" onclick="document.getElementById('counter-val').textContent = parseInt(document.getElementById('counter-val').textContent) - 1">−</button>
+          <div class="counter-display" id="counter-val">0</div>
+          <button class="counter-btn" onclick="document.getElementById('counter-val').textContent = parseInt(document.getElementById('counter-val').textContent) + 1">+</button>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>State Updates Are Asynchronous (Batched)</h4>
+        <p>Calling the setter function doesn't immediately change the variable in the current render — it schedules a re-render. React batches multiple state updates together for performance, applying them before the next render.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — State Updates Don't Happen Immediately</span></div>
+        <pre><code><span class="kw">function</span> <span class="fn">handleClick</span>() {
+  setCount(count <span class="op">+</span> <span class="num">1</span>);
+  <span class="fn">console</span>.<span class="fn">log</span>(count);  <span class="cm">// ❌ still shows the OLD value! State hasn't updated yet</span>
+  <span class="cm">// React schedules the update, re-renders AFTER this function finishes</span>
+}
+
+<span class="cm">// If you need to react to the new value, use useEffect (covered below)
+// or compute it manually with the same logic used in the setter</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: State with Objects/Arrays ── -->
+    <div class="section" id="state-objects">
+      <div class="section-header">
+        <div class="section-icon icon-green">📦</div>
+        <div>
+          <div class="section-title">State with Objects & Arrays</div>
+          <div class="section-subtitle">Immutability is mandatory — never mutate state directly</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Why You Must Never Mutate State Directly</h4>
+        <p>React detects changes by comparing references (using <code style="color:var(--accent)">Object.is</code> essentially), not by deeply inspecting values. If you mutate an object/array in place, the reference stays the SAME, so React doesn't know anything changed and won't re-render. You must always create a NEW object/array (using spread syntax) when updating state.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Updating Object State (Immutably)</span></div>
+        <pre><code><span class="kw">function</span> <span class="fn">ProfileForm</span>() {
+  <span class="kw">const</span> [user, setUser] <span class="op">=</span> <span class="fn">useState</span>({ name: <span class="str">'Poorv'</span>, age: <span class="num">21</span>, city: <span class="str">'Junagadh'</span> });
+
+  <span class="cm">// ❌ WRONG — mutating directly, React won't detect this change</span>
+  <span class="kw">function</span> <span class="fn">updateNameWrong</span>(newName) {
+    user.name <span class="op">=</span> newName;     <span class="cm">// mutates the SAME object — no re-render!</span>
+    setUser(user);            <span class="cm">// same reference — React sees "no change"</span>
+  }
+
+  <span class="cm">// ✅ CORRECT — spread to create a NEW object</span>
+  <span class="kw">function</span> <span class="fn">updateName</span>(newName) {
+    setUser({ ...user, name: newName });  <span class="cm">// new object, only 'name' changes</span>
+  }
+
+  <span class="kw">function</span> <span class="fn">updateNested</span>(newCity) {
+    setUser(prevUser <span class="op">=&gt;</span> ({ ...prevUser, city: newCity })); <span class="cm">// functional update, safer</span>
+  }
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">input</span>
+      <span class="at">value</span><span class="op">=</span><span class="op">{</span>user.name<span class="op">}</span>
+      <span class="at">onChange</span><span class="op">=</span><span class="op">{</span>(e) <span class="op">=&gt;</span> <span class="fn">updateName</span>(e.target.value)<span class="op">}</span>
+    <span class="op">/&gt;</span>
+  );
+}</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Updating Array State (Immutably)</span></div>
+        <pre><code><span class="kw">function</span> <span class="fn">TodoApp</span>() {
+  <span class="kw">const</span> [todos, setTodos] <span class="op">=</span> <span class="fn">useState</span>([
+    { id: <span class="num">1</span>, text: <span class="str">'Learn React'</span>, done: <span class="bool">false</span> },
+    { id: <span class="num">2</span>, text: <span class="str">'Build a project'</span>, done: <span class="bool">false</span> }
+  ]);
+
+  <span class="cm">// ── ADDING an item ──</span>
+  <span class="kw">function</span> <span class="fn">addTodo</span>(text) {
+    <span class="kw">const</span> newTodo <span class="op">=</span> { id: <span class="cls">Date</span>.<span class="fn">now</span>(), text, done: <span class="bool">false</span> };
+    setTodos([...todos, newTodo]);     <span class="cm">// ✅ new array, old items + 1 new</span>
+    <span class="cm">// ❌ NEVER: todos.push(newTodo) — mutates the original array</span>
+  }
+
+  <span class="cm">// ── REMOVING an item ──</span>
+  <span class="kw">function</span> <span class="fn">removeTodo</span>(id) {
+    setTodos(todos.<span class="fn">filter</span>(todo <span class="op">=&gt;</span> todo.id <span class="op">!==</span> id));  <span class="cm">// ✅ new array without that item</span>
+  }
+
+  <span class="cm">// ── UPDATING an item ──</span>
+  <span class="kw">function</span> <span class="fn">toggleTodo</span>(id) {
+    setTodos(todos.<span class="fn">map</span>(todo <span class="op">=&gt;</span>
+      todo.id <span class="op">===</span> id
+        <span class="op">?</span> { ...todo, done: <span class="op">!</span>todo.done }  <span class="cm">// new object for the matching item</span>
+        <span class="op">:</span> todo                          <span class="cm">// unchanged items stay the same reference</span>
+    ));
+  }
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">ul</span><span class="op">&gt;</span>
+      <span class="op">{</span>todos.<span class="fn">map</span>(todo <span class="op">=&gt;</span> (
+        <span class="op">&lt;</span><span class="tg">li</span> <span class="at">key</span><span class="op">=</span><span class="op">{</span>todo.id<span class="op">}</span> <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>() <span class="op">=&gt;</span> <span class="fn">toggleTodo</span>(todo.id)<span class="op">}</span><span class="op">&gt;</span>
+          <span class="op">{</span>todo.done <span class="op">?</span> <span class="str">'✅'</span> <span class="op">:</span> <span class="str">'⬜'</span><span class="op">}</span> <span class="op">{</span>todo.text<span class="op">}</span>
+          <span class="op">&lt;</span><span class="tg">button</span> <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>(e) <span class="op">=&gt;</span> { e.stopPropagation(); <span class="fn">removeTodo</span>(todo.id); }<span class="op">}</span><span class="op">&gt;</span>✕<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+        <span class="op">&lt;/</span><span class="tg">li</span><span class="op">&gt;</span>
+      ))<span class="op">}</span>
+    <span class="op">&lt;/</span><span class="tg">ul</span><span class="op">&gt;</span>
+  );
+}</code></pre>
+      </div>
+
+      <div class="highlight-box red">
+        <strong>The #1 React bug for beginners:</strong> Mutating state directly (push, pop, splice, sort on arrays; direct property assignment on objects). It often "seems to work" in dev because of re-renders triggered by OTHER state changes nearby, masking the bug — then fails mysteriously later. ALWAYS use spread syntax, map, filter, or concat to produce new arrays/objects.
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: useEffect ── -->
+    <div class="section" id="useeffect">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🔌</div>
+        <div>
+          <div class="section-title">The useEffect Hook</div>
+          <div class="section-subtitle">Running code in response to renders — for side effects like API calls</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What is a Side Effect?</h4>
+        <p>A <strong>side effect</strong> is anything that reaches "outside" the pure render process — fetching data, subscribing to events, manually changing the DOM, setting timers, logging to analytics. <code style="color:var(--accent)">useEffect</code> lets you run this code AFTER React has rendered/updated the DOM, separate from the rendering logic itself.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — useEffect Basics</span></div>
+        <pre><code><span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Example</span>() {
+  <span class="kw">const</span> [count, setCount] <span class="op">=</span> <span class="fn">useState</span>(<span class="num">0</span>);
+
+  <span class="cm">// useEffect(callback, dependencyArray)</span>
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Effect ran! Count is:'</span>, count);
+    document.title <span class="op">=</span> <span class="str">`Count: <span class="op">${</span>count<span class="op">}</span>`</span>;  <span class="cm">// example side effect: update browser tab title</span>
+  });  <span class="cm">// NO dependency array → runs after EVERY render</span>
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">button</span> <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>() <span class="op">=&gt;</span> setCount(count <span class="op">+</span> <span class="num">1</span>)<span class="op">}</span><span class="op">&gt;</span>Count: <span class="op">{</span>count<span class="op">}</span><span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>;
+}</code></pre>
+      </div>
+
+      <div class="theory-block">
+        <h4>The Dependency Array — Controls WHEN the Effect Runs</h4>
+        <p>The second argument to <code style="color:var(--accent)">useEffect</code> is critical. It tells React when to re-run the effect.</p>
+      </div>
+
+      <table class="effect-table">
+        <thead><tr><th>Dependency Array</th><th>When it runs</th></tr></thead>
+        <tbody>
+          <tr><td>No array at all</td><td>After EVERY single render — rarely what you want</td></tr>
+          <tr><td><code>[]</code> (empty array)</td><td>Only ONCE, after the initial render — perfect for "on mount" logic like initial data fetch</td></tr>
+          <tr><td><code>[count]</code></td><td>After initial render, AND whenever 'count' changes between renders</td></tr>
+          <tr><td><code>[a, b]</code></td><td>Re-runs if EITHER 'a' OR 'b' changes</td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — The 3 Dependency Array Patterns</span></div>
+        <pre><code><span class="cm">// ── PATTERN 1: Run on every render (rarely needed) ──</span>
+<span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Runs after every render'</span>);
+});
+
+<span class="cm">// ── PATTERN 2: Run ONCE on mount (most common for data fetching) ──</span>
+<span class="kw">function</span> <span class="fn">UserProfile</span>({ userId }) {
+  <span class="kw">const</span> [user, setUser] <span class="op">=</span> <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    <span class="fn">fetch</span>(<span class="str">`/api/users/<span class="op">${</span>userId<span class="op">}</span>`</span>)
+      .<span class="fn">then</span>(res <span class="op">=&gt;</span> res.<span class="fn">json</span>())
+      .<span class="fn">then</span>(data <span class="op">=&gt;</span> setUser(data));
+  }, []); <span class="cm">// ⚠️ empty array — runs ONCE when component first mounts</span>
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span><span class="op">{</span>user<span class="op">?</span>.name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>;
+}
+
+<span class="cm">// ── PATTERN 3: Re-run when a specific value changes ──</span>
+<span class="kw">function</span> <span class="fn">UserProfile</span>({ userId }) {
+  <span class="kw">const</span> [user, setUser] <span class="op">=</span> <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    <span class="fn">fetch</span>(<span class="str">`/api/users/<span class="op">${</span>userId<span class="op">}</span>`</span>)
+      .<span class="fn">then</span>(res <span class="op">=&gt;</span> res.<span class="fn">json</span>())
+      .<span class="fn">then</span>(data <span class="op">=&gt;</span> setUser(data));
+  }, [userId]); <span class="cm">// ✅ re-fetches whenever userId prop changes (e.g. navigating to a different user)</span>
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span><span class="op">{</span>user<span class="op">?</span>.name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>;
+}
+
+<span class="cm">// ── ⚠️ COMMON BUG: missing dependency causes stale data ──</span>
+<span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+  <span class="fn">fetch</span>(<span class="str">`/api/users/<span class="op">${</span>userId<span class="op">}</span>`</span>).<span class="fn">then</span>(...);
+}, []); <span class="cm">// ❌ userId is used inside but NOT in dependency array
+       // → effect never re-runs even if userId changes! ESLint will warn about this.</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 5: Cleanup & Dependencies ── -->
+    <div class="section" id="useeffect-cleanup">
+      <div class="section-header">
+        <div class="section-icon icon-orange">🧹</div>
+        <div>
+          <div class="section-title">Cleanup Functions</div>
+          <div class="section-subtitle">Preventing memory leaks — the return function inside useEffect</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Why Cleanup Matters</h4>
+        <p>Some effects create ongoing subscriptions, timers, or event listeners that must be removed when the component unmounts (or before the effect re-runs) — otherwise you get memory leaks, duplicate listeners, or "setState on unmounted component" warnings. You handle this by <strong>returning a cleanup function</strong> from your effect.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Cleanup Functions</span></div>
+        <pre><code><span class="cm">// ── EXAMPLE 1: Timer that must be cleared ──</span>
+<span class="kw">function</span> <span class="fn">Clock</span>() {
+  <span class="kw">const</span> [time, setTime] <span class="op">=</span> <span class="fn">useState</span>(<span class="kw">new</span> <span class="cls">Date</span>());
+
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    <span class="kw">const</span> intervalId <span class="op">=</span> <span class="fn">setInterval</span>(() <span class="op">=&gt;</span> {
+      setTime(<span class="kw">new</span> <span class="cls">Date</span>());
+    }, <span class="num">1000</span>);
+
+    <span class="cm">// CLEANUP FUNCTION — runs when component unmounts OR before effect re-runs</span>
+    <span class="kw">return</span> () <span class="op">=&gt;</span> {
+      <span class="fn">clearInterval</span>(intervalId);  <span class="cm">// ✅ stops the timer — prevents memory leak</span>
+    };
+  }, []); <span class="cm">// runs once; cleanup runs when component is removed from the page</span>
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span><span class="op">{</span>time.<span class="fn">toLocaleTimeString</span>()<span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;
+}
+
+<span class="cm">// ── EXAMPLE 2: Event listener cleanup ──</span>
+<span class="kw">function</span> <span class="fn">WindowSizeTracker</span>() {
+  <span class="kw">const</span> [width, setWidth] <span class="op">=</span> <span class="fn">useState</span>(window.innerWidth);
+
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    <span class="kw">function</span> <span class="fn">handleResize</span>() {
+      setWidth(window.innerWidth);
+    }
+
+    window.<span class="fn">addEventListener</span>(<span class="str">'resize'</span>, handleResize);
+
+    <span class="kw">return</span> () <span class="op">=&gt;</span> {
+      window.<span class="fn">removeEventListener</span>(<span class="str">'resize'</span>, handleResize); <span class="cm">// ✅ remove listener on unmount</span>
+    };
+  }, []);
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Window width: <span class="op">{</span>width<span class="op">}</span>px<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;
+}
+
+<span class="cm">// ── EXAMPLE 3: Preventing "setState on unmounted component" with fetch ──</span>
+<span class="kw">function</span> <span class="fn">UserProfile</span>({ userId }) {
+  <span class="kw">const</span> [user, setUser] <span class="op">=</span> <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    <span class="kw">let</span> isCancelled <span class="op">=</span> <span class="bool">false</span>;
+
+    <span class="fn">fetch</span>(<span class="str">`/api/users/<span class="op">${</span>userId<span class="op">}</span>`</span>)
+      .<span class="fn">then</span>(res <span class="op">=&gt;</span> res.<span class="fn">json</span>())
+      .<span class="fn">then</span>(data <span class="op">=&gt;</span> {
+        <span class="kw">if</span> (<span class="op">!</span>isCancelled) setUser(data); <span class="cm">// only update if still mounted/relevant</span>
+      });
+
+    <span class="kw">return</span> () <span class="op">=&gt;</span> { isCancelled <span class="op">=</span> <span class="bool">true</span>; }; <span class="cm">// mark as cancelled on cleanup</span>
+  }, [userId]);
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span><span class="op">{</span>user<span class="op">?</span>.name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>;
+}</code></pre>
+      </div>
+
+      <div class="highlight-box pink">
+        <strong>Cleanup timing rule:</strong> The cleanup function runs (1) right before the effect runs again due to a dependency change, and (2) when the component unmounts entirely. This pattern of "cleanup-then-rerun" is why intervals/listeners never duplicate even as dependencies change repeatedly.
+      </div>
+    </div>
+
+    <!-- ── SECTION 6: Lifting State Up ── -->
+    <div class="section" id="lifting-state">
+      <div class="section-header">
+        <div class="section-icon icon-cyan">⬆️</div>
+        <div>
+          <div class="section-title">Lifting State Up</div>
+          <div class="section-subtitle">Sharing state between sibling components</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>The Problem It Solves</h4>
+        <p>When two sibling components need to share or stay in sync with the same piece of state, the solution is to move ("lift") that state UP to their closest common parent, then pass it down as props — along with a function to update it.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Lifting State Up Example</span></div>
+        <pre><code><span class="cm">// ── PROBLEM: SearchBar and ResultsList are siblings, but ResultsList
+//    needs to know what SearchBar's input value is ──</span>
+
+<span class="cm">// ── SOLUTION: Lift the 'query' state up to the shared parent ──</span>
+<span class="kw">function</span> <span class="fn">SearchPage</span>() {
+  <span class="kw">const</span> [query, setQuery] <span class="op">=</span> <span class="fn">useState</span>(<span class="str">''</span>);  <span class="cm">// state lives in the PARENT</span>
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">SearchBar</span> <span class="at">query</span><span class="op">=</span><span class="op">{</span>query<span class="op">}</span> <span class="at">onQueryChange</span><span class="op">=</span><span class="op">{</span>setQuery<span class="op">}</span> <span class="op">/&gt;</span>
+      <span class="op">&lt;</span><span class="cls">ResultsList</span> <span class="at">query</span><span class="op">=</span><span class="op">{</span>query<span class="op">}</span> <span class="op">/&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="kw">function</span> <span class="fn">SearchBar</span>({ query, onQueryChange }) {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">input</span>
+      <span class="at">value</span><span class="op">=</span><span class="op">{</span>query<span class="op">}</span>
+      <span class="at">onChange</span><span class="op">=</span><span class="op">{</span>(e) <span class="op">=&gt;</span> <span class="fn">onQueryChange</span>(e.target.value)<span class="op">}</span>
+      <span class="at">placeholder</span><span class="op">=</span><span class="str">"Search products..."</span>
+    <span class="op">/&gt;</span>
+  );
+}
+
+<span class="kw">function</span> <span class="fn">ResultsList</span>({ query }) {
+  <span class="kw">const</span> filtered <span class="op">=</span> allProducts.<span class="fn">filter</span>(p <span class="op">=&gt;</span>
+    p.name.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(query.<span class="fn">toLowerCase</span>())
+  );
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">ul</span><span class="op">&gt;</span>
+      <span class="op">{</span>filtered.<span class="fn">map</span>(p <span class="op">=&gt;</span> <span class="op">&lt;</span><span class="tg">li</span> <span class="at">key</span><span class="op">=</span><span class="op">{</span>p.id<span class="op">}</span><span class="op">&gt;</span><span class="op">{</span>p.name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">li</span><span class="op">&gt;</span>)<span class="op">}</span>
+    <span class="op">&lt;/</span><span class="tg">ul</span><span class="op">&gt;</span>
+  );
+}
+<span class="cm">// Now both SearchBar and ResultsList stay in sync through their shared parent's state</span></code></pre>
+      </div>
+
+      <div class="realworld">
+        <div class="realworld-label">🏢 Real World</div>
+        <h4>This pattern is everywhere</h4>
+        <p>Lifting state up is exactly how filters + product lists, tabs + tab content, and form steps + progress indicators stay synchronized in real applications. Once components need to share state across more distant parts of the tree, teams reach for Context API (Day 10) or external state libraries.</p>
+      </div>
+    </div>
+
+    <!-- ── SECTION 7: Controlled Forms ── -->
+    <div class="section" id="forms">
+      <div class="section-header">
+        <div class="section-icon icon-green">📝</div>
+        <div>
+          <div class="section-title">Controlled Forms</div>
+          <div class="section-subtitle">Forms where React state IS the single source of truth</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Controlled vs Uncontrolled Inputs</h4>
+        <p>In a <strong>controlled component</strong>, the input's value is driven entirely by React state — the DOM input's value always equals the state, and every keystroke updates state via <code style="color:var(--accent)">onChange</code>. This is the standard, recommended React pattern (vs "uncontrolled" inputs that manage their own internal DOM state, accessed via refs).</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Complete Controlled Form</span></div>
+        <pre><code><span class="kw">function</span> <span class="fn">SignupForm</span>() {
+  <span class="kw">const</span> [formData, setFormData] <span class="op">=</span> <span class="fn">useState</span>({
+    name: <span class="str">''</span>,
+    email: <span class="str">''</span>,
+    role: <span class="str">'user'</span>,
+    subscribe: <span class="bool">false</span>
+  });
+  <span class="kw">const</span> [errors, setErrors] <span class="op">=</span> <span class="fn">useState</span>({});
+
+  <span class="cm">// ── ONE handler for ALL inputs (using the 'name' attribute) ──</span>
+  <span class="kw">function</span> <span class="fn">handleChange</span>(e) {
+    <span class="kw">const</span> { name, value, type, checked } <span class="op">=</span> e.target;
+    setFormData(prev <span class="op">=&gt;</span> ({
+      ...prev,
+      [name]: type <span class="op">===</span> <span class="str">'checkbox'</span> <span class="op">?</span> checked <span class="op">:</span> value  <span class="cm">// computed key!</span>
+    }));
+  }
+
+  <span class="kw">function</span> <span class="fn">handleSubmit</span>(e) {
+    e.<span class="fn">preventDefault</span>();  <span class="cm">// stop page reload</span>
+
+    <span class="kw">const</span> newErrors <span class="op">=</span> {};
+    <span class="kw">if</span> (<span class="op">!</span>formData.name.<span class="fn">trim</span>()) newErrors.name <span class="op">=</span> <span class="str">'Name is required'</span>;
+    <span class="kw">if</span> (<span class="op">!</span>formData.email.<span class="fn">includes</span>(<span class="str">'@'</span>)) newErrors.email <span class="op">=</span> <span class="str">'Invalid email'</span>;
+    setErrors(newErrors);
+
+    <span class="kw">if</span> (<span class="cls">Object</span>.<span class="fn">keys</span>(newErrors).<span class="prop">length</span> <span class="op">===</span> <span class="num">0</span>) {
+      <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Submitting:'</span>, formData);
+      <span class="cm">// send to API here</span>
+    }
+  }
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">form</span> <span class="at">onSubmit</span><span class="op">=</span><span class="op">{</span>handleSubmit<span class="op">}</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">input</span>
+        <span class="at">name</span><span class="op">=</span><span class="str">"name"</span>
+        <span class="at">value</span><span class="op">=</span><span class="op">{</span>formData.name<span class="op">}</span>      <span class="cm">// ← controlled: value comes FROM state</span>
+        <span class="at">onChange</span><span class="op">=</span><span class="op">{</span>handleChange<span class="op">}</span>  <span class="cm">// ← every keystroke updates state</span>
+        <span class="at">placeholder</span><span class="op">=</span><span class="str">"Name"</span>
+      <span class="op">/&gt;</span>
+      <span class="op">{</span>errors.name <span class="op">&amp;&amp;</span> <span class="op">&lt;</span><span class="tg">span</span> <span class="at">className</span><span class="op">=</span><span class="str">"error"</span><span class="op">&gt;</span><span class="op">{</span>errors.name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">span</span><span class="op">&gt;</span><span class="op">}</span>
+
+      <span class="op">&lt;</span><span class="tg">input</span>
+        <span class="at">name</span><span class="op">=</span><span class="str">"email"</span>
+        <span class="at">type</span><span class="op">=</span><span class="str">"email"</span>
+        <span class="at">value</span><span class="op">=</span><span class="op">{</span>formData.email<span class="op">}</span>
+        <span class="at">onChange</span><span class="op">=</span><span class="op">{</span>handleChange<span class="op">}</span>
+        <span class="at">placeholder</span><span class="op">=</span><span class="str">"Email"</span>
+      <span class="op">/&gt;</span>
+      <span class="op">{</span>errors.email <span class="op">&amp;&amp;</span> <span class="op">&lt;</span><span class="tg">span</span> <span class="at">className</span><span class="op">=</span><span class="str">"error"</span><span class="op">&gt;</span><span class="op">{</span>errors.email<span class="op">}</span><span class="op">&lt;/</span><span class="tg">span</span><span class="op">&gt;</span><span class="op">}</span>
+
+      <span class="op">&lt;</span><span class="tg">select</span> <span class="at">name</span><span class="op">=</span><span class="str">"role"</span> <span class="at">value</span><span class="op">=</span><span class="op">{</span>formData.role<span class="op">}</span> <span class="at">onChange</span><span class="op">=</span><span class="op">{</span>handleChange<span class="op">}</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="tg">option</span> <span class="at">value</span><span class="op">=</span><span class="str">"user"</span><span class="op">&gt;</span>User<span class="op">&lt;/</span><span class="tg">option</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="tg">option</span> <span class="at">value</span><span class="op">=</span><span class="str">"admin"</span><span class="op">&gt;</span>Admin<span class="op">&lt;/</span><span class="tg">option</span><span class="op">&gt;</span>
+      <span class="op">&lt;/</span><span class="tg">select</span><span class="op">&gt;</span>
+
+      <span class="op">&lt;</span><span class="tg">label</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="tg">input</span>
+          <span class="at">type</span><span class="op">=</span><span class="str">"checkbox"</span>
+          <span class="at">name</span><span class="op">=</span><span class="str">"subscribe"</span>
+          <span class="at">checked</span><span class="op">=</span><span class="op">{</span>formData.subscribe<span class="op">}</span>   <span class="cm">// checkboxes use 'checked' not 'value'</span>
+          <span class="at">onChange</span><span class="op">=</span><span class="op">{</span>handleChange<span class="op">}</span>
+        <span class="op">/&gt;</span>
+        Subscribe to newsletter
+      <span class="op">&lt;/</span><span class="tg">label</span><span class="op">&gt;</span>
+
+      <span class="op">&lt;</span><span class="tg">button</span> <span class="at">type</span><span class="op">=</span><span class="str">"submit"</span><span class="op">&gt;</span>Sign Up<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">form</span><span class="op">&gt;</span>
+  );
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 8: useRef & Other Hooks ── -->
+    <div class="section" id="other-hooks">
+      <div class="section-header">
+        <div class="section-icon icon-orange">🔧</div>
+        <div>
+          <div class="section-title">useRef & A Glimpse of Other Hooks</div>
+          <div class="section-subtitle">Accessing DOM nodes directly and storing values that don't trigger re-renders</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>useRef — A Mutable Box That Doesn't Cause Re-renders</h4>
+        <p><code style="color:var(--accent)">useRef</code> creates a mutable object that persists across renders, but — unlike state — changing it does NOT trigger a re-render. It's most commonly used to directly access a DOM element (like focusing an input) or to store a value you need to remember without it affecting rendering.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — useRef Examples</span></div>
+        <pre><code><span class="kw">import</span> { useRef, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="cm">// ── EXAMPLE 1: Focusing an input on mount ──</span>
+<span class="kw">function</span> <span class="fn">SearchInput</span>() {
+  <span class="kw">const</span> inputRef <span class="op">=</span> <span class="fn">useRef</span>(<span class="kw">null</span>);  <span class="cm">// starts as null</span>
+
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    inputRef.current.<span class="fn">focus</span>();  <span class="cm">// .current holds the actual DOM node after mount</span>
+  }, []);
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">input</span> <span class="at">ref</span><span class="op">=</span><span class="op">{</span>inputRef<span class="op">}</span> <span class="at">placeholder</span><span class="op">=</span><span class="str">"Auto-focused!"</span> <span class="op">/&gt;</span>;
+}
+
+<span class="cm">// ── EXAMPLE 2: Storing a value WITHOUT causing re-renders ──</span>
+<span class="kw">function</span> <span class="fn">RenderCounter</span>() {
+  <span class="kw">const</span> renderCount <span class="op">=</span> <span class="fn">useRef</span>(<span class="num">0</span>);
+  renderCount.current <span class="op">+=</span> <span class="num">1</span>;  <span class="cm">// changing this does NOT trigger a re-render</span>
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>This component has rendered <span class="op">{</span>renderCount.current<span class="op">}</span> times<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;
+}
+
+<span class="cm">// ── EXAMPLE 3: Storing the previous value of a state variable ──</span>
+<span class="kw">function</span> <span class="fn">Counter</span>() {
+  <span class="kw">const</span> [count, setCount] <span class="op">=</span> <span class="fn">useState</span>(<span class="num">0</span>);
+  <span class="kw">const</span> prevCountRef <span class="op">=</span> <span class="fn">useRef</span>();
+
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    prevCountRef.current <span class="op">=</span> count; <span class="cm">// save AFTER render, becomes "previous" on next render</span>
+  }, [count]);
+
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Now: <span class="op">{</span>count<span class="op">}</span>, Before: <span class="op">{</span>prevCountRef.current<span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;
+}</code></pre>
+      </div>
+
+      <div class="grid-2">
+        <div class="mini-card">
+          <h5>useState vs useRef</h5>
+          <p><strong>useState:</strong> changing it triggers a re-render; value is "visible" in JSX.<br/><strong>useRef:</strong> changing <code>.current</code> does NOT trigger a re-render; used for DOM access or "remembering" values silently.</p>
+        </div>
+        <div class="mini-card">
+          <h5>Hooks coming later</h5>
+          <p><code>useContext</code> (Day 10 — share state app-wide), <code>useMemo</code> / <code>useCallback</code> (performance optimization), <code>useReducer</code> (complex state logic) — all build on the useState/useEffect foundation from today.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 9: Real Project ── -->
+    <div class="section" id="fullexample">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🚀</div>
+        <div>
+          <div class="section-title">Real Project: Complete Todo App</div>
+          <div class="section-subtitle">Combining useState, useEffect, controlled forms, and list rendering</div>
+        </div>
+      </div>
+
+      <div class="realworld">
+        <div class="realworld-label">🏢 Real World</div>
+        <h4>A Todo app is the "Hello World" of React interviews</h4>
+        <p>It's commonly assigned in technical screening rounds because it tests state management, list rendering, controlled inputs, and localStorage persistence — all in one small project.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Complete Todo App with localStorage Persistence</span></div>
+        <pre><code><span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">TodoApp</span>() {
+  <span class="kw">const</span> [todos, setTodos] <span class="op">=</span> <span class="fn">useState</span>(() <span class="op">=&gt;</span> {
+    <span class="cm">// Lazy initial state — function runs ONLY on first render (good for expensive ops)</span>
+    <span class="kw">const</span> saved <span class="op">=</span> localStorage.<span class="fn">getItem</span>(<span class="str">'todos'</span>);
+    <span class="kw">return</span> saved <span class="op">?</span> <span class="cls">JSON</span>.<span class="fn">parse</span>(saved) <span class="op">:</span> [];
+  });
+  <span class="kw">const</span> [input, setInput] <span class="op">=</span> <span class="fn">useState</span>(<span class="str">''</span>);
+  <span class="kw">const</span> [filter, setFilter] <span class="op">=</span> <span class="fn">useState</span>(<span class="str">'all'</span>); <span class="cm">// 'all' | 'active' | 'completed'</span>
+
+  <span class="cm">// ── Persist todos to localStorage whenever they change ──</span>
+  <span class="fn">useEffect</span>(() <span class="op">=&gt;</span> {
+    localStorage.<span class="fn">setItem</span>(<span class="str">'todos'</span>, <span class="cls">JSON</span>.<span class="fn">stringify</span>(todos));
+  }, [todos]);
+
+  <span class="kw">function</span> <span class="fn">addTodo</span>(e) {
+    e.<span class="fn">preventDefault</span>();
+    <span class="kw">if</span> (<span class="op">!</span>input.<span class="fn">trim</span>()) <span class="kw">return</span>;
+
+    setTodos(prev <span class="op">=&gt;</span> [...prev, { id: <span class="cls">Date</span>.<span class="fn">now</span>(), text: input.<span class="fn">trim</span>(), done: <span class="bool">false</span> }]);
+    setInput(<span class="str">''</span>);  <span class="cm">// clear the input after adding</span>
+  }
+
+  <span class="kw">function</span> <span class="fn">toggleTodo</span>(id) {
+    setTodos(prev <span class="op">=&gt;</span> prev.<span class="fn">map</span>(t <span class="op">=&gt;</span>
+      t.id <span class="op">===</span> id <span class="op">?</span> { ...t, done: <span class="op">!</span>t.done } <span class="op">:</span> t
+    ));
+  }
+
+  <span class="kw">function</span> <span class="fn">deleteTodo</span>(id) {
+    setTodos(prev <span class="op">=&gt;</span> prev.<span class="fn">filter</span>(t <span class="op">=&gt;</span> t.id <span class="op">!==</span> id));
+  }
+
+  <span class="kw">const</span> filteredTodos <span class="op">=</span> todos.<span class="fn">filter</span>(t <span class="op">=&gt;</span> {
+    <span class="kw">if</span> (filter <span class="op">===</span> <span class="str">'active'</span>) <span class="kw">return</span> <span class="op">!</span>t.done;
+    <span class="kw">if</span> (filter <span class="op">===</span> <span class="str">'completed'</span>) <span class="kw">return</span> t.done;
+    <span class="kw">return</span> <span class="bool">true</span>; <span class="cm">// 'all'</span>
+  });
+
+  <span class="kw">const</span> activeCount <span class="op">=</span> todos.<span class="fn">filter</span>(t <span class="op">=&gt;</span> <span class="op">!</span>t.done).<span class="prop">length</span>;
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"todo-app"</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span>My Todos<span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>
+
+      <span class="op">&lt;</span><span class="tg">form</span> <span class="at">onSubmit</span><span class="op">=</span><span class="op">{</span>addTodo<span class="op">}</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="tg">input</span>
+          <span class="at">value</span><span class="op">=</span><span class="op">{</span>input<span class="op">}</span>
+          <span class="at">onChange</span><span class="op">=</span><span class="op">{</span>(e) <span class="op">=&gt;</span> setInput(e.target.value)<span class="op">}</span>
+          <span class="at">placeholder</span><span class="op">=</span><span class="str">"What needs to be done?"</span>
+        <span class="op">/&gt;</span>
+        <span class="op">&lt;</span><span class="tg">button</span> <span class="at">type</span><span class="op">=</span><span class="str">"submit"</span><span class="op">&gt;</span>Add<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+      <span class="op">&lt;/</span><span class="tg">form</span><span class="op">&gt;</span>
+
+      <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"filters"</span><span class="op">&gt;</span>
+        <span class="op">{</span>[<span class="str">'all'</span>, <span class="str">'active'</span>, <span class="str">'completed'</span>].<span class="fn">map</span>(f <span class="op">=&gt;</span> (
+          <span class="op">&lt;</span><span class="tg">button</span>
+            <span class="at">key</span><span class="op">=</span><span class="op">{</span>f<span class="op">}</span>
+            <span class="at">className</span><span class="op">=</span><span class="op">{</span>filter <span class="op">===</span> f <span class="op">?</span> <span class="str">'active'</span> <span class="op">:</span> <span class="str">''</span><span class="op">}</span>
+            <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>() <span class="op">=&gt;</span> setFilter(f)<span class="op">}</span>
+          <span class="op">&gt;</span>
+            <span class="op">{</span>f<span class="op">}</span>
+          <span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+        ))<span class="op">}</span>
+      <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+
+      <span class="op">{</span>filteredTodos.<span class="prop">length</span> <span class="op">===</span> <span class="num">0</span> <span class="op">?</span> (
+        <span class="op">&lt;</span><span class="tg">p</span> <span class="at">className</span><span class="op">=</span><span class="str">"empty"</span><span class="op">&gt;</span>No todos here!<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+      ) <span class="op">:</span> (
+        <span class="op">&lt;</span><span class="tg">ul</span><span class="op">&gt;</span>
+          <span class="op">{</span>filteredTodos.<span class="fn">map</span>(todo <span class="op">=&gt;</span> (
+            <span class="op">&lt;</span><span class="tg">li</span> <span class="at">key</span><span class="op">=</span><span class="op">{</span>todo.id<span class="op">}</span> <span class="at">className</span><span class="op">=</span><span class="op">{</span>todo.done <span class="op">?</span> <span class="str">'done'</span> <span class="op">:</span> <span class="str">''</span><span class="op">}</span><span class="op">&gt;</span>
+              <span class="op">&lt;</span><span class="tg">input</span>
+                <span class="at">type</span><span class="op">=</span><span class="str">"checkbox"</span>
+                <span class="at">checked</span><span class="op">=</span><span class="op">{</span>todo.done<span class="op">}</span>
+                <span class="at">onChange</span><span class="op">=</span><span class="op">{</span>() <span class="op">=&gt;</span> <span class="fn">toggleTodo</span>(todo.id)<span class="op">}</span>
+              <span class="op">/&gt;</span>
+              <span class="op">&lt;</span><span class="tg">span</span><span class="op">&gt;</span><span class="op">{</span>todo.text<span class="op">}</span><span class="op">&lt;/</span><span class="tg">span</span><span class="op">&gt;</span>
+              <span class="op">&lt;</span><span class="tg">button</span> <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>() <span class="op">=&gt;</span> <span class="fn">deleteTodo</span>(todo.id)<span class="op">}</span><span class="op">&gt;</span>✕<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+            <span class="op">&lt;/</span><span class="tg">li</span><span class="op">&gt;</span>
+          ))<span class="op">}</span>
+        <span class="op">&lt;/</span><span class="tg">ul</span><span class="op">&gt;</span>
+      )<span class="op">}</span>
+
+      <span class="op">&lt;</span><span class="tg">p</span> <span class="at">className</span><span class="op">=</span><span class="str">"counter"</span><span class="op">&gt;</span><span class="op">{</span>activeCount<span class="op">}</span> tasks left<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="kw">export</span> <span class="kw">default</span> TodoApp;</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 10: Interview Q&A ── -->
+    <div class="section" id="interview">
+      <div class="section-header">
+        <div class="section-icon icon-yellow">🎯</div>
+        <div>
+          <div class="section-title">Placement Interview Q&A</div>
+          <div class="section-subtitle">Top React state & hooks questions for company interviews</div>
+        </div>
+      </div>
+
+      <ul class="qa-list">
+        <li class="qa-item">
+          <div class="qa-q">Q1. What is the difference between state and props?</div>
+          <div class="qa-a">Props are passed into a component from its parent and are read-only — a component cannot modify its own props. State is data that a component owns and manages internally, and it CAN be changed via its setter function — when it changes, React re-renders that component. Props flow down (parent to child, unidirectional); state is local to wherever it's declared. If a child needs to "change" something, the parent passes down a function as a prop that the child calls — the actual state mutation happens wherever the state was declared with useState.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q2. Why can't you mutate state directly in React? Give an example.</div>
+          <div class="qa-a">React determines whether to re-render by comparing the reference of the new state to the old state (not deeply inspecting values). If you mutate an array or object in place (e.g., todos.push(newTodo) or user.name = 'New'), the reference stays exactly the same, so React doesn't detect any change and won't re-render — even though the data technically changed. You must always create a NEW object/array using spread syntax, map, or filter, e.g., setTodos([...todos, newTodo]) or setUser({...user, name: 'New'}), so React sees a new reference and knows to update the UI.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q3. What does the dependency array in useEffect control?</div>
+          <div class="qa-a">It controls when the effect re-runs. No array at all means the effect runs after every render. An empty array [] means it runs only once, after the initial render (commonly used for one-time data fetching). An array with values like [userId] means the effect re-runs whenever any value in that array changes between renders, in addition to running once on mount. Forgetting to include a value that the effect actually uses is a common bug — it causes the effect to use a stale, outdated value because it never re-runs to pick up the new one.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q4. What is a cleanup function in useEffect and when do you need one?</div>
+          <div class="qa-a">A cleanup function is returned from inside the useEffect callback, and React runs it automatically right before the effect re-runs (due to a dependency change) and when the component unmounts. You need one whenever your effect sets up something ongoing that should be torn down — like a setInterval/setTimeout timer, an event listener (addEventListener), or a subscription. Without cleanup, these continue running even after the component is gone, causing memory leaks, duplicate listeners, or "setState called on an unmounted component" warnings.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q5. What is "lifting state up" and why would you do it?</div>
+          <div class="qa-a">Lifting state up means moving a piece of state from a child component to its closest common parent, so that multiple sibling components can share and stay synchronized with that same state. For example, if a SearchBar and a ResultsList are siblings but ResultsList needs to know what's typed in SearchBar, you move the "query" state to their shared parent component, then pass the value down to ResultsList as a prop and pass an update function down to SearchBar as a prop. This keeps a single source of truth instead of each component having its own disconnected copy of the data.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q6. What does it mean for an input to be "controlled" in React?</div>
+          <div class="qa-a">A controlled input is one whose value is fully driven by React state — the input's "value" attribute is set to a state variable, and every change (onChange) updates that state variable, which then re-renders the input with the new value. This makes React state the single source of truth for the form data at all times, which makes validation, conditional logic, and submitting the data straightforward. The opposite is an "uncontrolled" input, which manages its own value internally in the DOM and is accessed via a ref only when needed (e.g., on submit), rather than on every keystroke.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q7. What is the difference between useState and useRef?</div>
+          <div class="qa-a">useState stores a value AND triggers a re-render of the component whenever that value is updated via its setter — the value is meant to be reflected visually in the JSX. useRef also persists a value across renders, but updating ref.current does NOT trigger a re-render — it's used for accessing DOM nodes directly (like focusing an input) or remembering a value (like a previous state, a timer ID, or a render count) without needing the component to visually update because of it.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q8. Why does calling a state setter not immediately update the variable in the same function?</div>
+          <div class="qa-a">State updates in React are asynchronous and batched for performance — calling setCount(count + 1) schedules a re-render rather than mutating the variable synchronously in place. So console.log(count) immediately after calling the setter still shows the OLD value, because the actual update and re-render happen after the current function finishes executing. If you need to perform multiple sequential updates based on the latest value (especially when calling the setter multiple times in a row), use the functional form: setCount(prevCount => prevCount + 1), which always receives the most up-to-date state value, avoiding bugs where rapid updates seem to "skip" increments.</div>
+        </li>
+      </ul>
+
+      <div class="highlight-box green" style="margin-top:24px">
+        <strong>🎯 Day 9 Checklist — Before Day 10:</strong><br/>
+        ✓ Can explain state vs props with examples &nbsp;|&nbsp;
+        ✓ Comfortable updating object/array state immutably &nbsp;|&nbsp;
+        ✓ Know all 3 dependency array patterns in useEffect &nbsp;|&nbsp;
+        ✓ Always clean up timers/listeners in useEffect &nbsp;|&nbsp;
+        ✓ Can build a controlled form with validation &nbsp;|&nbsp;
+        ✓ Built (or can rebuild) a working Todo app from memory
+      </div>
+    </div>
+
+  </div>
+
+  <div class="day-nav">
+    <div class="day-nav-info">Previous<strong>Day 8 — React Basics</strong></div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="day-nav-info" style="text-align:right">Next up<strong>Day 10 — React Advanced: Context API & React Router</strong></div>
+      <button class="next-btn" onclick="window.location.href='day10.html'">Day 10 →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const navLinks = document.querySelectorAll('.nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) link.classList.add('active');
+        });
+      }
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
