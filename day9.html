@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Day 8 — React.js Basics | Full Stack Placement Prep</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0d0f14;--surface:#13161e;--surface2:#1a1e2a;--border:#252a38;
+      --accent:#61dafb;--accent2:#fbbf24;--accent3:#34d399;--text:#e8eaf0;
+      --muted:#7a8099;--code-bg:#0a0c11;--tag-bg:#1e2230;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:16px;line-height:1.7;}
+    .sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:24px 0;}
+    .sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+    .day-badge{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+    .sidebar-logo h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;}
+    .nav-section-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:12px 20px 6px;}
+    .nav-item{display:block;padding:8px 20px;color:var(--muted);text-decoration:none;font-size:13.5px;font-weight:500;border-left:2px solid transparent;transition:all 0.2s;}
+    .nav-item:hover,.nav-item.active{color:var(--text);background:var(--surface2);border-left-color:var(--accent);}
+    .main{margin-left:240px;min-height:100vh;}
+    .hero{background:linear-gradient(135deg,#0d0f14 0%,#0a1a1f 50%,#0d0f14 100%);border-bottom:1px solid var(--border);padding:64px 60px 56px;position:relative;overflow:hidden;}
+    .hero::before{content:'⚛';position:absolute;right:60px;top:50%;transform:translateY(-50%);font-size:160px;color:var(--border);pointer-events:none;line-height:1;}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+    .hero-eyebrow span{width:24px;height:1px;background:var(--accent);display:inline-block;}
+    .hero h1{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;line-height:1.1;margin-bottom:16px;}
+    .hero h1 em{font-style:normal;color:var(--accent);}
+    .hero-sub{font-size:17px;color:var(--muted);max-width:540px;margin-bottom:32px;}
+    .hero-tags{display:flex;flex-wrap:wrap;gap:10px;}
+    .tag{background:var(--tag-bg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12.5px;font-family:'JetBrains Mono',monospace;color:var(--accent2);}
+    .progress-strip{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 60px;display:flex;align-items:center;gap:16px;}
+    .progress-label{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);white-space:nowrap;}
+    .progress-bar-track{flex:1;height:4px;background:var(--border);border-radius:2px;}
+    .progress-bar-fill{height:100%;width:26.66%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:2px;}
+    .progress-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);}
+    .content{padding:0 60px 80px;}
+    .section{padding:56px 0 0;border-top:1px solid var(--border);margin-top:56px;}
+    .section:first-child{margin-top:0;padding-top:48px;border-top:none;}
+    .section-header{display:flex;align-items:flex-start;gap:20px;margin-bottom:32px;}
+    .section-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;margin-top:2px;}
+    .icon-cyan{background:rgba(97,218,251,0.12);}.icon-yellow{background:rgba(251,191,36,0.12);}
+    .icon-green{background:rgba(52,211,153,0.12);}.icon-purple{background:rgba(167,139,250,0.12);}
+    .icon-orange{background:rgba(251,146,60,0.12);}.icon-pink{background:rgba(236,72,153,0.12);}
+    .section-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:6px;}
+    .section-subtitle{font-size:14px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .theory-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 32px;margin-bottom:20px;}
+    .theory-block h4{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--accent);margin-bottom:12px;}
+    .theory-block p{font-size:15px;line-height:1.75;margin-bottom:10px;}
+    .theory-block p:last-child{margin-bottom:0;}
+    .highlight-box{border-left:3px solid var(--accent);background:rgba(97,218,251,0.06);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;font-size:14.5px;}
+    .highlight-box.yellow{border-left-color:var(--accent2);background:rgba(251,191,36,0.06);}
+    .highlight-box.green{border-left-color:var(--accent3);background:rgba(52,211,153,0.06);}
+    .highlight-box.red{border-left-color:#f87171;background:rgba(248,113,113,0.06);}
+    .code-wrapper{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;margin:20px 0;overflow:hidden;}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--surface2);border-bottom:1px solid var(--border);}
+    .code-dots{display:flex;gap:6px;}
+    .code-dots span{width:10px;height:10px;border-radius:50%;}
+    .dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+    .code-lang{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+    .code-wrapper pre{padding:22px 24px;overflow-x:auto;margin:0;}
+    .code-wrapper code{font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.8;}
+    .kw{color:#c792ea;}.str{color:#c3e88d;}.num{color:#f78c6c;}.cm{color:#546e7a;font-style:italic;}
+    .fn{color:#82aaff;}.prop{color:#f07178;}.bool{color:#ff9d00;}.op{color:#89ddff;}.cls{color:#ffcb6b;}.tg{color:#f07178;}.at{color:#ffcb6b;}
+    .realworld{background:linear-gradient(135deg,rgba(97,218,251,0.05),rgba(52,211,153,0.05));border:1px solid rgba(97,218,251,0.2);border-radius:12px;padding:24px 28px;margin:24px 0;}
+    .realworld-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+    .realworld h4{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:10px;}
+    .realworld p{font-size:14.5px;color:var(--muted);line-height:1.7;}
+    .qa-list{list-style:none;display:flex;flex-direction:column;gap:14px;margin-top:20px;}
+    .qa-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 22px;}
+    .qa-q{font-weight:600;color:var(--accent);font-size:14.5px;margin-bottom:8px;}
+    .qa-a{font-size:14px;color:var(--muted);line-height:1.65;}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+    .mini-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
+    .mini-card h5{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent);}
+    .mini-card p{font-size:13.5px;color:var(--muted);line-height:1.6;}
+    .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+    .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:14.5px;}
+    .checklist li::before{content:'✓';color:var(--accent3);font-weight:700;font-size:14px;margin-top:1px;flex-shrink:0;}
+    .demo-area{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;}
+    .demo-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
+    .comp-table{width:100%;border-collapse:collapse;margin:16px 0;border-radius:12px;overflow:hidden;border:1px solid var(--border);}
+    .comp-table th{background:var(--surface2);padding:11px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
+    .comp-table td{padding:11px 16px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:top;}
+    .comp-table tr:last-child td{border-bottom:none;}
+    .comp-table tr:hover td{background:var(--surface2);}
+    .comp-table td:first-child{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:13px;}
+    .comp-table td:last-child{color:var(--muted);font-size:13px;}
+    /* Component tree visual */
+    .tree-node{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--accent);display:inline-block;}
+    .day-nav{background:var(--surface);border-top:1px solid var(--border);padding:24px 60px;display:flex;align-items:center;justify-content:space-between;}
+    .day-nav-info{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+    .day-nav-info strong{color:var(--text);font-size:14px;display:block;margin-top:4px;}
+    .next-btn{background:var(--accent);color:#0d0f14;border:none;border-radius:8px;padding:10px 22px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:opacity 0.2s;}
+    .next-btn:hover{opacity:0.85;}
+    ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+    @media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;}.hero{padding:40px 24px 36px;}.hero h1{font-size:34px;}.hero::before{display:none;}.content{padding:0 24px 60px;}.progress-strip,.day-nav{padding:14px 24px;}.grid-2{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="day-badge">Day 08 / 30</div>
+    <h2>React.js Basics</h2>
+  </div>
+  <div class="nav-section-label">Topics</div>
+  <a class="nav-item active" href="#intro">What is React?</a>
+  <a class="nav-item" href="#setup">Setting Up React</a>
+  <a class="nav-item" href="#jsx">JSX Deep Dive</a>
+  <a class="nav-item" href="#components">Components</a>
+  <a class="nav-item" href="#props">Props</a>
+  <a class="nav-item" href="#composition">Component Composition</a>
+  <a class="nav-item" href="#rendering-lists">Rendering Lists & Keys</a>
+  <a class="nav-item" href="#conditional">Conditional Rendering</a>
+  <a class="nav-item" href="#fullexample">Real Component Example</a>
+  <a class="nav-item" href="#interview">Interview Q&A</a>
+</nav>
+
+<div class="main">
+  <div class="progress-strip">
+    <span class="progress-label">30-Day Journey</span>
+    <div class="progress-bar-track"><div class="progress-bar-fill"></div></div>
+    <span class="progress-pct">Day 8</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-eyebrow"><span></span>Full Stack Placement Prep</div>
+    <h1>Day 8 — <em>React.js</em><br/>Basics</h1>
+    <p class="hero-sub">The most in-demand frontend library. Master JSX, components, and props — the building blocks of every modern web application you'll work on.</p>
+    <div class="hero-tags">
+      <span class="tag">JSX</span><span class="tag">Components</span><span class="tag">Props</span>
+      <span class="tag">Composition</span><span class="tag">Keys & Lists</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── SECTION 1: Intro ── -->
+    <div class="section" id="intro">
+      <div class="section-header">
+        <div class="section-icon icon-cyan">⚛️</div>
+        <div>
+          <div class="section-title">What is React?</div>
+          <div class="section-subtitle">A JavaScript library for building user interfaces — not a framework</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>React's Core Idea</h4>
+        <p>React is a <strong>JavaScript library</strong> (not a full framework like Angular) created by Facebook/Meta in 2013, for building user interfaces out of reusable <strong>components</strong>. Its core philosophy: describe WHAT the UI should look like for any given state, and React figures out HOW to efficiently update the actual DOM to match.</p>
+        <p>Before React, developers manually manipulated the DOM with code like <code style="color:var(--accent)">document.getElementById(...).innerHTML = ...</code> everywhere — which becomes unmanageable as apps grow. React introduced a <strong>declarative</strong> approach: you write components that describe the UI based on data, and React handles all the DOM updates automatically when that data changes.</p>
+        <div class="highlight-box">
+          <strong>Declarative vs Imperative:</strong> Imperative = "click button → find the element → manually change its text → manually update the counter display." Declarative (React) = "the counter display should ALWAYS show {count}" — you just update count, and React re-renders the UI to match automatically.
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>The Virtual DOM</h4>
+        <p>React maintains a lightweight, in-memory copy of the real DOM called the <strong>Virtual DOM</strong>. When state changes, React: (1) creates a new Virtual DOM tree representing the updated UI, (2) compares ("diffs") it against the previous Virtual DOM tree, (3) calculates the minimal set of actual DOM changes needed, and (4) applies only those changes to the real DOM. This is far faster than re-rendering the entire page on every change.</p>
+      </div>
+
+      <div class="theory-block">
+        <h4>Why Companies Want React Developers</h4>
+        <p>React (and its ecosystem — Next.js, React Native) dominates the frontend job market. Component-based architecture means teams can build, test, and reuse UI pieces independently. Most Ahmedabad web development job postings for "Full Stack Developer" or "Frontend Developer" explicitly require React experience.</p>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: Setup ── -->
+    <div class="section" id="setup">
+      <div class="section-header">
+        <div class="section-icon icon-yellow">⚙️</div>
+        <div>
+          <div class="section-title">Setting Up a React Project</div>
+          <div class="section-subtitle">Vite — the modern, fast way to start a React app</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Vite vs Create React App</h4>
+        <p><strong>Vite</strong> is the current industry standard for starting new React projects — it's dramatically faster than the older <code style="color:var(--accent)">create-react-app</code> (which is now deprecated) because it uses native ES modules during development instead of bundling everything upfront.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Bash — Creating a New React App</span></div>
+        <pre><code><span class="cm"># Create a new React project with Vite</span>
+npm create vite@latest my-app -- <span class="gflag">--template</span> react
+
+<span class="kw">cd</span> my-app
+npm install
+npm run dev          <span class="cm"># starts dev server, usually at http://localhost:5173</span>
+
+<span class="cm"># Production build</span>
+npm run build        <span class="cm"># creates optimized dist/ folder for deployment</span>
+
+<span class="cm"># ── PROJECT STRUCTURE ──</span>
+<span class="cm">/*
+my-app/
+├── node_modules/
+├── public/              ← static assets served as-is
+├── src/
+│   ├── App.jsx           ← root component
+│   ├── main.jsx          ← entry point, renders App into the DOM
+│   ├── index.css
+│   └── components/       ← your reusable components live here
+├── index.html            ← single HTML file (SPA)
+├── package.json
+└── vite.config.js
+*/</span></code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Entry Point (main.jsx)</span></div>
+        <pre><code><span class="kw">import</span> { StrictMode } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> { createRoot } <span class="kw">from</span> <span class="str">'react-dom/client'</span>;
+<span class="kw">import</span> App <span class="kw">from</span> <span class="str">'./App.jsx'</span>;
+
+<span class="cm">// Find the &lt;div id="root"&gt; in index.html and mount the React app inside it</span>
+createRoot(document.<span class="fn">getElementById</span>(<span class="str">'root'</span>)).<span class="fn">render</span>(
+  <span class="op">&lt;</span><span class="cls">StrictMode</span><span class="op">&gt;</span>
+    <span class="op">&lt;</span><span class="cls">App</span> <span class="op">/&gt;</span>
+  <span class="op">&lt;/</span><span class="cls">StrictMode</span><span class="op">&gt;</span>
+);
+<span class="cm">// StrictMode highlights potential problems during development (no effect in production)</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: JSX ── -->
+    <div class="section" id="jsx">
+      <div class="section-header">
+        <div class="section-icon icon-green">📝</div>
+        <div>
+          <div class="section-title">JSX — Deep Dive</div>
+          <div class="section-subtitle">JavaScript + XML — writing UI structure directly in JavaScript</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What is JSX?</h4>
+        <p><strong>JSX (JavaScript XML)</strong> is a syntax extension that lets you write HTML-like markup directly inside JavaScript. Browsers can't run JSX directly — a build tool (Vite, using Babel/esbuild under the hood) compiles JSX into plain JavaScript function calls before the code runs.</p>
+        <div class="highlight-box">
+          <strong>Under the hood:</strong> <code>&lt;h1&gt;Hello&lt;/h1&gt;</code> compiles to <code>React.createElement('h1', null, 'Hello')</code>. JSX is just syntax sugar over regular function calls that create React elements (plain JS objects describing what should appear on screen).
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Rules and Syntax</span></div>
+        <pre><code><span class="cm">// ── RULE 1: Must return a SINGLE root element ──</span>
+<span class="kw">function</span> <span class="fn">Bad</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span>Title<span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>
+    <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Text<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>  <span class="cm">// ❌ Error — two root elements, JSX needs ONE parent</span>
+  );
+}
+
+<span class="kw">function</span> <span class="fn">Good</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span>Title<span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Text<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>  <span class="cm">// ✅ wrapped in one parent div</span>
+  );
+}
+
+<span class="cm">// Fragment (&lt;&gt;...&lt;/&gt;) — group elements WITHOUT adding an extra DOM node</span>
+<span class="kw">function</span> <span class="fn">Better</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span>Title<span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Text<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+    <span class="op">&lt;/&gt;</span>  <span class="cm">// ✅ no extra &lt;div&gt; wrapper added to the actual DOM</span>
+  );
+}
+
+<span class="cm">// ── RULE 2: Use {} to embed JavaScript expressions ──</span>
+<span class="kw">function</span> <span class="fn">Greeting</span>() {
+  <span class="kw">const</span> name <span class="op">=</span> <span class="str">'Poorv'</span>;
+  <span class="kw">const</span> age  <span class="op">=</span> <span class="num">21</span>;
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span>Hello, <span class="op">{</span>name<span class="op">}</span>!<span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>          <span class="cm">// embeds a variable</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Next year you'll be <span class="op">{</span>age <span class="op">+</span> <span class="num">1</span><span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>  <span class="cm">// embeds an EXPRESSION</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span><span class="op">{</span>name.<span class="fn">toUpperCase</span>()<span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>           <span class="cm">// can call functions/methods</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+<span class="cm">// ⚠️ JSX can only embed EXPRESSIONS, not statements
+// {if (x) {...}} ❌ doesn't work — use ternary instead: {x ? ... : ...}</span>
+
+<span class="cm">// ── RULE 3: className NOT class, htmlFor NOT for (JS reserved words) ──</span>
+<span class="kw">function</span> <span class="fn">Styled</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"card"</span><span class="op">&gt;</span>          <span class="cm">// NOT class= (class is a JS reserved word)</span>
+      <span class="op">&lt;</span><span class="tg">label</span> <span class="at">htmlFor</span><span class="op">=</span><span class="str">"email"</span><span class="op">&gt;</span>Email<span class="op">&lt;/</span><span class="tg">label</span><span class="op">&gt;</span>  <span class="cm">// NOT for=</span>
+      <span class="op">&lt;</span><span class="tg">input</span> <span class="at">id</span><span class="op">=</span><span class="str">"email"</span> <span class="at">onChange</span><span class="op">=</span><span class="op">{</span>handleChange<span class="op">}</span> <span class="op">/&gt;</span>  <span class="cm">// camelCase events</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── RULE 4: Self-closing tags need a slash ──</span>
+<span class="op">&lt;</span><span class="tg">img</span> <span class="at">src</span><span class="op">=</span><span class="str">"photo.jpg"</span> <span class="op">/&gt;</span>   <span class="cm">// ✅ correct</span>
+<span class="cm">// &lt;img src="photo.jpg"&gt;     ❌ missing slash — JSX requires it for void elements</span>
+
+<span class="cm">// ── RULE 5: Inline styles use an OBJECT, not a string ──</span>
+<span class="kw">function</span> <span class="fn">InlineStyled</span>() {
+  <span class="kw">const</span> styles <span class="op">=</span> { color: <span class="str">'blue'</span>, fontSize: <span class="str">'20px'</span> }; <span class="cm">// camelCase keys!</span>
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">p</span> <span class="at">style</span><span class="op">=</span><span class="op">{</span>styles<span class="op">}</span><span class="op">&gt;</span>Styled text<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;
+  <span class="cm">// or inline directly: &lt;p style={{ color: 'blue', fontSize: '20px' }}&gt;</span>
+  <span class="cm">// (double braces: outer = JS expression, inner = the object itself)</span>
+}
+
+<span class="cm">// ── RULE 6: Comments inside JSX use {/* */} ──</span>
+<span class="kw">function</span> <span class="fn">Commented</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">{/*</span> This is a JSX comment — NOT // or &lt;!-- --&gt; <span class="op">*/}</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Content<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: Components ── -->
+    <div class="section" id="components">
+      <div class="section-header">
+        <div class="section-icon icon-purple">🧩</div>
+        <div>
+          <div class="section-title">Components</div>
+          <div class="section-subtitle">The fundamental building block of every React application</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What is a Component?</h4>
+        <p>A component is a reusable, independent piece of UI — essentially a JavaScript function that returns JSX describing what should render. Component names MUST start with a capital letter (this is how React/JSX distinguishes a custom component <code style="color:var(--accent)">&lt;UserCard /&gt;</code> from a regular HTML tag <code style="color:var(--accent)">&lt;div&gt;</code>).</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Function Components</span></div>
+        <pre><code><span class="cm">// ── BASIC FUNCTION COMPONENT (the modern standard — always use this) ──</span>
+<span class="kw">function</span> <span class="fn">Welcome</span>() {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span>Welcome to my site!<span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>;
+}
+
+<span class="cm">// Arrow function syntax (equally valid, very common)</span>
+<span class="kw">const</span> Welcome2 <span class="op">=</span> () <span class="op">=&gt;</span> {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span>Welcome!<span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>;
+};
+
+<span class="cm">// Implicit return (no curly braces — for simple components)</span>
+<span class="kw">const</span> Welcome3 <span class="op">=</span> () <span class="op">=&gt;</span> <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span>Welcome!<span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>;
+
+<span class="cm">// ── USING a component — just like an HTML tag ──</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">Welcome</span> <span class="op">/&gt;</span>    <span class="cm">// renders the Welcome component</span>
+      <span class="op">&lt;</span><span class="cls">Welcome</span> <span class="op">/&gt;</span>    <span class="cm">// reusable — render it as many times as needed</span>
+      <span class="op">&lt;</span><span class="cls">Welcome</span> <span class="op">/&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── EXPORTING & IMPORTING components across files (one component per file) ──</span>
+<span class="cm">// In Welcome.jsx:</span>
+<span class="kw">function</span> <span class="fn">Welcome</span>() {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span>Welcome!<span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>;
+}
+<span class="kw">export</span> <span class="kw">default</span> Welcome;     <span class="cm">// default export — one per file</span>
+
+<span class="cm">// In App.jsx:</span>
+<span class="kw">import</span> Welcome <span class="kw">from</span> <span class="str">'./Welcome.jsx'</span>;  <span class="cm">// import it wherever needed</span>
+
+<span class="cm">// ── COMPONENT FILE NAMING CONVENTION ──</span>
+<span class="cm">// PascalCase for both component name AND file name:
+// UserProfile.jsx, ProductCard.jsx, NavBar.jsx</span></code></pre>
+      </div>
+
+      <div class="theory-block">
+        <h4>Component Tree — How Apps Are Structured</h4>
+        <p>A React app is a tree of components, starting from one root (usually <code style="color:var(--accent)">App</code>) and branching into smaller, focused components — similar to how HTML elements nest, but each piece is independent and reusable.</p>
+      </div>
+
+      <div class="demo-area">
+        <div class="demo-label">📐 Visual: Typical Component Tree</div>
+        <div style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2.4;color:var(--muted);">
+          <div class="tree-node">App</div>
+          <div>↙　　　　　↓　　　　　↘</div>
+          <div>
+            <span class="tree-node">Navbar</span>　　
+            <span class="tree-node">ProductList</span>　　
+            <span class="tree-node">Footer</span>
+          </div>
+          <div style="margin-top:6px;">　　　　　　　　↙　　　↘</div>
+          <div>　　　　　<span class="tree-node" style="font-size:11px;">ProductCard</span>　<span class="tree-node" style="font-size:11px;">ProductCard</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 5: Props ── -->
+    <div class="section" id="props">
+      <div class="section-header">
+        <div class="section-icon icon-orange">📦</div>
+        <div>
+          <div class="section-title">Props</div>
+          <div class="section-subtitle">Passing data from parent to child components</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>What are Props?</h4>
+        <p><strong>Props (properties)</strong> are how data flows from a parent component to a child component — similar to function arguments. Props are <strong>read-only</strong> — a component must never modify its own props directly (this is one of React's core rules). Data flows in ONE direction: parent → child (called "unidirectional data flow").</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Props Complete</span></div>
+        <pre><code><span class="cm">// ── PASSING props (parent component) ──</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">UserCard</span> <span class="at">name</span><span class="op">=</span><span class="str">"Poorv"</span> <span class="at">age</span><span class="op">=</span><span class="op">{</span><span class="num">21</span><span class="op">}</span> <span class="at">isStudent</span><span class="op">=</span><span class="op">{</span><span class="bool">true</span><span class="op">}</span> <span class="op">/&gt;</span>
+      <span class="op">&lt;</span><span class="cls">UserCard</span> <span class="at">name</span><span class="op">=</span><span class="str">"Riya"</span> <span class="at">age</span><span class="op">=</span><span class="op">{</span><span class="num">23</span><span class="op">}</span> <span class="at">isStudent</span><span class="op">=</span><span class="op">{</span><span class="bool">false</span><span class="op">}</span> <span class="op">/&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── RECEIVING props (child component) — via the function parameter ──</span>
+<span class="kw">function</span> <span class="fn">UserCard</span>(props) {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"card"</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h3</span><span class="op">&gt;</span><span class="op">{</span>props.name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">h3</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Age: <span class="op">{</span>props.age<span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span><span class="op">{</span>props.isStudent <span class="op">?</span> <span class="str">'Student'</span> <span class="op">:</span> <span class="str">'Professional'</span><span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── DESTRUCTURING props (the modern, preferred style — used constantly) ──</span>
+<span class="kw">function</span> <span class="fn">UserCard</span>({ name, age, isStudent }) {  <span class="cm">// destructure right in the parameter</span>
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"card"</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h3</span><span class="op">&gt;</span><span class="op">{</span>name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">h3</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Age: <span class="op">{</span>age<span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span><span class="op">{</span>isStudent <span class="op">?</span> <span class="str">'Student'</span> <span class="op">:</span> <span class="str">'Professional'</span><span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── DEFAULT PROP VALUES ──</span>
+<span class="kw">function</span> <span class="fn">Avatar</span>({ src, size <span class="op">=</span> <span class="num">50</span>, alt <span class="op">=</span> <span class="str">'User avatar'</span> }) {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">img</span> <span class="at">src</span><span class="op">=</span><span class="op">{</span>src<span class="op">}</span> <span class="at">width</span><span class="op">=</span><span class="op">{</span>size<span class="op">}</span> <span class="at">alt</span><span class="op">=</span><span class="op">{</span>alt<span class="op">}</span> <span class="op">/&gt;</span>;
+}
+<span class="op">&lt;</span><span class="cls">Avatar</span> <span class="at">src</span><span class="op">=</span><span class="str">"photo.jpg"</span> <span class="op">/&gt;</span>            <span class="cm">// uses default size=50</span>
+<span class="op">&lt;</span><span class="cls">Avatar</span> <span class="at">src</span><span class="op">=</span><span class="str">"photo.jpg"</span> <span class="at">size</span><span class="op">=</span><span class="op">{</span><span class="num">100</span><span class="op">}</span> <span class="op">/&gt;</span>  <span class="cm">// overrides default</span>
+
+<span class="cm">// ── PASSING an OBJECT as a single prop ──</span>
+<span class="kw">const</span> user <span class="op">=</span> { name: <span class="str">'Poorv'</span>, age: <span class="num">21</span>, city: <span class="str">'Junagadh'</span> };
+<span class="op">&lt;</span><span class="cls">UserCard</span> <span class="at">user</span><span class="op">=</span><span class="op">{</span>user<span class="op">}</span> <span class="op">/&gt;</span>             <span class="cm">// pass whole object as ONE prop</span>
+
+<span class="kw">function</span> <span class="fn">UserCard</span>({ user }) {            <span class="cm">// receive the object</span>
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">h3</span><span class="op">&gt;</span><span class="op">{</span>user.name<span class="op">}</span> from <span class="op">{</span>user.city<span class="op">}</span><span class="op">&lt;/</span><span class="tg">h3</span><span class="op">&gt;</span>;
+}
+
+<span class="cm">// Or spread individual values as separate props:</span>
+<span class="op">&lt;</span><span class="cls">UserCard</span> <span class="op">{</span>...user<span class="op">}</span> <span class="op">/&gt;</span>           <span class="cm">// equivalent to name={user.name} age={user.age} city={user.city}</span>
+
+<span class="cm">// ── PASSING FUNCTIONS as props (for child-to-parent communication) ──</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">function</span> <span class="fn">handleLike</span>(productId) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">`Liked product <span class="op">${</span>productId<span class="op">}</span>`</span>);
+  }
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="cls">ProductCard</span> <span class="at">id</span><span class="op">=</span><span class="op">{</span><span class="num">1</span><span class="op">}</span> <span class="at">onLike</span><span class="op">=</span><span class="op">{</span>handleLike<span class="op">}</span> <span class="op">/&gt;</span>;
+}
+
+<span class="kw">function</span> <span class="fn">ProductCard</span>({ id, onLike }) {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">button</span> <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>() <span class="op">=&gt;</span> <span class="fn">onLike</span>(id)<span class="op">}</span><span class="op">&gt;</span>Like<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>;
+}
+<span class="cm">// This is THE pattern for letting a child trigger something in its parent</span>
+
+<span class="cm">// ── children prop — special prop for nested JSX content ──</span>
+<span class="kw">function</span> <span class="fn">Card</span>({ children }) {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"card"</span><span class="op">&gt;</span><span class="op">{</span>children<span class="op">}</span><span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>;
+}
+<span class="op">&lt;</span><span class="cls">Card</span><span class="op">&gt;</span>
+  <span class="op">&lt;</span><span class="tg">h2</span><span class="op">&gt;</span>Title<span class="op">&lt;/</span><span class="tg">h2</span><span class="op">&gt;</span>
+  <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>This whole block becomes props.children<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+<span class="op">&lt;/</span><span class="cls">Card</span><span class="op">&gt;</span></code></pre>
+      </div>
+
+      <div class="highlight-box red">
+        <strong>Critical rule:</strong> Props are READ-ONLY. A component must NEVER modify its own props (e.g., <code>props.name = 'New'</code> ❌). If a child needs to change something, the parent passes down a FUNCTION as a prop, and the child calls that function — the actual state change happens in the parent (or wherever the state lives). This is the foundation for understanding state management, covered tomorrow.
+      </div>
+    </div>
+
+    <!-- ── SECTION 6: Composition ── -->
+    <div class="section" id="composition">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🪆</div>
+        <div>
+          <div class="section-title">Component Composition</div>
+          <div class="section-subtitle">Building complex UIs from small, focused pieces</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>Composition Over Configuration</h4>
+        <p>Instead of building one giant component with dozens of props to control every variation, React encourages <strong>composition</strong> — building small, focused components and combining them. This is more flexible and maintainable.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Composition Example</span></div>
+        <pre><code><span class="cm">// ── BREAKING a page into small, reusable components ──</span>
+
+<span class="kw">function</span> <span class="fn">Avatar</span>({ src, alt }) {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">img</span> <span class="at">className</span><span class="op">=</span><span class="str">"avatar"</span> <span class="at">src</span><span class="op">=</span><span class="op">{</span>src<span class="op">}</span> <span class="at">alt</span><span class="op">=</span><span class="op">{</span>alt<span class="op">}</span> <span class="op">/&gt;</span>;
+}
+
+<span class="kw">function</span> <span class="fn">Badge</span>({ text, color }) {
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">span</span> <span class="at">className</span><span class="op">=</span><span class="op">{</span><span class="str">`badge badge-<span class="op">${</span>color<span class="op">}</span>`</span><span class="op">}</span><span class="op">&gt;</span><span class="op">{</span>text<span class="op">}</span><span class="op">&lt;/</span><span class="tg">span</span><span class="op">&gt;</span>;
+}
+
+<span class="kw">function</span> <span class="fn">UserHeader</span>({ user }) {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"user-header"</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">Avatar</span> <span class="at">src</span><span class="op">=</span><span class="op">{</span>user.avatar<span class="op">}</span> <span class="at">alt</span><span class="op">=</span><span class="op">{</span>user.name<span class="op">}</span> <span class="op">/&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h2</span><span class="op">&gt;</span><span class="op">{</span>user.name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">h2</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">Badge</span> <span class="at">text</span><span class="op">=</span><span class="str">"Pro Member"</span> <span class="at">color</span><span class="op">=</span><span class="str">"gold"</span> <span class="op">/&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── COMPOSING with children (slot pattern — very flexible) ──</span>
+<span class="kw">function</span> <span class="fn">Modal</span>({ title, children, onClose }) {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"modal-overlay"</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"modal"</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"modal-header"</span><span class="op">&gt;</span>
+          <span class="op">&lt;</span><span class="tg">h2</span><span class="op">&gt;</span><span class="op">{</span>title<span class="op">}</span><span class="op">&lt;/</span><span class="tg">h2</span><span class="op">&gt;</span>
+          <span class="op">&lt;</span><span class="tg">button</span> <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>onClose<span class="op">}</span><span class="op">&gt;</span>✕<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+        <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+        <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"modal-body"</span><span class="op">&gt;</span>
+          <span class="op">{</span>children<span class="op">}</span>  <span class="cm">// ← whatever content the caller passes in goes HERE</span>
+        <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── REUSING the same Modal shell with DIFFERENT content ──</span>
+<span class="op">&lt;</span><span class="cls">Modal</span> <span class="at">title</span><span class="op">=</span><span class="str">"Confirm Delete"</span> <span class="at">onClose</span><span class="op">=</span><span class="op">{</span>closeModal<span class="op">}</span><span class="op">&gt;</span>
+  <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Are you sure you want to delete this item?<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+  <span class="op">&lt;</span><span class="tg">button</span><span class="op">&gt;</span>Yes, delete<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+<span class="op">&lt;/</span><span class="cls">Modal</span><span class="op">&gt;</span>
+
+<span class="op">&lt;</span><span class="cls">Modal</span> <span class="at">title</span><span class="op">=</span><span class="str">"Edit Profile"</span> <span class="at">onClose</span><span class="op">=</span><span class="op">{</span>closeModal<span class="op">}</span><span class="op">&gt;</span>
+  <span class="op">&lt;</span><span class="cls">ProfileForm</span> <span class="op">/&gt;</span>
+<span class="op">&lt;/</span><span class="cls">Modal</span><span class="op">&gt;</span>
+<span class="cm">// Same Modal shell, completely different content — that's the power of composition</span></code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 7: Rendering Lists ── -->
+    <div class="section" id="rendering-lists">
+      <div class="section-header">
+        <div class="section-icon icon-green">📋</div>
+        <div>
+          <div class="section-title">Rendering Lists & Keys</div>
+          <div class="section-subtitle">Turning arrays of data into UI — used in literally every app</div>
+        </div>
+      </div>
+
+      <div class="theory-block">
+        <h4>map() to Render Lists</h4>
+        <p>To render a list of items in React, you use the <code style="color:var(--accent)">.map()</code> array method (covered Day 5) to transform an array of data into an array of JSX elements.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Rendering Lists with Keys</span></div>
+        <pre><code><span class="kw">const</span> products <span class="op">=</span> [
+  { id: <span class="num">1</span>, name: <span class="str">'Laptop'</span>, price: <span class="num">55000</span> },
+  { id: <span class="num">2</span>, name: <span class="str">'Mouse'</span>,  price: <span class="num">499</span> },
+  { id: <span class="num">3</span>, name: <span class="str">'Keyboard'</span>, price: <span class="num">1299</span> },
+];
+
+<span class="kw">function</span> <span class="fn">ProductList</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">ul</span><span class="op">&gt;</span>
+      <span class="op">{</span>products.<span class="fn">map</span>((product) <span class="op">=&gt;</span> (
+        <span class="op">&lt;</span><span class="tg">li</span> <span class="at">key</span><span class="op">=</span><span class="op">{</span>product.id<span class="op">}</span><span class="op">&gt;</span>           <span class="cm">// 'key' is REQUIRED — unique per item</span>
+          <span class="op">{</span>product.name<span class="op">}</span> - ₹<span class="op">{</span>product.price<span class="op">}</span>
+        <span class="op">&lt;/</span><span class="tg">li</span><span class="op">&gt;</span>
+      ))<span class="op">}</span>
+    <span class="op">&lt;/</span><span class="tg">ul</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── USING a separate component PER item (more realistic pattern) ──</span>
+<span class="kw">function</span> <span class="fn">ProductCard</span>({ product }) {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"product-card"</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h3</span><span class="op">&gt;</span><span class="op">{</span>product.name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">h3</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>₹<span class="op">{</span>product.price<span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="kw">function</span> <span class="fn">ProductGrid</span>() {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"grid"</span><span class="op">&gt;</span>
+      <span class="op">{</span>products.<span class="fn">map</span>((product) <span class="op">=&gt;</span> (
+        <span class="op">&lt;</span><span class="cls">ProductCard</span> <span class="at">key</span><span class="op">=</span><span class="op">{</span>product.id<span class="op">}</span> <span class="at">product</span><span class="op">=</span><span class="op">{</span>product<span class="op">}</span> <span class="op">/&gt;</span>
+      ))<span class="op">}</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}</code></pre>
+      </div>
+
+      <div class="theory-block">
+        <h4>Why Keys Matter So Much</h4>
+        <p>The <code style="color:var(--accent)">key</code> prop helps React identify which items have changed, been added, or removed between re-renders — without it, React falls back to re-rendering the entire list inefficiently, and can cause real bugs with component state mismatching items.</p>
+      </div>
+
+      <div class="highlight-box red">
+        <strong>⚠️ Never use array index as a key</strong> if the list can be reordered, filtered, or items can be added/removed from the middle — <code>key={index}</code> causes React to mismatch state across re-renders (e.g., text typed into the wrong input after deleting an item above it). ALWAYS use a stable, unique ID from your data (like a database id) as the key. Index-as-key is only acceptable for completely static lists that never change order or length.
+      </div>
+    </div>
+
+    <!-- ── SECTION 8: Conditional Rendering ── -->
+    <div class="section" id="conditional">
+      <div class="section-header">
+        <div class="section-icon icon-yellow">🔀</div>
+        <div>
+          <div class="section-title">Conditional Rendering</div>
+          <div class="section-subtitle">Showing different UI based on data — every app needs this</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — All Conditional Rendering Patterns</span></div>
+        <pre><code><span class="cm">// ── PATTERN 1: && for "render only if true" ──</span>
+<span class="kw">function</span> <span class="fn">Notification</span>({ hasUnread, count }) {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">{</span>hasUnread <span class="op">&amp;&amp;</span> <span class="op">&lt;</span><span class="tg">span</span> <span class="at">className</span><span class="op">=</span><span class="str">"badge"</span><span class="op">&gt;</span><span class="op">{</span>count<span class="op">}</span><span class="op">&lt;/</span><span class="tg">span</span><span class="op">&gt;</span><span class="op">}</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+<span class="cm">// ⚠️ GOTCHA: if count is 0, {0 && &lt;Badge /&gt;} renders the LITERAL "0" on screen!
+// Because 0 is falsy but it's still a renderable value. Fix: {count > 0 && &lt;Badge /&gt;}</span>
+
+<span class="cm">// ── PATTERN 2: Ternary for "render A or B" ──</span>
+<span class="kw">function</span> <span class="fn">LoginButton</span>({ isLoggedIn }) {
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span>
+      <span class="op">{</span>isLoggedIn <span class="op">?</span> (
+        <span class="op">&lt;</span><span class="tg">button</span><span class="op">&gt;</span>Log Out<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+      ) <span class="op">:</span> (
+        <span class="op">&lt;</span><span class="tg">button</span><span class="op">&gt;</span>Log In<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+      )<span class="op">}</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="cm">// ── PATTERN 3: Early return for "don't render anything" ──</span>
+<span class="kw">function</span> <span class="fn">UserGreeting</span>({ user }) {
+  <span class="kw">if</span> (<span class="op">!</span>user) {
+    <span class="kw">return</span> <span class="kw">null</span>;  <span class="cm">// renders nothing — completely valid in React</span>
+  }
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span>Welcome back, <span class="op">{</span>user.name<span class="op">}</span>!<span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>;
+}
+
+<span class="cm">// ── PATTERN 4: if/else BEFORE the return (for complex logic) ──</span>
+<span class="kw">function</span> <span class="fn">StatusMessage</span>({ status }) {
+  <span class="kw">let</span> message;
+  <span class="kw">if</span> (status <span class="op">===</span> <span class="str">'loading'</span>) {
+    message <span class="op">=</span> <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>Loading...<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;
+  } <span class="kw">else</span> <span class="kw">if</span> (status <span class="op">===</span> <span class="str">'error'</span>) {
+    message <span class="op">=</span> <span class="op">&lt;</span><span class="tg">p</span> <span class="at">className</span><span class="op">=</span><span class="str">"error"</span><span class="op">&gt;</span>Something went wrong<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;
+  } <span class="kw">else</span> {
+    message <span class="op">=</span> <span class="op">&lt;</span><span class="tg">p</span><span class="op">&gt;</span>All good!<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;
+  }
+  <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">div</span><span class="op">&gt;</span><span class="op">{</span>message<span class="op">}</span><span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>;
+}
+
+<span class="cm">// ── PATTERN 5: switch for multiple distinct states ──</span>
+<span class="kw">function</span> <span class="fn">OrderStatus</span>({ status }) {
+  <span class="kw">switch</span> (status) {
+    <span class="kw">case</span> <span class="str">'pending'</span>:   <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">span</span> <span class="at">className</span><span class="op">=</span><span class="str">"badge-yellow"</span><span class="op">&gt;</span>Pending<span class="op">&lt;/</span><span class="tg">span</span><span class="op">&gt;</span>;
+    <span class="kw">case</span> <span class="str">'shipped'</span>:   <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">span</span> <span class="at">className</span><span class="op">=</span><span class="str">"badge-blue"</span><span class="op">&gt;</span>Shipped<span class="op">&lt;/</span><span class="tg">span</span><span class="op">&gt;</span>;
+    <span class="kw">case</span> <span class="str">'delivered'</span>: <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">span</span> <span class="at">className</span><span class="op">=</span><span class="str">"badge-green"</span><span class="op">&gt;</span>Delivered<span class="op">&lt;/</span><span class="tg">span</span><span class="op">&gt;</span>;
+    <span class="kw">default</span>:         <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">span</span><span class="op">&gt;</span>Unknown<span class="op">&lt;/</span><span class="tg">span</span><span class="op">&gt;</span>;
+  }
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 9: Real Example ── -->
+    <div class="section" id="fullexample">
+      <div class="section-header">
+        <div class="section-icon icon-cyan">🚀</div>
+        <div>
+          <div class="section-title">Real Component: Product Catalog</div>
+          <div class="section-subtitle">Combining JSX, components, props, lists, and conditionals into a complete feature</div>
+        </div>
+      </div>
+
+      <div class="realworld">
+        <div class="realworld-label">🏢 Real World</div>
+        <h4>This is the exact structure companies expect you to build</h4>
+        <p>A product catalog page — search, filter, list rendering, conditional empty states — is one of the most common assignments given in technical interviews and real e-commerce projects at Ahmedabad companies.</p>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JSX — Complete Product Catalog (no state yet — that's Day 9)</span></div>
+        <pre><code><span class="cm">// ── ProductCard.jsx ──</span>
+<span class="kw">function</span> <span class="fn">ProductCard</span>({ product, onAddToCart }) {
+  <span class="kw">const</span> { name, price, image, inStock } <span class="op">=</span> product;
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"product-card"</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">img</span> <span class="at">src</span><span class="op">=</span><span class="op">{</span>image<span class="op">}</span> <span class="at">alt</span><span class="op">=</span><span class="op">{</span>name<span class="op">}</span> <span class="op">/&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h3</span><span class="op">&gt;</span><span class="op">{</span>name<span class="op">}</span><span class="op">&lt;/</span><span class="tg">h3</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">p</span> <span class="at">className</span><span class="op">=</span><span class="str">"price"</span><span class="op">&gt;</span>₹<span class="op">{</span>price.<span class="fn">toLocaleString</span>()<span class="op">}</span><span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>
+
+      <span class="op">{</span>inStock <span class="op">?</span> (
+        <span class="op">&lt;</span><span class="tg">button</span> <span class="at">onClick</span><span class="op">=</span><span class="op">{</span>() <span class="op">=&gt;</span> <span class="fn">onAddToCart</span>(product)<span class="op">}</span><span class="op">&gt;</span>
+          Add to Cart
+        <span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+      ) <span class="op">:</span> (
+        <span class="op">&lt;</span><span class="tg">button</span> <span class="at">disabled</span><span class="op">&gt;</span>Out of Stock<span class="op">&lt;/</span><span class="tg">button</span><span class="op">&gt;</span>
+      )<span class="op">}</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="kw">export</span> <span class="kw">default</span> ProductCard;
+
+<span class="cm">// ── ProductGrid.jsx ──</span>
+<span class="kw">import</span> ProductCard <span class="kw">from</span> <span class="str">'./ProductCard'</span>;
+
+<span class="kw">function</span> <span class="fn">ProductGrid</span>({ products, onAddToCart }) {
+  <span class="kw">if</span> (products.<span class="prop">length</span> <span class="op">===</span> <span class="num">0</span>) {
+    <span class="kw">return</span> <span class="op">&lt;</span><span class="tg">p</span> <span class="at">className</span><span class="op">=</span><span class="str">"empty-state"</span><span class="op">&gt;</span>No products found.<span class="op">&lt;/</span><span class="tg">p</span><span class="op">&gt;</span>;
+  }
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"product-grid"</span><span class="op">&gt;</span>
+      <span class="op">{</span>products.<span class="fn">map</span>((product) <span class="op">=&gt;</span> (
+        <span class="op">&lt;</span><span class="cls">ProductCard</span>
+          <span class="at">key</span><span class="op">=</span><span class="op">{</span>product.id<span class="op">}</span>
+          <span class="at">product</span><span class="op">=</span><span class="op">{</span>product<span class="op">}</span>
+          <span class="at">onAddToCart</span><span class="op">=</span><span class="op">{</span>onAddToCart<span class="op">}</span>
+        <span class="op">/&gt;</span>
+      ))<span class="op">}</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="kw">export</span> <span class="kw">default</span> ProductGrid;
+
+<span class="cm">// ── App.jsx ──</span>
+<span class="kw">import</span> ProductGrid <span class="kw">from</span> <span class="str">'./ProductGrid'</span>;
+
+<span class="kw">const</span> sampleProducts <span class="op">=</span> [
+  { id: <span class="num">1</span>, name: <span class="str">'Wireless Mouse'</span>, price: <span class="num">799</span>, image: <span class="str">'/mouse.jpg'</span>, inStock: <span class="bool">true</span> },
+  { id: <span class="num">2</span>, name: <span class="str">'Mechanical Keyboard'</span>, price: <span class="num">3499</span>, image: <span class="str">'/keyboard.jpg'</span>, inStock: <span class="bool">false</span> },
+];
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">function</span> <span class="fn">handleAddToCart</span>(product) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Added to cart:'</span>, product.name);
+  }
+
+  <span class="kw">return</span> (
+    <span class="op">&lt;</span><span class="tg">div</span> <span class="at">className</span><span class="op">=</span><span class="str">"app"</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tg">h1</span><span class="op">&gt;</span>Our Products<span class="op">&lt;/</span><span class="tg">h1</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="cls">ProductGrid</span> <span class="at">products</span><span class="op">=</span><span class="op">{</span>sampleProducts<span class="op">}</span> <span class="at">onAddToCart</span><span class="op">=</span><span class="op">{</span>handleAddToCart<span class="op">}</span> <span class="op">/&gt;</span>
+    <span class="op">&lt;/</span><span class="tg">div</span><span class="op">&gt;</span>
+  );
+}
+
+<span class="kw">export</span> <span class="kw">default</span> App;</code></pre>
+      </div>
+    </div>
+
+    <!-- ── SECTION 10: Interview Q&A ── -->
+    <div class="section" id="interview">
+      <div class="section-header">
+        <div class="section-icon icon-pink">🎯</div>
+        <div>
+          <div class="section-title">Placement Interview Q&A</div>
+          <div class="section-subtitle">Top React fundamentals questions for Ahmedabad company interviews</div>
+        </div>
+      </div>
+
+      <ul class="qa-list">
+        <li class="qa-item">
+          <div class="qa-q">Q1. What is JSX and how is it different from HTML?</div>
+          <div class="qa-a">JSX (JavaScript XML) is a syntax extension that lets you write HTML-like markup inside JavaScript files. It's not actually HTML — it compiles to React.createElement() function calls via a build tool like Babel/Vite before the browser ever sees it. Key differences from HTML: attributes use camelCase (className not class, onClick not onclick), you embed JS expressions with curly braces {}, every element must be closed (including void elements like <img />), and a component must return a single root element (or a Fragment).</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q2. What is the difference between a React component and an HTML element in JSX?</div>
+          <div class="qa-a">JSX distinguishes them by capitalization: lowercase tags like <div> or <p> are treated as regular HTML elements, while capitalized tags like <UserCard /> are treated as references to your custom React components/functions. This is why component names and files MUST start with a capital letter (PascalCase) — if you name a component "usercard" instead of "UserCard", React/JSX will try to render it as an unknown HTML tag instead of your component.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q3. What are props and what does it mean that they're "read-only"?</div>
+          <div class="qa-a">Props (properties) are how a parent component passes data down to a child component, similar to function arguments. They are read-only/immutable from the child's perspective — a component must never directly modify its own props (e.g., props.value = 'new' is forbidden). This is part of React's unidirectional data flow principle: data flows down from parent to child, and if a child needs to "change" something, the parent passes a callback function as a prop, and the child calls that function to request the change — the actual mutation happens in the parent (or wherever the underlying state lives).</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q4. Why does React require a 'key' prop when rendering lists, and why shouldn't you use the array index as a key?</div>
+          <div class="qa-a">The key prop helps React's reconciliation algorithm identify which list items have changed, been added, moved, or removed between renders, so it can efficiently update only what's necessary instead of re-rendering the entire list. Using the array index as a key is problematic when the list order can change (sorting, filtering, inserting/removing items from the middle) — because the index shifts but doesn't represent the same logical item anymore, React can mismatch internal state (like an input's typed value) to the wrong item after a reorder. Always use a stable, unique identifier from your data (like a database ID) as the key instead.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q5. What is the children prop?</div>
+          <div class="qa-a">children is a special, automatically-passed prop that contains whatever JSX content is nested between a component's opening and closing tags. For example, &lt;Card&gt;&lt;h2&gt;Title&lt;/h2&gt;&lt;/Card&gt; — inside the Card component, props.children would be the &lt;h2&gt;Title&lt;/h2&gt; element. This enables the "composition" pattern, where a wrapper component (like a Modal, Card, or Layout) defines structure/styling and lets the calling code inject any custom content inside, rather than the wrapper needing dozens of props to handle every possible content variation.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q6. What is the difference between a React Fragment and a div wrapper?</div>
+          <div class="qa-a">JSX requires a component to return a single root element. If you don't actually want an extra wrapping element in the rendered DOM (for example, it would break your CSS grid/flex layout), you use a Fragment (&lt;&gt;...&lt;/&gt; or &lt;React.Fragment&gt;...&lt;/React.Fragment&gt;) instead of a &lt;div&gt;. A Fragment groups multiple JSX elements to satisfy the "single root" rule WITHOUT adding any actual node to the rendered HTML output, while a &lt;div&gt; wrapper does add an extra DOM element which could affect styling or semantics.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q7. How would you conditionally render a component based on a boolean value?</div>
+          <div class="qa-a">Several patterns: (1) Logical && operator for "render only if true": {isLoggedIn && &lt;Dashboard /&gt;} — but be careful, if the left side evaluates to 0 (a falsy but renderable value), React will literally render "0" on screen, so prefer explicit boolean checks. (2) Ternary operator for "render A or B": {isLoggedIn ? &lt;Dashboard /&gt; : &lt;LoginForm /&gt;}. (3) Early return with `if (!data) return null;` before the main JSX for "render nothing" cases. (4) if/else statements assigning to a variable before the return, for more complex branching logic.</div>
+        </li>
+        <li class="qa-item">
+          <div class="qa-q">Q8. What is the Virtual DOM and why does React use it?</div>
+          <div class="qa-a">The Virtual DOM is a lightweight, in-memory JavaScript representation of the actual browser DOM. When a component's data changes, React creates a new Virtual DOM tree reflecting the updated UI, compares ("diffs") it against the previous Virtual DOM tree to find exactly what changed, then applies only those minimal, specific changes to the real DOM. Directly manipulating the real DOM is comparatively slow because it triggers browser reflows/repaints; by batching and minimizing actual DOM operations through this diffing process, React achieves much better performance than naive re-rendering of the entire page on every change.</div>
+        </li>
+      </ul>
+
+      <div class="highlight-box green" style="margin-top:24px">
+        <strong>🎯 Day 8 Checklist — Before Day 9:</strong><br/>
+        ✓ Can explain JSX compilation and its key rules &nbsp;|&nbsp;
+        ✓ Comfortable writing and exporting function components &nbsp;|&nbsp;
+        ✓ Can pass and destructure props, including functions &nbsp;|&nbsp;
+        ✓ Know why keys matter and never use index for dynamic lists &nbsp;|&nbsp;
+        ✓ Can use children prop for composition &nbsp;|&nbsp;
+        ✓ Comfortable with all conditional rendering patterns
+      </div>
+    </div>
+
+  </div>
+
+  <div class="day-nav">
+    <div class="day-nav-info">Previous<strong>Day 7 — Git & GitHub</strong></div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="day-nav-info" style="text-align:right">Next up<strong>Day 9 — React Intermediate: State & Hooks (useState, useEffect)</strong></div>
+      <button class="next-btn" onclick="alert('Say \"Day 9\" to Claude to continue!')">Day 9 →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const navLinks = document.querySelectorAll('.nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) link.classList.add('active');
+        });
+      }
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
